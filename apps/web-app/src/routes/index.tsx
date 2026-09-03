@@ -17,7 +17,7 @@ function IndexPage(): React.JSX.Element {
         <a href="https://github.com/patricktree/create-audiobook-from-url">GitHub</a>.
       </p>
       <p>
-        conversions are available only through a supplied trial link - reach out to{" "}
+        Conversions are available only through a supplied trial link - reach out to{" "}
         <a href="mailto:patrick.kerschbaum@gmail.com">patrick.kerschbaum@gmail.com</a> to get one!
       </p>
     </MainSection>

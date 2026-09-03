@@ -26,7 +26,7 @@ test("shows the public portfolio page", async ({ page, workerEnvironment }) => {
     "https://github.com/patricktree/create-audiobook-from-url",
   );
   await expect(
-    page.getByText(/conversions are available only through a supplied trial link/),
+    page.getByText(/Conversions are available only through a supplied trial link/),
   ).toBeVisible();
   await captureScreenshot(page, "landing.png");
 });
