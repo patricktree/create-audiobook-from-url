@@ -1,0 +1,4 @@
+{
+  "description": "Selects the engineering content from the full prepared source page while excluding site navigation, calls to action, and footer content.",
+  "tags": ["long-form", "navigation-noise", "engineering"]
+}

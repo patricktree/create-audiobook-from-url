@@ -1,0 +1,58 @@
+{
+  "name": "@create-audiobook-from-url/monorepo-root",
+  "private": true,
+  "files": [
+    "./patches/**",
+    "./.pnpmfile.cjs",
+    "./.pnpmfile.mjs",
+    "./pnpm-lock.yaml",
+    "./pnpm-workspace.yaml",
+    "./postinstall.sh"
+  ],
+  "type": "module",
+  "scripts": {
+    "build": "turbo run turbo:build",
+    "build:watch": "turbo watch turbo:build",
+    "clean": "pnpm run --parallel clean && pnpm exec del-cli \"**/node_modules\" \"**/.turbo\"",
+    "declutter": "knip",
+    "fix": "pnpm run format && pnpm run lint:fix",
+    "format": "oxfmt .",
+    "format:check": "oxfmt --check .",
+    "lint": "turbo run turbo:lint",
+    "lint:fix": "turbo run turbo:lint:fix",
+    "operator": "node apps/operator/src/cli.ts",
+    "postinstall": "sh ./postinstall.sh",
+    "test": "turbo run turbo:test",
+    "test:e2e": "docker pull mcr.microsoft.com/playwright:v1.62.1-noble && pnpm run build && pnpm --filter '@create-audiobook-from-url/e2e' test:e2e",
+    "test:e2e:ui": "pnpm run build && pnpm --filter '@create-audiobook-from-url/e2e' test:e2e:ui",
+    "test:e2e:update": "docker pull mcr.microsoft.com/playwright:v1.62.1-noble && pnpm run build && pnpm --filter '@create-audiobook-from-url/e2e' test:e2e:update",
+    "validate": "turbo run turbo:build turbo:lint turbo:test && pnpm run declutter",
+    "zizmor": "uvx zizmor@1.29.0 --gh-token \"$(gh auth token)\" ."
+  },
+  "devDependencies": {
+    "@create-audiobook-from-url/config-oxlint": "workspace:*",
+    "@emnapi/core": "^1.11.3",
+    "@emnapi/runtime": "^1.11.3",
+    "@patricktree-stack/config-oxfmt": "workspace:*",
+    "cf": "^0.8.0",
+    "del-cli": "^7.0.0",
+    "eslint-plugin-react-you-might-not-need-an-effect": "^1.0.2",
+    "husky": "^9.1.7",
+    "knip": "^6.33.0",
+    "oxfmt": "catalog:",
+    "oxlint": "catalog:",
+    "oxlint-tsgolint": "catalog:",
+    "turbo": "^2.10.12"
+  },
+  "devEngines": {
+    "runtime": {
+      "name": "node",
+      "version": "^24.20.0",
+      "onFail": "download"
+    }
+  },
+  "engines": {
+    "pnpm": "12.2.1"
+  },
+  "packageManager": "pnpm@12.2.1"
+}

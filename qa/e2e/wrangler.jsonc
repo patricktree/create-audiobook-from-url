@@ -1,0 +1,40 @@
+{
+  "$schema": "./node_modules/wrangler/config-schema.json",
+  "name": "create-audiobook-from-url-e2e",
+  "main": "src/worker.ts",
+  "compatibility_date": "2026-08-18",
+  "rules": [{ "type": "Text", "globs": ["**/*.html"], "fallthrough": true }],
+  "assets": {
+    "directory": "../../apps/cloudflare-worker/dist/client",
+    "binding": "ASSETS",
+    "not_found_handling": "single-page-application",
+    "run_worker_first": true,
+  },
+  "workflows": [
+    {
+      "name": "create-audiobook-from-url-e2e",
+      "binding": "CREATE_AUDIOBOOK_FROM_URL_WORKFLOW",
+      "class_name": "CreateAudiobookFromUrlQaWorkflow",
+    },
+  ],
+  "durable_objects": {
+    "bindings": [
+      { "name": "CONVERSION_GRANTS", "class_name": "ConversionGrantDurableObject" },
+      {
+        "name": "CONVERSION_GRANT_REGISTRY",
+        "class_name": "ConversionGrantRegistryDurableObject",
+      },
+    ],
+  },
+  "migrations": [
+    {
+      "tag": "v1",
+      "new_sqlite_classes": [
+        "ConversionGrantDurableObject",
+        "ConversionGrantRegistryDurableObject",
+      ],
+    },
+  ],
+  "r2_buckets": [{ "binding": "AUDIO_BUCKET", "bucket_name": "create-audiobook-from-url-e2e" }],
+  "vars": { "QA_SCENARIO": "success" },
+}

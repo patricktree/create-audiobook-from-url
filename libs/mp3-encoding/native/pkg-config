@@ -1,0 +1,8 @@
+#!/bin/sh
+
+# LAME only needs the version probe; rejecting package lookups keeps optional host libraries out.
+if [ "${1:-}" = "--atleast-pkgconfig-version" ]; then
+  exit 0
+fi
+
+exit 1

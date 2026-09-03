@@ -1,0 +1,4 @@
+{
+  "description": "Selects the technical blog content from the full prepared source page while excluding site navigation, related content, subscription UI, and footer content.",
+  "tags": ["long-form", "navigation-noise", "engineering"]
+}

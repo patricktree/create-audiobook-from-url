@@ -1,0 +1,83 @@
+{
+  "$schema": "node_modules/wrangler/config-schema.json",
+  "name": "create-audiobook-from-url",
+  "main": "src/index.ts",
+  "compatibility_date": "2026-08-18",
+  "workers_dev": false,
+  "preview_urls": false,
+  "routes": [
+    {
+      "pattern": "create-audiobook-from-url.patricktree.me",
+      "custom_domain": true,
+    },
+  ],
+  "assets": {
+    "binding": "ASSETS",
+    "not_found_handling": "single-page-application",
+    "run_worker_first": true,
+  },
+  "observability": {
+    "enabled": true,
+    "logs": {
+      "enabled": true,
+      "invocation_logs": true,
+    },
+    "traces": {
+      "enabled": true,
+      "head_sampling_rate": 1,
+    },
+  },
+  "limits": {
+    "cpu_ms": 300000,
+  },
+  "upload_source_maps": true,
+  "browser": {
+    "binding": "BROWSER",
+  },
+  "workflows": [
+    {
+      "name": "create-audiobook-from-url",
+      "binding": "CREATE_AUDIOBOOK_FROM_URL_WORKFLOW",
+      "class_name": "CreateAudiobookFromUrlWorkflow",
+    },
+  ],
+  "durable_objects": {
+    "bindings": [
+      {
+        "name": "CONVERSION_GRANTS",
+        "class_name": "ConversionGrantDurableObject",
+      },
+      {
+        "name": "CONVERSION_GRANT_REGISTRY",
+        "class_name": "ConversionGrantRegistryDurableObject",
+      },
+    ],
+  },
+  "migrations": [
+    {
+      "tag": "v1",
+      "new_sqlite_classes": [
+        "ConversionGrantDurableObject",
+        "ConversionGrantRegistryDurableObject",
+      ],
+    },
+  ],
+  "ai": {
+    "binding": "AI",
+  },
+  "vars": {
+    "CLOUDFLARE_ACCOUNT_ID": "a7648178b6a63bb8a13f0c9de89d253f",
+    "OPERATOR_ACCESS_ISSUER": "https://patricktree.cloudflareaccess.com",
+    "OPERATOR_ACCESS_AUDIENCE": "eb0bf97161ed0be7fdbaa018493cc84d3b25332315cfa8fec3569570035e3461",
+    "OPERATOR_EMAIL": "patrick.kerschbaum@gmail.com",
+  },
+  "r2_buckets": [
+    {
+      "binding": "AUDIO_BUCKET",
+      "bucket_name": "create-audiobook-from-url-audio",
+    },
+  ],
+  "secrets": {
+    "required": ["CLOUDFLARE_API_KEY"],
+  },
+}

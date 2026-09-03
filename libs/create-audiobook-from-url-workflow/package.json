@@ -1,0 +1,69 @@
+{
+  "name": "@create-audiobook-from-url/create-audiobook-from-url-workflow",
+  "private": true,
+  "files": [
+    "src/**"
+  ],
+  "type": "module",
+  "imports": {
+    "#src/*.ts": {
+      "types": "./dist/types/*.d.ts",
+      "default": "./src/*.ts"
+    },
+    "#src/*": {
+      "types": "./dist/types/*",
+      "default": "./src/*"
+    }
+  },
+  "exports": {
+    "./package.json": "./package.json",
+    ".": {
+      "types": "./dist/types/workflow.d.ts",
+      "default": "./src/workflow.ts"
+    },
+    "./runner": {
+      "types": "./dist/types/run-create-audiobook-from-url-workflow.d.ts",
+      "default": "./src/run-create-audiobook-from-url-workflow.ts"
+    },
+    "./conversion-params": {
+      "types": "./dist/types/conversion-params.d.ts",
+      "default": "./src/conversion-params.ts"
+    }
+  },
+  "scripts": {
+    "build": "turbo run turbo:build",
+    "clean": "del-cli --dot=true \"dist\" \"*.tsbuildinfo\"",
+    "lint": "turbo run turbo:lint",
+    "lint:fix": "turbo run turbo:lint:fix",
+    "test": "vitest run",
+    "test:coverage": "vitest run --coverage",
+    "test:watch": "vitest",
+    "turbo:build": "tsc --build ./tsconfig.json",
+    "turbo:lint": "oxlint --type-aware --max-warnings 0 .",
+    "turbo:lint:fix": "pnpm run turbo:lint --fix",
+    "turbo:test": "pnpm run test"
+  },
+  "dependencies": {
+    "@cloudflare/playwright": "catalog:",
+    "@create-audiobook-from-url/audiobook-production": "workspace:*",
+    "@create-audiobook-from-url/conversion-grants": "workspace:*",
+    "@create-audiobook-from-url/narration-content-selection": "workspace:*",
+    "@create-audiobook-from-url/narration-document-creation": "workspace:*",
+    "@create-audiobook-from-url/prepare-source-material": "workspace:*",
+    "p-map": "^7.0.7",
+    "temporal-polyfill": "^1.0.4",
+    "zod": "^4.5.4"
+  },
+  "devDependencies": {
+    "@create-audiobook-from-url/config-oxlint": "workspace:*",
+    "@patricktree-stack/config-typescript": "workspace:*",
+    "@patricktree-stack/config-vitest": "workspace:*",
+    "@types/node": "catalog:",
+    "@typescript/native": "catalog:",
+    "@vitest/coverage-v8": "catalog:",
+    "oxlint": "catalog:",
+    "oxlint-tsgolint": "catalog:",
+    "typescript": "catalog:",
+    "vitest": "catalog:"
+  }
+}

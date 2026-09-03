@@ -1,0 +1,63 @@
+{
+  "name": "@create-audiobook-from-url/audiobook-production",
+  "private": true,
+  "files": [
+    "src/**"
+  ],
+  "type": "module",
+  "imports": {
+    "#src/*.ts": {
+      "types": "./dist/types/*.d.ts",
+      "default": "./src/*.ts"
+    },
+    "#src/*": {
+      "types": "./dist/types/*",
+      "default": "./src/*"
+    }
+  },
+  "exports": {
+    "./package.json": "./package.json",
+    ".": {
+      "types": "./dist/types/audiobook-production.d.ts",
+      "default": "./src/audiobook-production.ts"
+    },
+    "./fake": {
+      "types": "./dist/types/speech-synthesis-ai.fake.d.ts",
+      "default": "./src/speech-synthesis-ai.fake.ts"
+    }
+  },
+  "scripts": {
+    "build": "turbo run turbo:build",
+    "cf-typegen": "wrangler types --config ../../apps/cloudflare-worker/wrangler.jsonc --include-env=false worker-configuration.d.ts",
+    "cf-typegen:check": "pnpm run cf-typegen --check",
+    "clean": "del-cli --dot=true \"dist\" \"*.tsbuildinfo\" \".wrangler\"",
+    "lint": "turbo run turbo:lint",
+    "lint:fix": "turbo run turbo:lint:fix",
+    "test": "vitest run",
+    "test:coverage": "vitest run --coverage",
+    "test:watch": "vitest",
+    "turbo:build": "pnpm run cf-typegen:check && tsc --build ./tsconfig.json",
+    "turbo:lint": "oxlint --type-aware --max-warnings 0 .",
+    "turbo:lint:fix": "pnpm run turbo:lint --fix",
+    "turbo:test": "pnpm run test"
+  },
+  "dependencies": {
+    "@create-audiobook-from-url/mp3-encoding": "workspace:*",
+    "@create-audiobook-from-url/narration-document-creation": "workspace:*",
+    "zod": "^4.5.4"
+  },
+  "devDependencies": {
+    "@create-audiobook-from-url/config-oxlint": "workspace:*",
+    "@patricktree-stack/config-typescript": "workspace:*",
+    "@patricktree-stack/config-vitest": "workspace:*",
+    "@types/node": "catalog:",
+    "@typescript/native": "catalog:",
+    "@vitest/coverage-v8": "catalog:",
+    "fflate": "0.8.3",
+    "oxlint": "catalog:",
+    "oxlint-tsgolint": "catalog:",
+    "typescript": "catalog:",
+    "vitest": "catalog:",
+    "wrangler": "catalog:"
+  }
+}

@@ -1,0 +1,466 @@
+import { DurableObject } from "cloudflare:workers";
+
+import type { ConversionGrantRegistryDurableObject } from "#src/conversion-grant-registry-durable-object.ts";
+import { canonicalJson, encodeBase64Url } from "#src/encoding.ts";
+import { ConversionPhase } from "#src/grant-contracts.ts";
+import type {
+  ConversionFailureCategory,
+  GrantConversions,
+  GrantSnapshot,
+  OperatorGrantSnapshot,
+} from "#src/grant-contracts.ts";
+import type {
+  AudiobookReference,
+  ConversionMeasurements,
+  ExchangeCredentialResult,
+  GrantConversion,
+  GrantRegistrySnapshot,
+  GrantRecord,
+  PendingConversion,
+  StartGrantConversionResult,
+  TerminalOutcome,
+  ValidateSessionResult,
+} from "#src/grant-model.ts";
+import {
+  createGrantConversions,
+  createGrantRegistrySnapshot,
+  createGrantSnapshot,
+  createOperatorGrantSnapshot,
+  deriveGrantState,
+  deriveSlotCounts,
+  GRANT_SCHEMA_VERSION,
+  RECONCILIATION_CUTOFF_MS,
+} from "#src/grant-model.ts";
+import { signSession, verifyRootCredential, verifySession } from "#src/grant-session.ts";
+import { ConversionGrantSqlite } from "#src/grant-sqlite.ts";
+import { nowMilliseconds } from "#src/time.ts";
+
+const START_RATE_WINDOW_MS = 60_000;
+const START_RATE_LIMIT = 5;
+const RECONCILIATION_RETRY_MS = 60_000;
+const MAINTENANCE_RETRY_MS = 60 * 60 * 1_000;
+const CLEANUP_RETRY_CUTOFF_MS = 7 * 24 * 60 * 60 * 1_000;
+
+type ConversionGrantEnvironment = {
+  CREATE_AUDIOBOOK_FROM_URL_WORKFLOW: Workflow<{ sourceUrl: string; grantId: string }>;
+  AUDIO_BUCKET: R2Bucket;
+  CONVERSION_GRANT_REGISTRY: DurableObjectNamespace<ConversionGrantRegistryDurableObject>;
+};
+
+export class ConversionGrantDurableObject extends DurableObject<ConversionGrantEnvironment> {
+  private readonly sqlite: ConversionGrantSqlite;
+
+  constructor(context: DurableObjectState, env: ConversionGrantEnvironment) {
+    super(context, env);
+    this.sqlite = new ConversionGrantSqlite(context.storage);
+    void context.blockConcurrencyWhile(() => this.sqlite.applyMigrations());
+  }
+
+  async initialize(
+    grantId: string,
+    createdAtMs: number,
+    expiresAtMs: number,
+  ): Promise<GrantRegistrySnapshot> {
+    return this.ctx.storage.transaction(async () => {
+      const existing = await this.sqlite.load();
+      if (existing !== undefined) {
+        if (
+          existing.grantId !== grantId ||
+          existing.createdAtMs !== createdAtMs ||
+          existing.expiresAtMs !== expiresAtMs
+        ) {
+          throw new Error("Conversion grant initialization conflicts with authoritative identity");
+        }
+        return createGrantRegistrySnapshot(existing);
+      }
+      const record: GrantRecord = {
+        grantId,
+        createdAtMs,
+        expiresAtMs,
+        sessionSigningKey: encodeBase64Url(crypto.getRandomValues(new Uint8Array(32))),
+        signingKeyGeneration: 1,
+        registrySnapshotRevision: 1,
+        registryConfirmedSnapshotRevision: 0,
+        startAttempts: [],
+        conversions: [],
+      };
+      await this.sqlite.save(record);
+      return createGrantRegistrySnapshot(record);
+    });
+  }
+
+  async installCredentialVerifier(
+    verifier: string,
+    issuedAtMs: number,
+  ): Promise<"installed" | "already-issued"> {
+    return this.ctx.storage.transaction(async () => {
+      const record = await this.sqlite.requireRecord();
+      if (record.credentialVerifier !== undefined) return "already-issued";
+      record.credentialVerifier = verifier;
+      record.credentialIssuedAtMs = issuedAtMs;
+      await this.sqlite.save(record);
+      return "installed";
+    });
+  }
+
+  async exchangeCredential(
+    credential: string,
+    nowMs = nowMilliseconds(),
+  ): Promise<ExchangeCredentialResult> {
+    const record = await this.sqlite.requireRecord();
+    if (record.credentialVerifier === undefined) return { result: "invalid-credential" };
+    if (!(await verifyRootCredential(credential, record.credentialVerifier)))
+      return { result: "invalid-credential" };
+    if (record.revokedAtMs !== undefined) return { result: "grant-revoked" };
+    return {
+      result: "created",
+      sessionToken: await signSession(record, nowMs),
+      snapshot: createGrantSnapshot(record, nowMs),
+    };
+  }
+
+  async validateSession(token: string, nowMs = nowMilliseconds()): Promise<ValidateSessionResult> {
+    const record = await this.sqlite.requireRecord();
+    return (await verifySession(record, token, nowMs))
+      ? { result: "valid", snapshot: createGrantSnapshot(record, nowMs) }
+      : { result: "invalid" };
+  }
+
+  async inspect(nowMs = nowMilliseconds()): Promise<GrantSnapshot> {
+    return createGrantSnapshot(await this.sqlite.requireRecord(), nowMs);
+  }
+
+  async listConversions(): Promise<GrantConversions> {
+    return createGrantConversions(await this.sqlite.requireRecord());
+  }
+
+  async inspectOperator(nowMs = nowMilliseconds()): Promise<OperatorGrantSnapshot> {
+    return createOperatorGrantSnapshot(await this.sqlite.requireRecord(), nowMs);
+  }
+
+  async getConversion(conversionId: string): Promise<GrantConversion | undefined> {
+    return (await this.sqlite.requireRecord()).conversions.find(
+      (conversion) => conversion.conversionId === conversionId,
+    );
+  }
+
+  async getReadyAudiobookReference(conversionId: string): Promise<AudiobookReference | undefined> {
+    const conversion = await this.getConversion(conversionId);
+    return conversion?.status === "ready" ? conversion.audiobookReference : undefined;
+  }
+
+  async startConversion(
+    sourceUrl: string,
+    idempotencyKey: string,
+    nowMs = nowMilliseconds(),
+  ): Promise<StartGrantConversionResult> {
+    return this.ctx.storage.transaction(async () => {
+      const record = await this.sqlite.requireRecord();
+      const existing = record.conversions.find(
+        (conversion) => conversion.idempotencyKey === idempotencyKey,
+      );
+      if (existing !== undefined) {
+        if (existing.sourceUrl !== sourceUrl) return { result: "idempotency-conflict" };
+        return {
+          result: "replayed",
+          conversion: existing,
+          slots: deriveSlotCounts(record),
+          registrySnapshot: createGrantRegistrySnapshot(record),
+        };
+      }
+
+      const windowStart = nowMs - START_RATE_WINDOW_MS;
+      record.startAttempts = record.startAttempts.filter((attempt) => attempt > windowStart);
+      record.startAttempts.push(nowMs);
+      if (record.startAttempts.length > START_RATE_LIMIT) {
+        await this.sqlite.save(record);
+        const retryAt = record.startAttempts.at(-START_RATE_LIMIT)! + START_RATE_WINDOW_MS;
+        return {
+          result: "rate-limited",
+          retryAfterSeconds: Math.max(1, Math.ceil((retryAt - nowMs) / 1_000)),
+        };
+      }
+
+      const state = deriveGrantState(record, nowMs);
+      if (state !== "open") {
+        await this.sqlite.save(record);
+        return { result: state };
+      }
+      const conversion: PendingConversion = {
+        conversionId: crypto.randomUUID(),
+        idempotencyKey,
+        sourceUrl,
+        acceptedAtMs: nowMs,
+        status: "pending",
+        lastStartedPhase: ConversionPhase.CONVERSION_START,
+      };
+      record.conversions.push(conversion);
+      record.registrySnapshotRevision += 1;
+      await this.sqlite.save(record);
+      await this.ctx.storage.setAlarm(nowMs + RECONCILIATION_RETRY_MS);
+      return {
+        result: "created",
+        conversion,
+        slots: deriveSlotCounts(record),
+        registrySnapshot: createGrantRegistrySnapshot(record),
+      };
+    });
+  }
+
+  async markWorkflowStarted(conversionId: string, nowMs = nowMilliseconds()): Promise<void> {
+    await this.ctx.storage.transaction(async () => {
+      const record = await this.sqlite.requireRecord();
+      const conversion = record.conversions.find((item) => item.conversionId === conversionId);
+      if (conversion === undefined) throw new Error("Conversion does not exist");
+      conversion.workflowStartedAtMs ??= nowMs;
+      await this.sqlite.save(record);
+    });
+  }
+
+  async recordPhaseStarted(conversionId: string, phase: ConversionPhase): Promise<void> {
+    await this.ctx.storage.transaction(async () => {
+      const record = await this.sqlite.requireRecord();
+      const conversion = record.conversions.find((item) => item.conversionId === conversionId);
+      if (conversion === undefined) throw new Error("Conversion does not exist");
+      if (conversion.status !== "pending")
+        throw new Error("Only a pending conversion can start a phase");
+      conversion.lastStartedPhase = phase;
+      await this.sqlite.save(record);
+    });
+  }
+
+  async recordReady(
+    conversionId: string,
+    input: {
+      title: string;
+      audiobookReference: AudiobookReference;
+      measurements?: ConversionMeasurements;
+      providerUsage?: Record<string, unknown>;
+      completedAtMs?: number;
+    },
+  ): Promise<"recorded" | "replayed"> {
+    return this.recordTerminal(conversionId, {
+      status: "ready",
+      completedAtMs: input.completedAtMs ?? nowMilliseconds(),
+      title: input.title,
+      audiobookReference: input.audiobookReference,
+      ...(input.measurements === undefined ? {} : { measurements: input.measurements }),
+      ...(input.providerUsage === undefined ? {} : { providerUsage: input.providerUsage }),
+    });
+  }
+
+  async recordFailed(
+    conversionId: string,
+    input: {
+      title?: string;
+      failureCategory: ConversionFailureCategory;
+      explanation: string;
+      diagnosticReference?: string;
+      cleanupState?: "pending" | "complete" | "cleanup_failed";
+      completedAtMs?: number;
+    },
+  ): Promise<"recorded" | "replayed"> {
+    return this.recordTerminal(conversionId, {
+      status: "failed",
+      completedAtMs: input.completedAtMs ?? nowMilliseconds(),
+      ...(input.title === undefined ? {} : { title: input.title }),
+      failureCategory: input.failureCategory,
+      explanation: input.explanation,
+      ...(input.diagnosticReference === undefined
+        ? {}
+        : { diagnosticReference: input.diagnosticReference }),
+      ...(input.cleanupState === undefined ? {} : { cleanupState: input.cleanupState }),
+    });
+  }
+
+  async revoke(nowMs = nowMilliseconds()): Promise<{
+    changed: boolean;
+    snapshot: GrantSnapshot;
+    registrySnapshot: GrantRegistrySnapshot;
+  }> {
+    return this.ctx.storage.transaction(async () => {
+      const record = await this.sqlite.requireRecord();
+      const changed = record.revokedAtMs === undefined;
+      if (changed) {
+        record.revokedAtMs = nowMs;
+        record.registrySnapshotRevision += 1;
+        await this.sqlite.save(record);
+      }
+      return {
+        changed,
+        snapshot: createGrantSnapshot(record, nowMs),
+        registrySnapshot: createGrantRegistrySnapshot(record),
+      };
+    });
+  }
+
+  async invalidateSessions(nowMs = nowMilliseconds()): Promise<{
+    invalidatedAtMs: number;
+    snapshot: GrantSnapshot;
+    registrySnapshot: GrantRegistrySnapshot;
+  }> {
+    return this.ctx.storage.transaction(async () => {
+      const record = await this.sqlite.requireRecord();
+      record.revokedAtMs ??= nowMs;
+      record.sessionSigningKey = encodeBase64Url(crypto.getRandomValues(new Uint8Array(32)));
+      record.signingKeyGeneration += 1;
+      record.registrySnapshotRevision += 1;
+      await this.sqlite.save(record);
+      return {
+        invalidatedAtMs: nowMs,
+        snapshot: createGrantSnapshot(record, nowMs),
+        registrySnapshot: createGrantRegistrySnapshot(record),
+      };
+    });
+  }
+
+  async confirmRegistrySnapshot(revision: number): Promise<void> {
+    await this.ctx.storage.transaction(async () => {
+      const record = await this.sqlite.requireRecord();
+      record.registryConfirmedSnapshotRevision = Math.max(
+        record.registryConfirmedSnapshotRevision,
+        revision,
+      );
+      await this.sqlite.save(record);
+    });
+  }
+
+  async migrate(): Promise<number> {
+    await this.sqlite.applyMigrations();
+    return GRANT_SCHEMA_VERSION;
+  }
+
+  private async recordTerminal(
+    conversionId: string,
+    terminal: TerminalOutcome,
+  ): Promise<"recorded" | "replayed"> {
+    return this.ctx.storage.transaction(async () => {
+      const record = await this.sqlite.requireRecord();
+      const index = record.conversions.findIndex((item) => item.conversionId === conversionId);
+      const existing = record.conversions[index];
+      if (existing === undefined) throw new Error("Conversion does not exist");
+      if (existing.status !== "pending") {
+        const candidate = { ...existing, ...terminal };
+        if (canonicalJson(existing) === canonicalJson(candidate)) return "replayed";
+        const isRecoveredWorkflow = existing.status === "failed" && terminal.status === "ready";
+        if (!isRecoveredWorkflow)
+          throw new Error("A terminal conversion outcome cannot be changed");
+        if (deriveSlotCounts(record).remaining === 0)
+          throw new Error("A recovered conversion requires an available slot");
+      }
+      const identity = {
+        conversionId: existing.conversionId,
+        idempotencyKey: existing.idempotencyKey,
+        sourceUrl: existing.sourceUrl,
+        acceptedAtMs: existing.acceptedAtMs,
+        lastStartedPhase: existing.lastStartedPhase,
+        ...(existing.workflowStartedAtMs === undefined
+          ? {}
+          : { workflowStartedAtMs: existing.workflowStartedAtMs }),
+      };
+      record.conversions[index] =
+        terminal.status === "ready" ? { ...identity, ...terminal } : { ...identity, ...terminal };
+      record.registrySnapshotRevision += 1;
+      await this.sqlite.save(record);
+      await this.ctx.storage.setAlarm(nowMilliseconds() + RECONCILIATION_RETRY_MS);
+      return "recorded";
+    });
+  }
+
+  /** Reconciles stable Workflow startup, the Registry snapshot, and failed artifacts. */
+  override async alarm(): Promise<void> {
+    let record = await this.sqlite.requireRecord();
+    for (const conversion of record.conversions) {
+      if (
+        conversion.status !== "pending" ||
+        conversion.workflowStartedAtMs !== undefined ||
+        nowMilliseconds() - conversion.acceptedAtMs >= RECONCILIATION_CUTOFF_MS
+      ) {
+        continue;
+      }
+      try {
+        const instance = await this.env.CREATE_AUDIOBOOK_FROM_URL_WORKFLOW.get(
+          conversion.conversionId,
+        );
+        await instance.status();
+        await this.markWorkflowStarted(conversion.conversionId);
+      } catch {
+        try {
+          await this.env.CREATE_AUDIOBOOK_FROM_URL_WORKFLOW.create({
+            id: conversion.conversionId,
+            params: { sourceUrl: conversion.sourceUrl, grantId: record.grantId },
+          });
+          await this.markWorkflowStarted(conversion.conversionId);
+        } catch {
+          // The same stable identity remains reserved when the platform result is ambiguous.
+        }
+      }
+    }
+
+    record = await this.sqlite.requireRecord();
+    if (record.registryConfirmedSnapshotRevision < record.registrySnapshotRevision) {
+      try {
+        const registry = this.env.CONVERSION_GRANT_REGISTRY.get(
+          this.env.CONVERSION_GRANT_REGISTRY.idFromName("registry"),
+        );
+        await registry.applyGrantRegistrySnapshot(createGrantRegistrySnapshot(record));
+        await this.confirmRegistrySnapshot(record.registrySnapshotRevision);
+      } catch {
+        // The Registry snapshot is derived and safe to retry indefinitely.
+      }
+    }
+
+    for (const conversion of record.conversions) {
+      if (conversion.status !== "failed" || conversion.cleanupState !== "pending") continue;
+      try {
+        let cursor: string | undefined;
+        do {
+          const page = await this.env.AUDIO_BUCKET.list({
+            prefix: `conversions/${conversion.conversionId}/`,
+            ...(cursor === undefined ? {} : { cursor }),
+          });
+          if (page.objects.length > 0) {
+            await this.env.AUDIO_BUCKET.delete(page.objects.map((object) => object.key));
+          }
+          cursor = page.truncated ? page.cursor : undefined;
+        } while (cursor !== undefined);
+        await this.setCleanupState(conversion.conversionId, "complete");
+      } catch {
+        if (nowMilliseconds() - conversion.completedAtMs >= CLEANUP_RETRY_CUTOFF_MS) {
+          await this.setCleanupState(conversion.conversionId, "cleanup_failed");
+        }
+      }
+    }
+
+    record = await this.sqlite.requireRecord();
+    const hasDueMaintenance =
+      record.registryConfirmedSnapshotRevision < record.registrySnapshotRevision ||
+      record.conversions.some(
+        (conversion) =>
+          (conversion.status === "pending" &&
+            conversion.workflowStartedAtMs === undefined &&
+            nowMilliseconds() - conversion.acceptedAtMs < RECONCILIATION_CUTOFF_MS) ||
+          (conversion.status === "failed" && conversion.cleanupState === "pending"),
+      );
+    if (hasDueMaintenance) {
+      await this.ctx.storage.setAlarm(nowMilliseconds() + MAINTENANCE_RETRY_MS);
+    }
+  }
+
+  private async setCleanupState(
+    conversionId: string,
+    cleanupState: "complete" | "cleanup_failed",
+  ): Promise<void> {
+    await this.ctx.storage.transaction(async () => {
+      const record = await this.sqlite.requireRecord();
+      const conversion = record.conversions.find(
+        (candidate) => candidate.conversionId === conversionId,
+      );
+      if (conversion?.status !== "failed") {
+        throw new Error("Failed conversion cleanup state is unavailable");
+      }
+      conversion.cleanupState = cleanupState;
+      await this.sqlite.save(record);
+    });
+  }
+}

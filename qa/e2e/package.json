@@ -1,0 +1,47 @@
+{
+  "name": "@create-audiobook-from-url/e2e",
+  "private": true,
+  "type": "module",
+  "imports": {
+    "#src/*.ts": "./src/*.ts",
+    "#src/*": "./src/*",
+    "#test-e2e/*.ts": "./test-e2e/*.ts",
+    "#test-e2e/*": "./test-e2e/*"
+  },
+  "scripts": {
+    "cf-typegen": "wrangler types",
+    "cf-typegen:check": "pnpm run cf-typegen --check",
+    "clean": "del-cli --dot=true \"*.tsbuildinfo\" \"playwright-output\"",
+    "test:e2e": "playwright test",
+    "test:e2e:ui": "playwright test --ui",
+    "test:e2e:update": "playwright test --update-snapshots",
+    "turbo:build": "pnpm run cf-typegen:check && tsc --build ./tsconfig.json",
+    "turbo:lint": "oxlint --type-aware --max-warnings 0 .",
+    "turbo:lint:fix": "pnpm run turbo:lint --fix",
+    "turbo:test": "vitest run"
+  },
+  "dependencies": {
+    "@create-audiobook-from-url/api-server": "workspace:*",
+    "@create-audiobook-from-url/audiobook-production": "workspace:*",
+    "@create-audiobook-from-url/cloudflare-worker": "workspace:*",
+    "@create-audiobook-from-url/conversion-grants": "workspace:*",
+    "@create-audiobook-from-url/create-audiobook-from-url-workflow": "workspace:*",
+    "@create-audiobook-from-url/narration-content-selection": "workspace:*",
+    "@create-audiobook-from-url/prepare-source-material": "workspace:*"
+  },
+  "devDependencies": {
+    "@create-audiobook-from-url/config-oxlint": "workspace:*",
+    "@patricktree-stack/config-playwright": "workspace:*",
+    "@patricktree-stack/config-typescript": "workspace:*",
+    "@patricktree-stack/config-vitest": "workspace:*",
+    "@playwright/test": "catalog:",
+    "@types/node": "catalog:",
+    "@typescript/native": "catalog:",
+    "fflate": "0.8.3",
+    "oxlint": "catalog:",
+    "oxlint-tsgolint": "catalog:",
+    "typescript": "catalog:",
+    "vitest": "catalog:",
+    "wrangler": "catalog:"
+  }
+}

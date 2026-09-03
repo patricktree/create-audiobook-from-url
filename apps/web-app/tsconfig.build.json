@@ -1,0 +1,16 @@
+{
+  "extends": [
+    "@patricktree-stack/config-typescript/tsconfig.defaults.json",
+    "@patricktree-stack/config-typescript/tsconfig.web.json",
+    "@patricktree-stack/config-typescript/tsconfig.composite-emit-declaration-only.json"
+  ],
+  "compilerOptions": {
+    /* Modules */
+    "rootDir": "./src",
+
+    /* Language and Environment */
+    "jsx": "react-jsx"
+  },
+  "include": ["src/**/*"],
+  "exclude": ["**/node_modules", "**/*.test.ts"]
+}

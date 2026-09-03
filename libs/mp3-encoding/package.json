@@ -1,0 +1,58 @@
+{
+  "name": "@create-audiobook-from-url/mp3-encoding",
+  "private": true,
+  "files": [
+    "src/**",
+    "native/**",
+    "scripts/**",
+    "THIRD_PARTY_NOTICES.md"
+  ],
+  "type": "module",
+  "imports": {
+    "#src/mp3-encoder.wasm": {
+      "@patricktree-stack/vitest": "./test/mp3-encoder-vitest-loader.ts",
+      "default": "./src/mp3-encoder.wasm"
+    },
+    "#src/*.ts": {
+      "types": "./dist/types/*.d.ts",
+      "default": "./src/*.ts"
+    },
+    "#src/*": {
+      "types": "./dist/types/*",
+      "default": "./src/*"
+    }
+  },
+  "exports": {
+    "./package.json": "./package.json",
+    ".": {
+      "types": "./dist/types/mp3-encoding.d.ts",
+      "default": "./src/mp3-encoding.ts"
+    }
+  },
+  "scripts": {
+    "build": "turbo run turbo:build",
+    "build:encoder": "./scripts/build-encoder.sh",
+    "clean": "del-cli --dot=true \"dist\" \"*.tsbuildinfo\"",
+    "lint": "turbo run turbo:lint",
+    "lint:fix": "turbo run turbo:lint:fix",
+    "test": "vitest run",
+    "test:coverage": "vitest run --coverage",
+    "test:watch": "vitest",
+    "turbo:build": "tsc --build ./tsconfig.json",
+    "turbo:lint": "oxlint --type-aware --max-warnings 0 .",
+    "turbo:lint:fix": "pnpm run turbo:lint --fix",
+    "turbo:test": "pnpm run test"
+  },
+  "devDependencies": {
+    "@create-audiobook-from-url/config-oxlint": "workspace:*",
+    "@patricktree-stack/config-typescript": "workspace:*",
+    "@patricktree-stack/config-vitest": "workspace:*",
+    "@types/node": "catalog:",
+    "@typescript/native": "catalog:",
+    "@vitest/coverage-v8": "catalog:",
+    "oxlint": "catalog:",
+    "oxlint-tsgolint": "catalog:",
+    "typescript": "catalog:",
+    "vitest": "catalog:"
+  }
+}

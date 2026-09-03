@@ -1,0 +1,78 @@
+packages:
+  - apps/*
+  - libs/*
+  - qa/*
+  - tooling/*
+  # Opt in to additional .patricktree-stack projects only when the consuming repo uses them.
+  - .patricktree-stack/tooling/config-oxfmt
+  - .patricktree-stack/tooling/config-oxlint
+  - .patricktree-stack/tooling/config-playwright
+  - .patricktree-stack/tooling/config-turbo-typescript
+  - .patricktree-stack/tooling/config-typescript
+  - .patricktree-stack/tooling/config-vitest
+  - .patricktree-stack/tooling/config-wyw-in-js
+  - .patricktree-stack/libs/utils-ecma
+
+allowBuilds:
+  '@google/genai': true
+  better-sqlite3: true
+  esbuild: true
+  msgpackr-extract: true
+  protobufjs: true
+  unrs-resolver: true
+  workerd: true
+
+catalog:
+  "@cloudflare/playwright": ^1.3.6
+  "@playwright/test": 1.62.1
+  "@typescript/native": "npm:typescript@^7.0.2"
+  "@types/node": ^26.4.0
+  "@vitest/coverage-v8": 4.1.11
+  oxfmt: ^0.65.0
+  oxlint: ^1.80.0
+  oxlint-tsgolint: ^7.0.2001
+  typescript: "npm:@typescript/typescript6@^6.0.2"
+  vitest: ^4.1.11
+  wrangler: ^4.127.1
+
+catalogs:
+  hono:
+    "@hono/zod-openapi": ^1.6.1
+    hono: ^4.13.5
+  web-app:
+    "@cloudflare/vite-plugin": ^1.54.2
+    "@tanstack/router-plugin": ^1.168.35
+    "@types/react": ^19.2.18
+    "@types/react-dom": ^19.2.5
+    "@vitejs/plugin-react": ^6.1.1
+    "@wyw-in-js/vite": ^2.4.4
+    react: ^19.2.8
+    react-dom: ^19.2.8
+    vite: ^8.2.2
+
+packageExtensions:
+  eslint-plugin-react-you-might-not-need-an-effect@1.0.2:
+    # "eslint-plugin-react-you-might-not-need-an-effect" defines eslint as peer dependency, but that is not required when used by oxlint --> make it optional
+    peerDependenciesMeta:
+      eslint:
+        optional: true
+
+# handle peer dependencies in a strict way
+autoInstallPeers: false
+resolvePeersFromWorkspaceRoot: false
+strictPeerDependencies: true
+dedupePeerDependents: false
+
+# enforce specific Node.js and pnpm version (https://pnpm.io/npmrc#engine-strict)
+engineStrict: true
+
+# disable update notifier (https://pnpm.io/npmrc#update-notifier)
+updateNotifier: false
+
+# workspace-concurrency=0 will use amount of cores of the host to run tasks concurrently (https://pnpm.io/cli/recursive#--workspace-concurrency)
+workspaceConcurrency: 0
+
+minimumReleaseAgeExclude:
+  - miniflare@5.20260815.0-alpha
+  - wrangler@4.124.0
+  - openai@7.7.0

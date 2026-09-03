@@ -1,0 +1,27 @@
+{
+  "$schema": "./node_modules/wrangler/config-schema.json",
+  "name": "conversion-grants-test",
+  "main": "test/worker.ts",
+  "compatibility_date": "2026-08-15",
+  "durable_objects": {
+    "bindings": [
+      {
+        "name": "CONVERSION_GRANTS",
+        "class_name": "ConversionGrantDurableObject",
+      },
+      {
+        "name": "CONVERSION_GRANT_REGISTRY",
+        "class_name": "ConversionGrantRegistryDurableObject",
+      },
+    ],
+  },
+  "migrations": [
+    {
+      "tag": "v1",
+      "new_sqlite_classes": [
+        "ConversionGrantDurableObject",
+        "ConversionGrantRegistryDurableObject",
+      ],
+    },
+  ],
+}
