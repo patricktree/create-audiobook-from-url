@@ -138,6 +138,22 @@ test("keeps timeouts, rate limits, and server failures retryable", async () => {
   }
 });
 
+test("keeps transient input policy blocks retryable", async () => {
+  const error = await produceAudioSegment({
+    ai: createSpeechSynthesisAi(createTransientInputPolicyBlockResponse),
+    bucket: createAudioSegmentBucket(),
+    conversionId: CONVERSION_ID,
+    sequence: 34,
+    narrationChunk: { text: "A transiently blocked narration request." },
+  }).catch((caughtError: unknown) => caughtError);
+
+  expect(error).toBeInstanceOf(Error);
+  expect(error).not.toBeInstanceOf(PermanentNarrationSynthesisError);
+  expect(error).toMatchObject({
+    message: expect.stringContaining("Input blocked: The prompt could not be submitted."),
+  });
+});
+
 test("marks invalid requests and unsupported audio formats as permanent", async () => {
   const invalidRequestError = await produceAudioSegment({
     ai: createSpeechSynthesisAi(createInvalidRequestResponse),
@@ -169,6 +185,18 @@ function createSpeechSynthesisAi(run: SpeechSynthesisRun): SpeechSynthesisAi {
 
 async function createInvalidRequestResponse(): Promise<Response> {
   return Response.json({ error: { message: "Invalid speech configuration." } }, { status: 400 });
+}
+
+async function createTransientInputPolicyBlockResponse(): Promise<Response> {
+  return Response.json(
+    {
+      error: {
+        message:
+          "Input blocked: The prompt could not be submitted. The prompt contains sensitive words that violate Google's Generative AI Prohibited Use policy. Try rephrasing the prompt.",
+      },
+    },
+    { status: 400 },
+  );
 }
 
 async function createUnsupportedFormatResponse(): Promise<Response> {

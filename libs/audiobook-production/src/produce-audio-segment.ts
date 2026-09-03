@@ -19,6 +19,8 @@ const MP3_BITRATE_KILOBITS_PER_SECOND = 128;
 const AUDIO_STREAM_CHUNK_SIZE = 64 * 1024;
 const GOOGLE_INTERACTIONS_API_REVISION = "2026-05-20";
 const SYNTHESIS_REQUEST_TIMEOUT_MILLISECONDS = 90_000;
+const RETRYABLE_INPUT_POLICY_BLOCK_PREFIX =
+  "Input blocked: The prompt could not be submitted. The prompt contains sensitive words";
 
 const AUDIO_RESPONSE_SCHEMA = z.object({
   errors: z
@@ -267,10 +269,11 @@ async function synthesizeAudioSegment({
 
   if (!response.ok) {
     const responseBody = await readResponseBody(response);
+    const providerMessage = getErrorMessage(responseBody);
 
-    const message = `Google AI Studio narration synthesis failed with status ${response.status}: ${getErrorMessage(responseBody)}`;
+    const message = `Google AI Studio narration synthesis failed with status ${response.status}: ${providerMessage}`;
 
-    if (!isRetryableProviderStatus(response.status)) {
+    if (!isRetryableProviderError(response.status, providerMessage)) {
       throw new PermanentNarrationSynthesisError(message);
     }
 
@@ -673,6 +676,13 @@ function getErrorMessage(response: unknown): string {
 
 function isRetryableProviderStatus(status: number): boolean {
   return status === 408 || status === 429 || status >= 500;
+}
+
+function isRetryableProviderError(status: number, message: string): boolean {
+  return (
+    isRetryableProviderStatus(status) ||
+    (status === 400 && message.startsWith(RETRYABLE_INPUT_POLICY_BLOCK_PREFIX))
+  );
 }
 
 function isPermanentProviderErrorCode(code: string | number | undefined): boolean {
