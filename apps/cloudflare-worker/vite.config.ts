@@ -15,6 +15,7 @@ const WYW_CONFIG_FILE = url.fileURLToPath(
 
 export default defineConfig({
   html: { cspNonce: WEB_APP_CSP_NONCE_PLACEHOLDER },
+  publicDir: path.join(WEB_APP_DIRECTORY, "public"),
   plugins: [
     tanstackRouter({
       autoCodeSplitting: true,

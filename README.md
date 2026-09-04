@@ -44,20 +44,20 @@ Each stage has an explicit timeout and retry policy, and independently generated
 
 ## Technologies
 
-| Area                 | Technologies                                                                      |
-| -------------------- | --------------------------------------------------------------------------------- |
-| Frontend SPA         | React, Base UI, Vite, TanStack Router, TanStack Query, TanStack Form, Linaria CSS |
-| HTTP API             | Hono, OpenAPI, `@hono/zod-openapi`                                                |
-| Durable state        | Cloudflare Durable Objects, SQLite, Drizzle ORM                                   |
-| Object storage       | Cloudflare R2                                                                     |
-| Durable workflow     | Cloudflare Workflows                                                              |
-| Browser automation   | Playwright, Cloudflare Browser Run                                                |
-| AI content selection | Cloudflare Workers AI, OpenAI SDK, `vitest-evals`                                 |
-| Speech generation    | Cloudflare AI Gateway, Google AI Studio text-to-speech                            |
-| Security             | Cloudflare Zero Trust Access, `jose`                                              |
-| Output formats       | MP3, WebVTT, EPUB 3 Media Overlays                                                |
-| Data and time        | Zod, Temporal                                                                     |
-| Tooling and quality  | pnpm, Turborepo, TypeScript, Wrangler, Oxfmt, Oxlint, Vitest, Playwright Test     |
+| Area                 | Technologies                                                                           |
+| -------------------- | -------------------------------------------------------------------------------------- |
+| Frontend SPA         | React, Base UI, Vite, TanStack Router, TanStack Query, TanStack Form, Linaria CSS      |
+| HTTP API             | Hono, OpenAPI, `@hono/zod-openapi`                                                     |
+| Durable state        | Cloudflare Durable Objects, SQLite, Drizzle ORM                                        |
+| Object storage       | Cloudflare R2                                                                          |
+| Durable workflow     | Cloudflare Workflows                                                                   |
+| Browser automation   | Playwright, Cloudflare Browser Run                                                     |
+| AI content selection | Cloudflare Workers AI, OpenAI SDK, `@cf/qwen/qwen3.8-27b`, `vitest-evals`              |
+| Speech generation    | Cloudflare AI Gateway, Google AI Studio text-to-speech, `gemini-3.1-flash-tts-preview` |
+| Security             | Cloudflare Zero Trust Access, `jose`                                                   |
+| Output formats       | MP3, WebVTT, EPUB 3 Media Overlays                                                     |
+| Data and time        | Zod, Temporal                                                                          |
+| Tooling and quality  | pnpm, Turborepo, TypeScript, Wrangler, Oxfmt, Oxlint, Vitest, Playwright Test          |
 
 ## Development
 
