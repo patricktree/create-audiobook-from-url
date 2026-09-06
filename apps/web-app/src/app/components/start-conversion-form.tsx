@@ -73,7 +73,7 @@ export function StartConversionForm({ grant }: { grant: GrantSnapshot }): React.
             `,
           }}
           disabledWhenPristine
-          label="Upload & listen"
+          label="Turn into audio"
         />
       </form.AppForm>
     </form>

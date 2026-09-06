@@ -36,7 +36,7 @@ test("captures the initial Trial", async ({ page, workerEnvironment }) => {
   await gotoPage(page, trialLink(workerEnvironment.origin));
 
   await expect(page.getByRole("heading", { name: "Just Listen." })).toBeVisible();
-  await expect(page.getByRole("button", { name: "Upload & listen" })).toBeDisabled();
+  await expect(page.getByRole("button", { name: "Turn into audio" })).toBeDisabled();
   await captureScreenshot(page, "initial.png");
 });
 
@@ -136,7 +136,7 @@ test("validates a source URL before starting", async ({ page, workerEnvironment 
   await page.getByLabel("URL").fill("not a URL");
   await page.getByLabel("URL").blur();
   await expect(page.getByLabel("URL")).toHaveAttribute("aria-invalid", "true");
-  await expect(page.getByRole("button", { name: "Upload & listen" })).toBeDisabled();
+  await expect(page.getByRole("button", { name: "Turn into audio" })).toBeDisabled();
   await captureScreenshot(page, "invalid-article-url.png");
 });
 
@@ -160,8 +160,8 @@ test("disables duplicate submission while a conversion start is pending", async 
   await gotoPage(page, trialLink(workerEnvironment.origin));
 
   await page.getByLabel("URL").fill(SOURCE_URL);
-  await page.getByRole("button", { name: "Upload & listen" }).click();
-  await expect(page.getByRole("button", { name: "Upload & listen" })).toBeDisabled();
+  await page.getByRole("button", { name: "Turn into audio" }).click();
+  await expect(page.getByRole("button", { name: "Turn into audio" })).toBeDisabled();
   await expect(page.getByLabel("URL")).toHaveValue(SOURCE_URL);
   await captureScreenshot(page, "start-pending.png");
 

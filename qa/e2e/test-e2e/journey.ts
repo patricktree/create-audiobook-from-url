@@ -23,6 +23,6 @@ export async function openNewTrial(
 
 export async function startConversion(page: Page): Promise<void> {
   await page.getByLabel("URL").fill(CONTROLLED_SOURCE_URL);
-  await page.getByRole("button", { name: "Upload & listen" }).click();
+  await page.getByRole("button", { name: "Turn into audio" }).click();
   await expect(page).toHaveURL(/\/conversions\/[0-9a-f-]+$/);
 }

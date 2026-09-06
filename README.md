@@ -42,22 +42,31 @@ Each stage has an explicit timeout and retry policy, and independently generated
 - **Cloudflare Workers AI** runs the open-source text-to-text model that selects narration content. The application calls its OpenAI-compatible API through the OpenAI SDK.
 - **Cloudflare AI Gateway** routes Google AI Studio text-to-speech requests and records logs and request metadata.
 
-## Technologies
+## Technology Stack
 
-| Area                 | Technologies                                                                           |
-| -------------------- | -------------------------------------------------------------------------------------- |
-| Frontend SPA         | React, Base UI, Vite, TanStack Router, TanStack Query, TanStack Form, Linaria CSS      |
-| HTTP API             | Hono, OpenAPI, `@hono/zod-openapi`                                                     |
-| Durable state        | Cloudflare Durable Objects, SQLite, Drizzle ORM                                        |
-| Object storage       | Cloudflare R2                                                                          |
-| Durable workflow     | Cloudflare Workflows                                                                   |
-| Browser automation   | Playwright, Cloudflare Browser Run                                                     |
-| AI content selection | Cloudflare Workers AI, OpenAI SDK, `@cf/qwen/qwen3.8-27b`, `vitest-evals`              |
-| Speech generation    | Cloudflare AI Gateway, Google AI Studio text-to-speech, `gemini-3.1-flash-tts-preview` |
-| Security             | Cloudflare Zero Trust Access, `jose`                                                   |
-| Output formats       | MP3, WebVTT, EPUB 3 Media Overlays                                                     |
-| Data and time        | Zod, Temporal                                                                          |
-| Tooling and quality  | pnpm, Turborepo, TypeScript, Wrangler, Oxfmt, Oxlint, Vitest, Playwright Test          |
+| Concern                         | Technologies                                                                           | Role                                                                                     |
+| ------------------------------- | -------------------------------------------------------------------------------------- | ---------------------------------------------------------------------------------------- |
+| Web application                 | React, Base UI, Vite, TanStack Router, TanStack Query, TanStack Form, Linaria CSS      | Renders the SPA and manages routing, server state, forms, and styling                    |
+| API                             | Hono, OpenAPI, `@hono/zod-openapi`                                                     | Exposes the HTTP API and validates its request and response schemas                      |
+| Page rendering and extraction   | Playwright, Cloudflare Browser Run                                                     | Loads pages, including JavaScript-rendered content, and captures their HTML and metadata |
+| Narration content selection     | Cloudflare Workers AI, OpenAI SDK, `@cf/qwen/qwen3.8-27b`                              | Selects the original page elements worth narrating                                       |
+| Text-to-speech                  | Cloudflare AI Gateway, Google AI Studio text-to-speech, `gemini-3.1-flash-tts-preview` | Routes speech requests and generates an audio segment for each synchronization unit      |
+| Conversion orchestration        | Cloudflare Workflows                                                                   | Runs the long-lived conversion with explicit timeouts, retries, and resumable stages     |
+| Application state               | Cloudflare Durable Objects, SQLite, Drizzle ORM                                        | Stores conversion grants and coordinates their mutable state                             |
+| Object storage                  | Cloudflare R2                                                                          | Stores audio segments, assembled MP3 files, audiobook manifests, and generated exports   |
+| Access control and verification | Cloudflare Zero Trust Access, `jose`                                                   | Protects operator routes and verifies Cloudflare Access tokens                           |
+| Validation and date/time        | Zod, Temporal                                                                          | Validates structured data and handles date and time values                               |
+
+Cup produces MP3 audio, WebVTT captions, and EPUB 3 documents with Media Overlays.
+
+### Development and Testing
+
+| Concern                          | Technologies                            | Role                                                                   |
+| -------------------------------- | --------------------------------------- | ---------------------------------------------------------------------- |
+| Workspace and builds             | pnpm, Turborepo                         | Manages dependencies and orchestrates builds                           |
+| Cloudflare development           | Wrangler                                | Runs and deploys the Cloudflare Worker                                 |
+| Formatting, type checks, linting | Oxfmt, TypeScript, Oxlint               | Enforces formatting and applies static-analysis (type checks, linting) |
+| Tests and evals                  | Vitest, Playwright Test, `vitest-evals` | Covers unit behavior, end-to-end flows, and LLM output quality         |
 
 ## Development
 
