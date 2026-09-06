@@ -91,9 +91,9 @@ function PendingConversionProgress({
       >
         <Progress.Indicator
           className={css`
+            position: relative;
             height: 100%;
 
-            position: relative;
             overflow: hidden;
             background: linear-gradient(
               90deg,
@@ -103,11 +103,11 @@ function PendingConversionProgress({
             border-radius: inherit;
 
             &::after {
-              content: "";
               position: absolute;
               inset-block: 0;
               left: 0;
               width: 50%;
+              content: "";
               background: linear-gradient(
                 90deg,
                 transparent,
@@ -134,8 +134,8 @@ function PendingConversionProgress({
       </Progress.Track>
       <Progress.Label
         className={css`
-          color: var(--color-fg-emphasized-sm);
           font-size: 18px;
+          color: var(--color-fg-emphasized-sm);
         `}
       >
         {CONVERSION_PHASE_LABELS[lastStartedPhase]}...

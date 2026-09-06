@@ -5,10 +5,10 @@ export const MainSection: React.FC<{ children: React.ReactNode }> = ({ children 
   return (
     <section
       className={css`
-        height: 100%;
         display: grid;
         align-content: center;
         justify-items: stretch;
+        height: 100%;
       `}
     >
       {children}
@@ -23,8 +23,8 @@ export const SuperHeader: React.FC = () => {
         className={css`
           margin-block-end: 12px;
 
-          color: var(--color-fg-emphasized-sm);
           font-size: 18px;
+          color: var(--color-fg-emphasized-sm);
         `}
       >
         No reading lists, no tldr.

@@ -89,12 +89,12 @@ export const cssBase = css`
       /* https://base-ui.com/react/overview/quick-start#ios-26-safari */
       position: relative;
 
+      font-family: var(--font-family-1);
       font-size: ${16 / 16}rem;
       color: var(--color-fg);
       background-color: var(--color-bg);
       --font-family-1: "Inter Variable", sans-serif;
       --font-family-2: "Space Mono", monospace;
-      font-family: var(--font-family-1);
 
       /* design tokens */
       --color-white: #f2f2f2;

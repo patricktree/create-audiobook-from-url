@@ -32,7 +32,7 @@ export const DSButton: React.FC<DSButtonProps> = ({
 
           color: inherit;
           background-color: transparent;
-          border: 0px;
+          border: 0;
           border-radius: 999px;
 
           &:hover {
@@ -44,8 +44,8 @@ export const DSButton: React.FC<DSButtonProps> = ({
           }
 
           &[data-variant="outlined"] {
-            border: 1px solid currentColor;
             background-color: var(--color-bg);
+            border: 1px solid currentcolor;
           }
 
           &[data-variant="contained"] {

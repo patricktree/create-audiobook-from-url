@@ -6,6 +6,7 @@ packages:
   # Opt in to additional .patricktree-stack projects only when the consuming repo uses them.
   - .patricktree-stack/tooling/config-oxfmt
   - .patricktree-stack/tooling/config-oxlint
+  - .patricktree-stack/tooling/config-stylelint
   - .patricktree-stack/tooling/config-playwright
   - .patricktree-stack/tooling/config-turbo-typescript
   - .patricktree-stack/tooling/config-typescript
@@ -31,6 +32,11 @@ catalog:
   oxfmt: ^0.65.0
   oxlint: ^1.80.0
   oxlint-tsgolint: ^7.0.2001
+  postcss: ^8.5.3
+  postcss-styled-syntax: ^0.7.1
+  stylelint: ^16.19.1
+  stylelint-config-recess-order: ^6.0.0
+  stylelint-config-standard: ^38.0.0
   typescript: "npm:@typescript/typescript6@^6.0.2"
   vitest: ^4.1.11
   wrangler: ^4.127.1
