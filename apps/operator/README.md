@@ -1,6 +1,6 @@
 # Operator runbook
 
-Use the operator CLI to create and manage production conversion grants. Each grant expires after 90 days and provides five conversion slots.
+Use the operator CLI to create and manage production conversion grants. Each grant expires after 90 days and starts with five conversion slots.
 
 Run all commands from the repository root.
 
@@ -125,6 +125,17 @@ Read the authoritative state, conversion slot counts, and conversion count:
 ```sh
 pnpm operator grant inspect "GRANT_ID"
 ```
+
+### Change a conversion allowance
+
+Set the total number of conversion slots for an existing grant:
+
+```sh
+pnpm operator grant set-allowance "GRANT_ID" --conversions 20
+pnpm operator grant inspect "GRANT_ID"
+```
+
+The total includes reserved and spent slots. The command rejects totals below their sum. Repeating the same total is safe. The original link, browser sessions, and expiry remain valid.
 
 ### Revoke a grant
 

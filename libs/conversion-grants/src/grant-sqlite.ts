@@ -115,6 +115,20 @@ export class ConversionGrantSqlite {
           .run();
       });
     }
+    if (latest < 4) {
+      this.storage.transactionSync(() => {
+        this.storage.sql.exec(
+          "ALTER TABLE grant ADD COLUMN max_slots INTEGER NOT NULL DEFAULT 5 CHECK (max_slots > 0)",
+        );
+        this.storage.sql.exec("UPDATE grant SET projection_revision = projection_revision + 1");
+        this.database
+          .insert(schemaMigrations)
+          .values({ version: 4, appliedAtMs: nowMilliseconds() })
+          .run();
+      });
+      if (this.database.select({ id: grantTable.id }).from(grantTable).get() !== undefined)
+        await this.storage.setAlarm(nowMilliseconds());
+    }
   }
 
   async load(): Promise<GrantRecord | undefined> {
@@ -128,6 +142,7 @@ export class ConversionGrantSqlite {
       .map(conversionRowToUnknown);
     const parsed: unknown = {
       grantId: row.grantId,
+      maxSlots: row.maxSlots,
       createdAtMs: row.createdAtMs,
       expiresAtMs: row.expiresAtMs,
       ...(row.revokedAtMs === null ? {} : { revokedAtMs: row.revokedAtMs }),
@@ -159,6 +174,7 @@ export class ConversionGrantSqlite {
 
   async save(record: GrantRecord): Promise<void> {
     const mutableGrant = {
+      maxSlots: record.maxSlots,
       revokedAtMs: record.revokedAtMs ?? null,
       credentialVerifier: record.credentialVerifier ?? null,
       credentialIssuedAtMs: record.credentialIssuedAtMs ?? null,
@@ -179,8 +195,8 @@ export class ConversionGrantSqlite {
       .onConflictDoUpdate({ target: grantTable.id, set: mutableGrant })
       .run();
     this.database.delete(conversionTable).run();
-    if (record.conversions.length > 0)
-      this.database.insert(conversionTable).values(record.conversions.map(conversionToRow)).run();
+    for (const conversion of record.conversions)
+      this.database.insert(conversionTable).values(conversionToRow(conversion)).run();
     this.database.delete(startAttemptTable).run();
     if (record.startAttempts.length > 0)
       this.database
@@ -278,6 +294,9 @@ function conversionToRow(conversion: GrantConversion): typeof conversionTable.$i
 function isGrantRecord(value: unknown): value is GrantRecord {
   return (
     isRecord(value) &&
+    typeof value["maxSlots"] === "number" &&
+    Number.isSafeInteger(value["maxSlots"]) &&
+    value["maxSlots"] > 0 &&
     typeof value["grantId"] === "string" &&
     typeof value["createdAtMs"] === "number" &&
     typeof value["expiresAtMs"] === "number" &&

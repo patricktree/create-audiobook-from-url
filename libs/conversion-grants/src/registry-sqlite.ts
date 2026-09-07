@@ -67,6 +67,49 @@ export class ConversionGrantRegistrySqlite {
           .run();
       });
     }
+    if (latest < 2) {
+      this.storage.transactionSync(() => {
+        this.storage.sql.exec(`CREATE TABLE registry_grants_new (
+            grant_id TEXT PRIMARY KEY,
+            request_id TEXT NOT NULL UNIQUE,
+            label TEXT NOT NULL,
+            phase TEXT NOT NULL CHECK (phase IN ('reserved', 'initialized', 'active')),
+            created_at_ms INTEGER NOT NULL,
+            expires_at_ms INTEGER NOT NULL CHECK (expires_at_ms > created_at_ms),
+            credential_issued INTEGER NOT NULL CHECK (credential_issued IN (0, 1)),
+            projection_revision INTEGER,
+            projection_revoked_at_ms INTEGER,
+            projection_reserved INTEGER CHECK (projection_reserved >= 0),
+            projection_spent INTEGER CHECK (projection_spent >= 0),
+            projection_schema_version INTEGER,
+            CHECK (
+              (projection_revision IS NULL AND projection_reserved IS NULL AND projection_spent IS NULL AND projection_schema_version IS NULL)
+              OR (projection_revision > 0 AND projection_reserved IS NOT NULL AND projection_spent IS NOT NULL AND projection_schema_version > 0)
+            )
+          )`);
+        this.storage.sql.exec("INSERT INTO registry_grants_new SELECT * FROM registry_grants");
+        this.storage.sql.exec(
+          "ALTER TABLE registry_grants_new ADD COLUMN projection_max_slots INTEGER NOT NULL DEFAULT 5 CHECK (projection_max_slots > 0)",
+        );
+        this.storage.sql.exec(
+          "CREATE TABLE conversion_grants_backup AS SELECT * FROM conversion_grants",
+        );
+        this.storage.sql.exec("DROP TABLE conversion_grants");
+        this.storage.sql.exec("DROP TABLE registry_grants");
+        this.storage.sql.exec("ALTER TABLE registry_grants_new RENAME TO registry_grants");
+        this.storage.sql.exec(
+          "CREATE TABLE conversion_grants (conversion_id TEXT PRIMARY KEY, grant_id TEXT NOT NULL REFERENCES registry_grants(grant_id))",
+        );
+        this.storage.sql.exec(
+          "INSERT INTO conversion_grants SELECT * FROM conversion_grants_backup",
+        );
+        this.storage.sql.exec("DROP TABLE conversion_grants_backup");
+        this.database
+          .insert(schemaMigrations)
+          .values({ version: 2, appliedAtMs: nowMilliseconds() })
+          .run();
+      });
+    }
   }
 
   async load(): Promise<RegistryRecord> {
@@ -92,6 +135,7 @@ export class ConversionGrantRegistrySqlite {
               grantSnapshot: {
                 grantId: row.grantId,
                 revision: row.snapshotRevision,
+                maxSlots: row.snapshotMaxSlots,
                 ...(row.snapshotRevokedAtMs === null
                   ? {}
                   : { revokedAtMs: row.snapshotRevokedAtMs }),
@@ -129,6 +173,7 @@ export class ConversionGrantRegistrySqlite {
             expiresAtMs: entry.expiresAtMs,
             credentialIssued: entry.credentialIssued,
             snapshotRevision: entry.grantSnapshot?.revision ?? null,
+            snapshotMaxSlots: entry.grantSnapshot?.maxSlots ?? 5,
             snapshotRevokedAtMs: entry.grantSnapshot?.revokedAtMs ?? null,
             snapshotReserved: entry.grantSnapshot?.reserved ?? null,
             snapshotSpent: entry.grantSnapshot?.spent ?? null,

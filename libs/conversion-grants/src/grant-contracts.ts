@@ -54,9 +54,9 @@ export const conversionPhaseOrder = [
 
 export const slotCountsSchema = z
   .object({
-    remaining: z.number().int().min(0).max(5),
-    reserved: z.number().int().min(0).max(5),
-    spent: z.number().int().min(0).max(5),
+    remaining: z.number().int().min(0),
+    reserved: z.number().int().min(0),
+    spent: z.number().int().min(0),
   })
   .strict();
 export type SlotCounts = z.infer<typeof slotCountsSchema>;

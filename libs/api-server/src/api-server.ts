@@ -569,10 +569,39 @@ const operatorApiHandlers: OperatorApiHandlers<ApiServerEnvironment> = {
         authoritative,
         registrySnapshotDisagreement:
           entry.grantSnapshot?.reserved !== authoritative.slots.reserved ||
-          entry.grantSnapshot?.spent !== authoritative.slots.spent,
+          entry.grantSnapshot?.spent !== authoritative.slots.spent ||
+          entry.grantSnapshot?.maxSlots !==
+            authoritative.slots.remaining +
+              authoritative.slots.reserved +
+              authoritative.slots.spent,
       },
       200,
     );
+  },
+
+  async setGrantAllowance(context) {
+    const { grantId } = context.req.valid("param");
+    const { maxSlots } = context.req.valid("json");
+    if ((await getRegistryStub(context.env).getGrant(grantId)) === undefined)
+      return jsonError(
+        context.get("requestId"),
+        "grant-not-found",
+        "Conversion grant not found.",
+        404,
+      );
+    const result = await getGrantStub(context.env, grantId).setMaxSlots(maxSlots);
+    if (result.result === "below-used-slots")
+      return jsonError(
+        context.get("requestId"),
+        "allowance-below-used-slots",
+        "Allowance cannot be lower than reserved and spent slots.",
+        409,
+      );
+    await getRegistryStub(context.env).applyGrantRegistrySnapshot(result.registrySnapshot);
+    await getGrantStub(context.env, grantId).confirmRegistrySnapshot(
+      result.registrySnapshot.revision,
+    );
+    return context.json({ changed: result.changed, grant: result.snapshot }, 200);
   },
 
   async revokeGrant(context) {
@@ -850,6 +879,7 @@ function allowedMethodsForApiPath(pathname: string): string[] | undefined {
     [/^\/api\/audiobooks\/[^/]+\/epub$/, ["GET", "HEAD"]],
     [/^\/api\/operator\/grants$/, ["GET", "POST"]],
     [/^\/api\/operator\/grants\/[^/]+$/, ["GET"]],
+    [/^\/api\/operator\/grants\/[^/]+\/allowance$/, ["PUT"]],
     [/^\/api\/operator\/grants\/[^/]+\/revocation$/, ["POST"]],
     [/^\/api\/operator\/grants\/[^/]+\/session-invalidations$/, ["POST"]],
     [/^\/api\/operator\/grant-migrations$/, ["POST"]],
@@ -864,8 +894,8 @@ function deriveEntryState(
   if (entry.phase !== "active" || entry.grantSnapshot === undefined) return "provisioning" as const;
   if (entry.grantSnapshot.revokedAtMs !== undefined) return "revoked" as const;
   if (nowMs >= entry.expiresAtMs) return "expired" as const;
-  if (entry.grantSnapshot.spent === 5) return "exhausted" as const;
-  if (entry.grantSnapshot.spent + entry.grantSnapshot.reserved === 5)
+  if (entry.grantSnapshot.spent >= entry.grantSnapshot.maxSlots) return "exhausted" as const;
+  if (entry.grantSnapshot.spent + entry.grantSnapshot.reserved >= entry.grantSnapshot.maxSlots)
     return "temporarily-full" as const;
   return "open" as const;
 }

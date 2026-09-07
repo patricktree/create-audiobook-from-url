@@ -10,8 +10,8 @@ import type {
 } from "#src/grant-contracts.ts";
 import { toIsoString } from "#src/time.ts";
 
-export const GRANT_SCHEMA_VERSION = 3;
-export const MAX_SLOTS = 5;
+export const GRANT_SCHEMA_VERSION = 4;
+export const DEFAULT_MAX_SLOTS = 5;
 export const RECONCILIATION_CUTOFF_MS = 48 * 60 * 60 * 1_000;
 
 export type PendingConversion = {
@@ -74,6 +74,7 @@ export type AudiobookReference = {
 };
 
 export type GrantRecord = {
+  maxSlots: number;
   grantId: string;
   createdAtMs: number;
   expiresAtMs: number;
@@ -89,6 +90,7 @@ export type GrantRecord = {
 };
 
 export type GrantRegistrySnapshot = {
+  maxSlots: number;
   grantId: string;
   revision: number;
   revokedAtMs?: number;
@@ -222,14 +224,14 @@ export function deriveSlotCounts(record: GrantRecord): SlotCounts {
     (conversion) => conversion.status === "pending",
   ).length;
   const spent = record.conversions.filter((conversion) => conversion.status === "ready").length;
-  return { remaining: MAX_SLOTS - reserved - spent, reserved, spent };
+  return { remaining: record.maxSlots - reserved - spent, reserved, spent };
 }
 
 export function deriveGrantState(record: GrantRecord, nowMs: number): GrantState {
   if (record.revokedAtMs !== undefined) return "revoked";
   if (nowMs >= record.expiresAtMs) return "expired";
   const slots = deriveSlotCounts(record);
-  if (slots.spent === MAX_SLOTS) return "exhausted";
+  if (slots.spent >= record.maxSlots) return "exhausted";
   if (slots.remaining === 0) return "temporarily-full";
   return "open";
 }
@@ -239,6 +241,7 @@ export function createGrantRegistrySnapshot(record: GrantRecord): GrantRegistryS
   return {
     grantId: record.grantId,
     revision: record.registrySnapshotRevision,
+    maxSlots: record.maxSlots,
     ...(record.revokedAtMs === undefined ? {} : { revokedAtMs: record.revokedAtMs }),
     reserved: slots.reserved,
     spent: slots.spent,

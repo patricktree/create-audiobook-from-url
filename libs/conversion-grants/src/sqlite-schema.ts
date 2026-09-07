@@ -13,6 +13,7 @@ export const grants = sqliteTable(
   "grant",
   {
     id: integer().primaryKey(),
+    maxSlots: integer("max_slots").notNull().default(5),
     grantId: text("grant_id").notNull().unique(),
     createdAtMs: integer("created_at_ms").notNull(),
     expiresAtMs: integer("expires_at_ms").notNull(),
@@ -102,6 +103,7 @@ export const registryGrants = sqliteTable(
     createdAtMs: integer("created_at_ms").notNull(),
     expiresAtMs: integer("expires_at_ms").notNull(),
     credentialIssued: integer("credential_issued", { mode: "boolean" }).notNull(),
+    snapshotMaxSlots: integer("projection_max_slots").notNull().default(5),
     snapshotRevision: integer("projection_revision"),
     snapshotRevokedAtMs: integer("projection_revoked_at_ms"),
     snapshotReserved: integer("projection_reserved"),
@@ -110,8 +112,8 @@ export const registryGrants = sqliteTable(
   },
   (table) => [
     check("registry_grant_expiry", sql`${table.expiresAtMs} > ${table.createdAtMs}`),
-    check("registry_grant_snapshot_reserved", sql`${table.snapshotReserved} BETWEEN 0 AND 5`),
-    check("registry_grant_snapshot_spent", sql`${table.snapshotSpent} BETWEEN 0 AND 5`),
+    check("registry_grant_snapshot_reserved", sql`${table.snapshotReserved} >= 0`),
+    check("registry_grant_snapshot_spent", sql`${table.snapshotSpent} >= 0`),
     check(
       "registry_grant_snapshot",
       sql`(

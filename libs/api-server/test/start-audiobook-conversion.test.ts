@@ -24,6 +24,7 @@ const CREATED_RESULT = {
     reserved: 1,
     spent: 0,
     schemaVersion: 2,
+    maxSlots: 5,
   },
 } as const satisfies StartGrantConversionResult;
 

@@ -31,7 +31,7 @@ A limited allowance of conversions available to anyone possessing its grant cred
 _Avoid_: trial link, user quota
 
 **conversion slot**:
-One of the five allowance units in a conversion grant. A slot is available before use, reserved while its conversion is pending, and spent when that conversion becomes ready. A failed conversion makes its reserved slot available again.
+One allowance unit in a conversion grant. A slot is available before use, reserved while its conversion is pending, and spent when that conversion becomes ready. A failed conversion makes its reserved slot available again.
 _Avoid_: credit, token, conversion
 
 **grant credential**:

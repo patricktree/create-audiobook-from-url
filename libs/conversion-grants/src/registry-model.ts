@@ -1,10 +1,9 @@
 import { canonicalJson, decodeBase64Url, encodeBase64Url } from "#src/encoding.ts";
 import type { ProjectedGrantState } from "#src/grant-contracts.ts";
 import type { GrantRegistrySnapshot } from "#src/grant-model.ts";
-import { MAX_SLOTS } from "#src/grant-model.ts";
 import { toIsoString } from "#src/time.ts";
 
-export const REGISTRY_SCHEMA_VERSION = 1;
+export const REGISTRY_SCHEMA_VERSION = 2;
 export const GRANT_LIFETIME_MS = 90 * 24 * 60 * 60 * 1_000;
 
 export type RegistryEntry = {
@@ -42,8 +41,8 @@ export function deriveProjectedState(entry: RegistryEntry, nowMs: number): Proje
   if (entry.phase !== "active" || entry.grantSnapshot === undefined) return "provisioning";
   if (entry.grantSnapshot.revokedAtMs !== undefined) return "revoked";
   if (nowMs >= entry.expiresAtMs) return "expired";
-  if (entry.grantSnapshot.spent === MAX_SLOTS) return "exhausted";
-  if (entry.grantSnapshot.reserved + entry.grantSnapshot.spent === MAX_SLOTS)
+  if (entry.grantSnapshot.spent >= entry.grantSnapshot.maxSlots) return "exhausted";
+  if (entry.grantSnapshot.reserved + entry.grantSnapshot.spent >= entry.grantSnapshot.maxSlots)
     return "temporarily-full";
   return "open";
 }

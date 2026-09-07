@@ -11,7 +11,7 @@ import type {
 const createClient = (...args: Parameters<typeof hc>): OperatorHonoClient =>
   hc<OperatorApiApp>(...args);
 
-/** Focused typed client for the six operator RPC actions. */
+/** Focused typed client for the operator RPC actions. */
 export class OperatorApiClient {
   #client: ReturnType<typeof createClient>;
   #accessToken: string;
@@ -31,6 +31,13 @@ export class OperatorApiClient {
 
   inspectGrant(params: GrantParams) {
     return this.#client.api.operator.grants[":grantId"].$get({ param: params }, this.options());
+  }
+
+  setGrantAllowance(params: GrantParams, maxSlots: number) {
+    return this.#client.api.operator.grants[":grantId"].allowance.$put(
+      { param: params, json: { maxSlots } },
+      this.options(),
+    );
   }
 
   revokeGrant(params: GrantParams) {

@@ -29,6 +29,7 @@ import {
   deriveGrantState,
   deriveSlotCounts,
   GRANT_SCHEMA_VERSION,
+  DEFAULT_MAX_SLOTS,
   RECONCILIATION_CUTOFF_MS,
 } from "#src/grant-model.ts";
 import { signSession, verifyRootCredential, verifySession } from "#src/grant-session.ts";
@@ -74,6 +75,7 @@ export class ConversionGrantDurableObject extends DurableObject<ConversionGrantE
         return createGrantRegistrySnapshot(existing);
       }
       const record: GrantRecord = {
+        maxSlots: DEFAULT_MAX_SLOTS,
         grantId,
         createdAtMs,
         expiresAtMs,
@@ -270,6 +272,29 @@ export class ConversionGrantDurableObject extends DurableObject<ConversionGrantE
         ? {}
         : { diagnosticReference: input.diagnosticReference }),
       ...(input.cleanupState === undefined ? {} : { cleanupState: input.cleanupState }),
+    });
+  }
+
+  async setMaxSlots(maxSlots: number, nowMs = nowMilliseconds()) {
+    if (!Number.isSafeInteger(maxSlots) || maxSlots < 1)
+      throw new Error("Conversion allowance must be a positive safe integer");
+    return this.ctx.storage.transaction(async () => {
+      const record = await this.sqlite.requireRecord();
+      const slots = deriveSlotCounts(record);
+      if (maxSlots < slots.reserved + slots.spent) return { result: "below-used-slots" as const };
+      const changed = record.maxSlots !== maxSlots;
+      if (changed) {
+        record.maxSlots = maxSlots;
+        record.registrySnapshotRevision += 1;
+        await this.sqlite.save(record);
+        await this.ctx.storage.setAlarm(nowMs + RECONCILIATION_RETRY_MS);
+      }
+      return {
+        result: "updated" as const,
+        changed,
+        snapshot: createGrantSnapshot(record, nowMs),
+        registrySnapshot: createGrantRegistrySnapshot(record),
+      };
     });
   }
 

@@ -121,6 +121,30 @@ grant
   );
 
 grant
+  .command("set-allowance")
+  .argument("<grant-id>")
+  .requiredOption("--conversions <number>", "total conversion allowance")
+  .action(async (grantId, options, command) => {
+    const maxSlots = z.coerce.number().int().positive().parse(options.conversions);
+    await run(command, async (client, output) => {
+      const result = await parseOkResponse(
+        client.setGrantAllowance({ grantId: parseUuid(grantId) }, maxSlots),
+      );
+      output(result, () =>
+        writeFields([
+          ["Grant ID", result.grant.grantId],
+          [
+            "Total allowance",
+            result.grant.slots.remaining + result.grant.slots.reserved + result.grant.slots.spent,
+          ],
+          ["Remaining", result.grant.slots.remaining],
+          ["Changed", result.changed ? "yes" : "no"],
+        ]),
+      );
+    });
+  });
+
+grant
   .command("revoke")
   .argument("<grant-id>")
   .requiredOption("--yes", "confirm irreversible revocation")

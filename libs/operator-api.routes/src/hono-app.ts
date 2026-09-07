@@ -2,6 +2,7 @@ import { createRoute, OpenAPIHono, z } from "@hono/zod-openapi";
 import type { RouteHandler } from "@hono/zod-openapi";
 
 import {
+  setGrantAllowanceRequestSchema,
   createGrantRequestSchema,
   createGrantResponseSchema,
   errorResponseSchema,
@@ -69,6 +70,27 @@ const inspectGrantRoute = createRoute({
       description: "Authoritative grant inspection.",
     },
     404: errorResponse("Grant not found."),
+    500: errorResponse("Operational error."),
+  },
+});
+
+const setGrantAllowanceRoute = createRoute({
+  method: "put",
+  path: "/api/operator/grants/{grantId}/allowance",
+  request: {
+    params: grantParamsSchema,
+    body: {
+      required: true,
+      content: { "application/json": { schema: setGrantAllowanceRequestSchema } },
+    },
+  },
+  responses: {
+    200: {
+      content: { "application/json": { schema: revokeGrantResponseSchema } },
+      description: "Conversion allowance updated.",
+    },
+    404: errorResponse("Grant not found."),
+    409: errorResponse("Allowance is below reserved and spent slots."),
     500: errorResponse("Operational error."),
   },
 });
@@ -142,6 +164,7 @@ export type OperatorApiHandlers<Bindings extends object> = {
   createGrant: OperatorApiRouteHandler<typeof createGrantRoute, Bindings>;
   listGrants: OperatorApiRouteHandler<typeof listGrantsRoute, Bindings>;
   inspectGrant: OperatorApiRouteHandler<typeof inspectGrantRoute, Bindings>;
+  setGrantAllowance: OperatorApiRouteHandler<typeof setGrantAllowanceRoute, Bindings>;
   revokeGrant: OperatorApiRouteHandler<typeof revokeGrantRoute, Bindings>;
   invalidateSessions: OperatorApiRouteHandler<typeof invalidateSessionsRoute, Bindings>;
   migrateGrants: OperatorApiRouteHandler<typeof migrateGrantsRoute, Bindings>;
@@ -155,6 +178,7 @@ export function createOperatorApi<Bindings extends object>(
     .openapi(createGrantRoute, handlers.createGrant)
     .openapi(listGrantsRoute, handlers.listGrants)
     .openapi(inspectGrantRoute, handlers.inspectGrant)
+    .openapi(setGrantAllowanceRoute, handlers.setGrantAllowance)
     .openapi(revokeGrantRoute, handlers.revokeGrant)
     .openapi(invalidateSessionsRoute, handlers.invalidateSessions)
     .openapi(migrateGrantsRoute, handlers.migrateGrants);

@@ -125,3 +125,7 @@ export const errorResponseSchema = z
   })
   .strict();
 export type ErrorResponse = z.infer<typeof errorResponseSchema>;
+
+export const setGrantAllowanceRequestSchema = z
+  .object({ maxSlots: z.number().int().positive() })
+  .strict();

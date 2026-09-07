@@ -85,6 +85,7 @@ test("creates a non-recoverable credential shape and path-scoped session cookie"
 
 function createRecord(): GrantRecord {
   return {
+    maxSlots: 5,
     grantId: "b4ad28a8-bbd7-46af-a17c-59527becd745",
     createdAtMs: CREATED_AT_MS,
     expiresAtMs: EXPIRES_AT_MS,

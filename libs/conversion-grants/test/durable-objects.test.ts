@@ -37,8 +37,8 @@ afterAll(async () => {
 describe("SQLite conversion grant Durable Object", () => {
   test("replays schema migrations and persists the authoritative record", async () => {
     const grant = grantStub("migration");
-    expect(await grant.migrate()).toBe(3);
-    expect(await grant.migrate()).toBe(3);
+    expect(await grant.migrate()).toBe(4);
+    expect(await grant.migrate()).toBe(4);
     await grant.initialize(grantId("migration"), CREATED_AT_MS, EXPIRES_AT_MS);
 
     const storage = await worker.getDurableObjectStorage("CONVERSION_GRANTS", {
@@ -50,7 +50,7 @@ describe("SQLite conversion grant Durable Object", () => {
       )
     ).map((row) => row.version);
 
-    expect(versions).toEqual([1, 2, 3]);
+    expect(versions).toEqual([1, 2, 3, 4]);
     expect((await grant.inspect(CREATED_AT_MS)).state).toBe("open");
   });
 
@@ -306,7 +306,7 @@ describe("SQLite conversion grant Durable Object", () => {
 describe("SQLite conversion grant Registry Durable Object", () => {
   test("binds request IDs, pages snapshots, and rejects same-revision conflicts", async () => {
     const registry = registryStub("registry");
-    expect(await registry.migrate()).toBe(1);
+    expect(await registry.migrate()).toBe(2);
     const first = await registry.reserveProvisioning(
       grantId("provision-one"),
       "Alpha",
@@ -327,6 +327,7 @@ describe("SQLite conversion grant Registry Durable Object", () => {
       reserved: 0,
       spent: 0,
       schemaVersion: 2,
+      maxSlots: 5,
     };
     await registry.activate(first.entry.requestId, grantSnapshot, true);
     expect(await registry.applyGrantRegistrySnapshot(grantSnapshot)).toBe("replayed");
@@ -415,3 +416,94 @@ function grantId(seed: string): string {
   ).join("");
   return `${hex.slice(0, 8)}-${hex.slice(8, 12)}-4${hex.slice(13, 16)}-a${hex.slice(17, 20)}-${hex.slice(20, 32)}`;
 }
+
+test("raises an existing grant to twenty slots without replacing its credential", async () => {
+  const grant = grantStub("allowance");
+  await grant.initialize(grantId("allowance"), CREATED_AT_MS, EXPIRES_AT_MS);
+  const root = await createRootCredential();
+  await grant.installCredentialVerifier(root.verifier, CREATED_AT_MS);
+  const exchange = await grant.exchangeCredential(root.credential, CREATED_AT_MS);
+  if (exchange.result !== "created") throw new Error("Credential exchange failed");
+  for (let index = 0; index < 5; index += 1)
+    expect(
+      (
+        await grant.startConversion(
+          `https://example.com/${index}`,
+          crypto.randomUUID(),
+          CREATED_AT_MS + index * 61_000,
+        )
+      ).result,
+    ).toBe("created");
+  expect((await grant.inspect(CREATED_AT_MS)).state).toBe("temporarily-full");
+  expect((await grant.setMaxSlots(20, CREATED_AT_MS)).result).toBe("updated");
+  expect(await grant.setMaxSlots(4, CREATED_AT_MS)).toEqual({ result: "below-used-slots" });
+  expect(await grant.setMaxSlots(20, CREATED_AT_MS)).toMatchObject({ changed: false });
+  for (let index = 5; index < 20; index += 1) {
+    expect(
+      (
+        await grant.startConversion(
+          `https://example.com/${index}`,
+          crypto.randomUUID(),
+          CREATED_AT_MS + index * 61_000,
+        )
+      ).result,
+    ).toBe("created");
+  }
+  expect(
+    (
+      await grant.startConversion(
+        "https://example.com/overflow",
+        crypto.randomUUID(),
+        CREATED_AT_MS + 20 * 61_000,
+      )
+    ).result,
+  ).toBe("temporarily-full");
+  expect(await grant.validateSession(exchange.sessionToken, CREATED_AT_MS)).toMatchObject({
+    result: "valid",
+    snapshot: { slots: { remaining: 0, reserved: 20, spent: 0 } },
+  });
+  expect((await grant.exchangeCredential(root.credential, CREATED_AT_MS)).result).toBe("created");
+});
+
+test("migrates stored grants and registry bindings and persists larger snapshots", async () => {
+  const name = "allowance-migration";
+  const grant = grantStub(name);
+  await grant.initialize(grantId(name), CREATED_AT_MS, EXPIRES_AT_MS);
+  const storage = await worker.getDurableObjectStorage("CONVERSION_GRANTS", { name });
+  await storage.exec("ALTER TABLE grant DROP COLUMN max_slots");
+  await storage.exec("DELETE FROM _schema_migrations WHERE version = 4");
+  expect(await grant.migrate()).toBe(4);
+  expect((await grant.inspect(CREATED_AT_MS)).slots.remaining).toBe(5);
+  const registry = registryStub(name);
+  const { entry } = await registry.reserveProvisioning(
+    crypto.randomUUID(),
+    "Migration",
+    CREATED_AT_MS,
+  );
+  const conversionId = crypto.randomUUID();
+  await registry.bindConversion(conversionId, entry.grantId);
+  const registryStorage = await worker.getDurableObjectStorage("CONVERSION_GRANT_REGISTRY", {
+    name,
+  });
+  await registryStorage.exec("ALTER TABLE registry_grants DROP COLUMN projection_max_slots");
+  await registryStorage.exec("DELETE FROM _schema_migrations WHERE version = 2");
+  expect(await registry.migrate()).toBe(2);
+  expect(await registry.findGrantIdForConversion(conversionId)).toBe(entry.grantId);
+  await registry.activate(
+    entry.requestId,
+    { grantId: entry.grantId, revision: 2, maxSlots: 20, reserved: 0, spent: 6, schemaVersion: 4 },
+    true,
+  );
+  expect((await registry.listGrants({ limit: 100 }, CREATED_AT_MS)).grants[0]?.state).toBe("open");
+  await registry.applyGrantRegistrySnapshot({
+    grantId: entry.grantId,
+    revision: 3,
+    maxSlots: 20,
+    reserved: 0,
+    spent: 20,
+    schemaVersion: 4,
+  });
+  expect((await registry.listGrants({ limit: 100 }, CREATED_AT_MS)).grants[0]?.state).toBe(
+    "exhausted",
+  );
+});

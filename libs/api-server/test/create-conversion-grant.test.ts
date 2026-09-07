@@ -22,6 +22,7 @@ test("provisions a grant and returns its root credential", async () => {
     reserved: 0,
     spent: 0,
     schemaVersion: 2,
+    maxSlots: 5,
   };
   const dependencies: CreateConversionGrantDependencies = {
     registry: {
