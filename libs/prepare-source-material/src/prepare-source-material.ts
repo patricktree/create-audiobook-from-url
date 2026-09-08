@@ -1,12 +1,13 @@
 import { parseFragment, serialize } from "parse5";
 import type { DefaultTreeAdapterMap } from "parse5";
 
-const DERSTANDARD_CONSENT_COOKIE = {
-  name: "DSGVO_ZUSAGE_V1",
-  value: "true",
-  domain: ".derstandard.at",
-  path: "/",
-} as const;
+/** A cookie installed before source-page navigation. */
+export type SourcePageCookie = {
+  name: string;
+  value: string;
+  domain: string;
+  path: string;
+};
 
 const MEANINGFUL_EMPTY_ELEMENT_TAG_NAMES = new Set<string>([
   "audio",
@@ -77,9 +78,7 @@ type RenderedSourcePageReadinessOptions = typeof RENDERED_SOURCE_PAGE_READINESS;
 type SourcePage = {
   route(pattern: string, handler: (route: InterceptedRoute) => Promise<void>): Promise<unknown>;
   context(): {
-    addCookies(
-      cookies: Array<{ name: string; value: string; domain: string; path: string }>,
-    ): Promise<void>;
+    addCookies(cookies: SourcePageCookie[]): Promise<void>;
   };
   goto(
     url: string,
@@ -116,6 +115,7 @@ export type SourceMaterialPreparer = (url: string) => Promise<SourceMaterial>;
 
 /** Supplies the browser and URL used to load one source page. */
 export type LoadSourcePageOptions = {
+  cookies?: SourcePageCookie[];
   browser: Browser;
   javaScriptEnabled: boolean;
   url: string;
@@ -139,12 +139,13 @@ export type PrepareOptions = Omit<LoadSourcePageOptions, "javaScriptEnabled"> & 
 /** Loads static and rendered source-page candidates and selects the better source material. */
 export async function prepareSourceMaterial({
   browser,
+  cookies = [],
   url,
   loadSourcePage = loadPublicSourcePage,
 }: PrepareOptions): Promise<SourceMaterial> {
   const results = await Promise.allSettled(
     SOURCE_PAGE_JAVASCRIPT_MODES.map(async (javaScriptEnabled) =>
-      prepareLoadedSourcePage(await loadSourcePage({ browser, javaScriptEnabled, url })),
+      prepareLoadedSourcePage(await loadSourcePage({ browser, cookies, javaScriptEnabled, url })),
     ),
   );
   const sourceMaterials = results.flatMap((result) =>
@@ -184,6 +185,7 @@ export function prepareLoadedSourcePage(sourcePage: LoadedSourcePage): SourceMat
 /** Loads a public source page while blocking scripts and non-public subresources. */
 export async function loadPublicSourcePage({
   browser,
+  cookies = [],
   javaScriptEnabled,
   url,
 }: LoadSourcePageOptions): Promise<LoadedSourcePage> {
@@ -199,8 +201,9 @@ export async function loadPublicSourcePage({
         await route.abort("blockedbyclient");
       }
     });
-    // Without a consent choice, Der Standard redirects to /consent/tcf and serves only a preview.
-    await page.context().addCookies([DERSTANDARD_CONSENT_COOKIE]);
+    if (cookies.length > 0) {
+      await page.context().addCookies(cookies);
+    }
     const response = await page.goto(url, { waitUntil: "domcontentloaded" });
 
     if (!response) {

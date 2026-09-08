@@ -8,8 +8,7 @@ import {
   prepareSourceMaterial,
 } from "#src/prepare-source-material.ts";
 
-const SOURCE_URL =
-  "https://www.derstandard.at/story/3000000335948/milliarden-fuer-die-landwirtschaft-warum-oesterreich-dennoch-kein-bauernparadies-ist?ref=seite1_zonekur";
+const SOURCE_URL = "https://publisher.example/story";
 const UNUSED_BROWSER = {
   newPage: () => Promise.reject(new Error("The test source-page loader should be used")),
 } satisfies Browser;
@@ -262,4 +261,42 @@ test("uses the static source page when the JavaScript-enabled load fails", async
     html: "<main><h1>Static document</h1><p>Complete source text.</p></main>",
     title: "Static document",
   });
+});
+
+test.each([
+  undefined,
+  [{ name: "consent", value: "yes", domain: ".publisher.example", path: "/" }],
+])("installs configured cookies before both source-page navigations: %j", async (cookies) => {
+  const modes: boolean[] = [];
+  const browser = {
+    newPage: async ({ javaScriptEnabled }) => {
+      modes.push(javaScriptEnabled);
+      let installedCookies: unknown = [];
+      return {
+        route: async () => {},
+        context: () => ({
+          addCookies: async (values) => {
+            installedCookies = values;
+          },
+        }),
+        goto: async () => {
+          expect(installedCookies).toEqual(cookies ?? []);
+          return { status: () => 200 };
+        },
+        waitForFunction: async () => {},
+        locator: () => ({ innerHTML: async () => "<p>Source content</p>" }),
+        title: async () => "Source title",
+        close: async () => {},
+      };
+    },
+  } satisfies Browser;
+
+  await expect(
+    prepareSourceMaterial({
+      browser,
+      url: SOURCE_URL,
+      ...(cookies === undefined ? {} : { cookies }),
+    }),
+  ).resolves.toEqual({ html: "<p>Source content</p>", title: "Source title" });
+  expect(modes).toEqual([false, true]);
 });

@@ -78,6 +78,6 @@
     },
   ],
   "secrets": {
-    "required": ["CLOUDFLARE_API_KEY"],
+    "required": ["CLOUDFLARE_API_KEY", "SOURCE_PAGE_COOKIES_JSON"],
   },
 }

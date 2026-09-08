@@ -10,10 +10,12 @@ import {
   type CreateAudiobookFromUrlWorkflowEnvironment,
   type ConversionParams,
 } from "#src/run-create-audiobook-from-url-workflow.ts";
+import { parseSourcePageCookies } from "#src/source-page-cookies.ts";
 
 type ProductionWorkflowEnvironment = CreateAudiobookFromUrlWorkflowEnvironment & {
   AI: Parameters<typeof runCreateAudiobookFromUrlWorkflow>[0]["services"]["speechSynthesisAi"];
   BROWSER: BrowserWorker;
+  SOURCE_PAGE_COOKIES_JSON?: string;
 };
 
 /** Orchestrates audiobook creation from a source URL with production providers. */
@@ -23,6 +25,8 @@ export class CreateAudiobookFromUrlWorkflow extends WorkflowEntrypoint<
 > {
   /** Converts one source URL into stored canonical audio and synchronized EPUB artifacts. */
   override run(event: WorkflowEvent<ConversionParams>, step: WorkflowStep) {
+    const cookies = parseSourcePageCookies(this.env.SOURCE_PAGE_COOKIES_JSON);
+
     return runCreateAudiobookFromUrlWorkflow({
       env: this.env,
       event,
@@ -32,7 +36,7 @@ export class CreateAudiobookFromUrlWorkflow extends WorkflowEntrypoint<
           const browser = await launch(this.env.BROWSER);
 
           try {
-            return await prepareSourceMaterial({ browser, url: sourceUrl });
+            return await prepareSourceMaterial({ browser, cookies, url: sourceUrl });
           } finally {
             await browser.close();
           }
