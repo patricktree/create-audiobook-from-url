@@ -1,8 +1,7 @@
+import { expect, test } from "@playwright/test";
 import { format } from "oxfmt";
 import { parseFragment, serializeOuter } from "parse5";
 import type { DefaultTreeAdapterMap } from "parse5";
-import { chromium, type Browser as PlaywrightBrowser } from "playwright";
-import { afterAll, beforeAll, expect, test } from "vitest";
 
 import {
   type Browser as SourceMaterialBrowser,
@@ -44,48 +43,36 @@ const SOURCE_PAGES = [
   },
 ] as const;
 
-let browser: SourceMaterialBrowser;
-let playwrightBrowser: PlaywrightBrowser;
+for (const { snapshotFilename, stabilizeSourceMaterial, url } of SOURCE_PAGES) {
+  test(`prepares source material for ${url}`, async ({ browser: playwrightBrowser }) => {
+    const chromiumMajorVersion = playwrightBrowser.version().split(".")[0];
 
-beforeAll(async () => {
-  playwrightBrowser = await chromium.launch({ headless: true });
-  const chromiumMajorVersion = playwrightBrowser.version().split(".")[0];
+    if (!chromiumMajorVersion) {
+      throw new Error("Expected Chromium to report its version");
+    }
 
-  if (!chromiumMajorVersion) {
-    throw new Error("Expected Chromium to report its version");
-  }
-
-  browser = {
-    newPage: ({ javaScriptEnabled }) =>
-      playwrightBrowser.newPage({
-        extraHTTPHeaders: {
-          "sec-ch-ua": `"Chromium";v="${chromiumMajorVersion}", "Not=A?Brand";v="99"`,
-          "sec-ch-ua-mobile": "?0",
-          "sec-ch-ua-platform": process.platform === "darwin" ? '"macOS"' : '"Linux"',
-        },
-        javaScriptEnabled,
-        locale: "en-GB",
-        // Some public sites reject Chromium's default HeadlessChrome identifier at the edge.
-        userAgent: `Mozilla/5.0 (${process.platform === "darwin" ? "Macintosh; Intel Mac OS X 10_15_7" : "X11; Linux x86_64"}) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/${chromiumMajorVersion}.0.0.0 Safari/537.36`,
-      }),
-  };
-});
-
-afterAll(async () => {
-  await playwrightBrowser.close();
-});
-
-test.each(SOURCE_PAGES)(
-  "prepares source material for $url",
-  async ({ snapshotFilename, stabilizeSourceMaterial, url }) => {
+    const browser: SourceMaterialBrowser = {
+      newPage: ({ javaScriptEnabled }) =>
+        playwrightBrowser.newPage({
+          extraHTTPHeaders: {
+            "sec-ch-ua": `"Chromium";v="${chromiumMajorVersion}", "Not=A?Brand";v="99"`,
+            "sec-ch-ua-mobile": "?0",
+            "sec-ch-ua-platform": '"Linux"',
+          },
+          javaScriptEnabled,
+          locale: "en-GB",
+          // Some public sites reject Chromium's default HeadlessChrome identifier at the edge.
+          userAgent: `Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/${chromiumMajorVersion}.0.0.0 Safari/537.36`,
+        }),
+    };
     const sourceMaterial = await prepareSourceMaterial({ browser, url });
     const fullHtml = `<html><head><title>${escapeHtml(sourceMaterial.title)}</title></head><body>${sourceMaterial.html}</body></html>`;
     const stableFullHtml = stabilizeSourceMaterial(fullHtml);
     const { code: formattedFullHtml } = await format(snapshotFilename, stableFullHtml);
 
-    await expect(formattedFullHtml).toMatchFileSnapshot(snapshotFilename);
-  },
-);
+    expect(formattedFullHtml).toMatchSnapshot(snapshotFilename);
+  });
+}
 
 function extractElementById(html: string, elementId: string): string {
   const documentFragment = parseFragment(html);
