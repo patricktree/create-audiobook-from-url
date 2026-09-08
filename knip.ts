@@ -26,6 +26,10 @@ const config: KnipConfig = {
         "cloudflare",
       ],
     },
+    "apps/web-app": {
+      /* Playwright and Vite load these component-testing modules indirectly. */
+      entry: ["ui-gallery/main.tsx", "ui-gallery/vite.config.ts", "src/**/*.story.tsx"],
+    },
     "libs/conversion-grants": {
       /* Wrangler loads this module-only Worker entry point from wrangler.test.jsonc. */
       entry: ["test/worker.ts"],

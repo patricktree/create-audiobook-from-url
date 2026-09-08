@@ -1,16 +1,15 @@
-import "@fontsource-variable/inter/wght.css";
-import "@fontsource/space-mono";
 import React from "react";
 
-import { GlobalProviders } from "#src/app/global-providers.js";
-import { cssBase, cssReset } from "#src/app/global-styles.ts";
+import { AppStyles } from "#src/app/app-styles.js";
+import { createAppRouter, GlobalProviders } from "#src/app/global-providers.js";
+
+const router = createAppRouter();
 
 export function WebApp(): React.ReactNode {
   return (
     <>
-      <style dangerouslySetInnerHTML={{ __html: cssReset }} />
-      <style dangerouslySetInnerHTML={{ __html: cssBase }} />
-      <GlobalProviders />
+      <AppStyles />
+      <GlobalProviders router={router} />
     </>
   );
 }

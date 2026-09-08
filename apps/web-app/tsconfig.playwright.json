@@ -1,0 +1,13 @@
+{
+  "extends": [
+    "@patricktree-stack/config-typescript/tsconfig.defaults.json",
+    "@patricktree-stack/config-typescript/tsconfig.web.json",
+    "@patricktree-stack/config-typescript/tsconfig.playwright.json"
+  ],
+  "compilerOptions": {
+    "jsx": "react-jsx",
+    "types": ["node", "vite/client"]
+  },
+  "include": ["playwright.config.ts", "ui-gallery/**/*", "src/**/*.story.tsx", "src/**/*.test.ts"],
+  "references": [{ "path": "./tsconfig.build.json" }]
+}

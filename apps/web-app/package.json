@@ -14,24 +14,30 @@
     "#src/*": {
       "types": "./dist/types/*",
       "default": "./src/*"
-    }
+    },
+    "#ui-gallery/*.js": "./ui-gallery/*.ts"
   },
   "exports": {
     "./package.json": "./package.json",
     "./main": {
       "types": "./dist/types/main.d.ts",
       "default": "./src/main.tsx"
-    }
+    },
+    "./vite": "./vite.shared.ts"
   },
   "scripts": {
     "build": "turbo run turbo:build",
-    "clean": "del-cli --dot=true \"dist\" \"*.tsbuildinfo\"",
+    "clean": "del-cli --dot=true \"dist\" \"*.tsbuildinfo\" \"playwright-output\"",
+    "dev:gallery": "msw init ui-gallery --save=false && vite --config ui-gallery/vite.config.ts",
     "lint": "turbo run turbo:lint",
     "lint:css": "stylelint \"./src/**/*.(css|ts|cts|mts|tsx|ctsx|mtsx)\"",
     "lint:fix": "turbo run turbo:lint:fix",
+    "test:components": "playwright test",
+    "test:components:ui": "playwright test --ui",
     "turbo:build": "tsc --build ./tsconfig.json",
     "turbo:lint": "oxlint --type-aware --max-warnings 0 . && pnpm run lint:css",
-    "turbo:lint:fix": "oxlint --type-aware --max-warnings 0 . --fix && pnpm run lint:css --fix"
+    "turbo:lint:fix": "oxlint --type-aware --max-warnings 0 . --fix && pnpm run lint:css --fix",
+    "turbo:test": "pnpm run test:components"
   },
   "dependencies": {
     "@base-ui/react": "^1.7.0",
@@ -50,13 +56,23 @@
   },
   "devDependencies": {
     "@create-audiobook-from-url/config-oxlint": "workspace:*",
+    "@patricktree-stack/config-playwright": "workspace:*",
     "@patricktree-stack/config-stylelint": "workspace:*",
     "@patricktree-stack/config-typescript": "workspace:*",
+    "@patricktree-stack/config-wyw-in-js": "workspace:*",
+    "@playwright/test": "catalog:",
+    "@tanstack/router-plugin": "catalog:web-app",
+    "@types/node": "catalog:",
     "@types/react": "catalog:web-app",
+    "@types/react-dom": "catalog:web-app",
     "@typescript/native": "catalog:",
+    "@vitejs/plugin-react": "catalog:web-app",
+    "@wyw-in-js/vite": "catalog:web-app",
+    "msw": "^2.15.0",
     "oxlint": "catalog:",
     "oxlint-tsgolint": "catalog:",
     "stylelint": "catalog:",
-    "typescript": "catalog:"
+    "typescript": "catalog:",
+    "vite": "catalog:web-app"
   }
 }
