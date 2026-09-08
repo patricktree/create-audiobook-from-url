@@ -15,15 +15,15 @@ export default defineConfig(createPlaywrightDockerConfig({ maxWorkers: 2 }), {
   reporter: [["html", { open: "never", outputFolder: path.join(outputRoot, "html-report") }]],
   projects: [
     {
-      name: "desktop-chromium",
-      use: {
-        ...devices["Desktop Chrome"],
-      },
-    },
-    {
       name: "mobile-chromium",
       use: {
         ...devices["Pixel 9 Pro"],
+      },
+    },
+    {
+      name: "desktop-chromium",
+      use: {
+        ...devices["Desktop Chrome"],
       },
     },
   ],
@@ -31,7 +31,6 @@ export default defineConfig(createPlaywrightDockerConfig({ maxWorkers: 2 }), {
     locale: "en-US",
     timezoneId: "Europe/Vienna",
     colorScheme: "light",
-    contextOptions: { reducedMotion: "reduce" },
     trace: "retain-on-failure",
     screenshot: "only-on-failure",
   },
