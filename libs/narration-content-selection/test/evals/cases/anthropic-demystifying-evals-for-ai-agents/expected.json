@@ -501,234 +501,246 @@
   },
   {
     "id": "narration-unit-0126",
-    "narrationText": "Automated evals\nRunning tests programmatically without real users"
+    "narrationText": "Method"
   },
   {
     "id": "narration-unit-0127",
-    "narrationText": "Faster iteration"
+    "narrationText": "Pros"
   },
   {
     "id": "narration-unit-0128",
-    "narrationText": "Fully reproducible"
+    "narrationText": "Cons"
   },
   {
     "id": "narration-unit-0129",
-    "narrationText": "No user impact"
+    "narrationText": "Automated evals\nRunning tests programmatically without real users"
   },
   {
     "id": "narration-unit-0130",
-    "narrationText": "Can run on every commit"
+    "narrationText": "Faster iteration"
   },
   {
     "id": "narration-unit-0131",
-    "narrationText": "Tests scenarios at scale without requiring a prod deployment"
+    "narrationText": "Fully reproducible"
   },
   {
     "id": "narration-unit-0132",
-    "narrationText": "Requires more up-front investment to build"
+    "narrationText": "No user impact"
   },
   {
     "id": "narration-unit-0133",
-    "narrationText": "Requires ongoing maintenance as product and model evolves to avoid\ndrift"
+    "narrationText": "Can run on every commit"
   },
   {
     "id": "narration-unit-0134",
-    "narrationText": "Can create false confidence if it doesn’t match real usage patterns"
+    "narrationText": "Tests scenarios at scale without requiring a prod deployment"
   },
   {
     "id": "narration-unit-0135",
-    "narrationText": "Production monitoring\nTracking metrics and errors in live systems"
+    "narrationText": "Requires more up-front investment to build"
   },
   {
     "id": "narration-unit-0136",
-    "narrationText": "Reveals real user behavior at scale"
+    "narrationText": "Requires ongoing maintenance as product and model evolves to avoid\ndrift"
   },
   {
     "id": "narration-unit-0137",
-    "narrationText": "Catches issues that synthetic evals miss"
+    "narrationText": "Can create false confidence if it doesn’t match real usage patterns"
   },
   {
     "id": "narration-unit-0138",
-    "narrationText": "Provides ground truth on how agents actually perform"
+    "narrationText": "Production monitoring\nTracking metrics and errors in live systems"
   },
   {
     "id": "narration-unit-0139",
-    "narrationText": "Reactive; problems reach users before you know about them"
+    "narrationText": "Reveals real user behavior at scale"
   },
   {
     "id": "narration-unit-0140",
-    "narrationText": "Signals can be noisy"
+    "narrationText": "Catches issues that synthetic evals miss"
   },
   {
     "id": "narration-unit-0141",
-    "narrationText": "Requires investment in instrumentation"
+    "narrationText": "Provides ground truth on how agents actually perform"
   },
   {
     "id": "narration-unit-0142",
-    "narrationText": "Lacks ground truth for grading"
+    "narrationText": "Reactive; problems reach users before you know about them"
   },
   {
     "id": "narration-unit-0143",
-    "narrationText": "A/B testing\nComparing variants with real user traffic"
+    "narrationText": "Signals can be noisy"
   },
   {
     "id": "narration-unit-0144",
-    "narrationText": "Measures actual user outcomes (retention, task completion)"
+    "narrationText": "Requires investment in instrumentation"
   },
   {
     "id": "narration-unit-0145",
-    "narrationText": "Controls for confounds"
+    "narrationText": "Lacks ground truth for grading"
   },
   {
     "id": "narration-unit-0146",
-    "narrationText": "Scalable and systematic"
+    "narrationText": "A/B testing\nComparing variants with real user traffic"
   },
   {
     "id": "narration-unit-0147",
-    "narrationText": "Slow; days or weeks to reach significance and requires sufficient\ntraffic"
+    "narrationText": "Measures actual user outcomes (retention, task completion)"
   },
   {
     "id": "narration-unit-0148",
-    "narrationText": "Only tests changes you deploy"
+    "narrationText": "Controls for confounds"
   },
   {
     "id": "narration-unit-0149",
-    "narrationText": "Less signal on the underlying “why” for changes in metrics without\nbeing able to thoroughly review the transcripts"
+    "narrationText": "Scalable and systematic"
   },
   {
     "id": "narration-unit-0150",
-    "narrationText": "User feedback\nExplicit signals like thumbs-down or bug reports"
+    "narrationText": "Slow; days or weeks to reach significance and requires sufficient\ntraffic"
   },
   {
     "id": "narration-unit-0151",
-    "narrationText": "Surfaces problems you didn't anticipate"
+    "narrationText": "Only tests changes you deploy"
   },
   {
     "id": "narration-unit-0152",
-    "narrationText": "Comes with real examples from actual human users"
+    "narrationText": "Less signal on the underlying “why” for changes in metrics without\nbeing able to thoroughly review the transcripts"
   },
   {
     "id": "narration-unit-0153",
-    "narrationText": "The feedback often correlates with product goals"
+    "narrationText": "User feedback\nExplicit signals like thumbs-down or bug reports"
   },
   {
     "id": "narration-unit-0154",
-    "narrationText": "Sparse and self-selected"
+    "narrationText": "Surfaces problems you didn't anticipate"
   },
   {
     "id": "narration-unit-0155",
-    "narrationText": "Skews toward severe issues"
+    "narrationText": "Comes with real examples from actual human users"
   },
   {
     "id": "narration-unit-0156",
-    "narrationText": "Users rarely explain why something failed"
+    "narrationText": "The feedback often correlates with product goals"
   },
   {
     "id": "narration-unit-0157",
-    "narrationText": "Not automated"
+    "narrationText": "Sparse and self-selected"
   },
   {
     "id": "narration-unit-0158",
-    "narrationText": "Relying primarily on users to catch issues can have negative user\nimpact"
+    "narrationText": "Skews toward severe issues"
   },
   {
     "id": "narration-unit-0159",
-    "narrationText": "Manual transcript review\nHumans reading through agent conversations"
+    "narrationText": "Users rarely explain why something failed"
   },
   {
     "id": "narration-unit-0160",
-    "narrationText": "Builds intuition for failure modes"
+    "narrationText": "Not automated"
   },
   {
     "id": "narration-unit-0161",
-    "narrationText": "Catches subtle quality issues automated checks miss"
+    "narrationText": "Relying primarily on users to catch issues can have negative user\nimpact"
   },
   {
     "id": "narration-unit-0162",
-    "narrationText": "Helps calibrate what \"good\" looks like and grasp details"
+    "narrationText": "Manual transcript review\nHumans reading through agent conversations"
   },
   {
     "id": "narration-unit-0163",
-    "narrationText": "Time-intensive"
+    "narrationText": "Builds intuition for failure modes"
   },
   {
     "id": "narration-unit-0164",
-    "narrationText": "Doesn't scale"
+    "narrationText": "Catches subtle quality issues automated checks miss"
   },
   {
     "id": "narration-unit-0165",
-    "narrationText": "Coverage is inconsistent"
+    "narrationText": "Helps calibrate what \"good\" looks like and grasp details"
   },
   {
     "id": "narration-unit-0166",
-    "narrationText": "Reviewer fatigue or different reviewers can affect the signal\nquality"
+    "narrationText": "Time-intensive"
   },
   {
     "id": "narration-unit-0167",
-    "narrationText": "Typically only gives qualitative signal rather than clear\nquantitative grading"
+    "narrationText": "Doesn't scale"
   },
   {
     "id": "narration-unit-0168",
-    "narrationText": "Systematic human studies\nStructured grading of agent outputs by trained raters"
+    "narrationText": "Coverage is inconsistent"
   },
   {
     "id": "narration-unit-0169",
-    "narrationText": "Gold-standard quality judgements from multiple human raters"
+    "narrationText": "Reviewer fatigue or different reviewers can affect the signal\nquality"
   },
   {
     "id": "narration-unit-0170",
-    "narrationText": "Handles subjective or ambiguous tasks"
+    "narrationText": "Typically only gives qualitative signal rather than clear\nquantitative grading"
   },
   {
     "id": "narration-unit-0171",
-    "narrationText": "Provides signal for improving model-based graders"
+    "narrationText": "Systematic human studies\nStructured grading of agent outputs by trained raters"
   },
   {
     "id": "narration-unit-0172",
-    "narrationText": "Relatively expensive and slow turnaround"
+    "narrationText": "Gold-standard quality judgements from multiple human raters"
   },
   {
     "id": "narration-unit-0173",
-    "narrationText": "Hard to run frequently"
+    "narrationText": "Handles subjective or ambiguous tasks"
   },
   {
     "id": "narration-unit-0174",
-    "narrationText": "Inter-rater disagreement requires reconciliation"
+    "narrationText": "Provides signal for improving model-based graders"
   },
   {
     "id": "narration-unit-0175",
-    "narrationText": "Complex domains (legal, finance, healthcare) require human experts\nto conduct studies"
+    "narrationText": "Relatively expensive and slow turnaround"
   },
   {
     "id": "narration-unit-0176",
-    "narrationText": "These methods map to different stages of agent development. Automated evals are\nespecially useful pre-launch and in CI/CD, running on each agent change and model\nupgrade as the first line of defense against quality problems. Production monitoring\nkicks in post-launch to detect distribution drift and unanticipated real-world\nfailures. A/B testing validates significant changes once you have sufficient\ntraffic. User feedback and transcript review are ongoing practices to fill the gaps:\ntriage feedback constantly, sample transcripts to read weekly, and dig deeper as\nneeded. Reserve systematic human studies for calibrating LLM graders or evaluating\nsubjective outputs where human consensus serves as the reference standard."
+    "narrationText": "Hard to run frequently"
   },
   {
     "id": "narration-unit-0177",
-    "narrationText": "The most effective teams combine these methods: automated evals for fast iteration,\nproduction monitoring for ground truth, and periodic human review for calibration."
+    "narrationText": "Inter-rater disagreement requires reconciliation"
   },
   {
     "id": "narration-unit-0178",
-    "narrationText": "Conclusion\n\nTeams without evals get bogged down in reactive loops—fixing one failure, creating\nanother, unable to distinguish real regressions from noise. Teams that invest early\nfind the opposite: development accelerates as failures become test cases, test cases\nprevent regressions, and metrics replace guesswork. Evals give the whole team a\nclear hill to climb, turning “the agent feels worse” into something actionable. The\nvalue compounds, but only if you treat evals as a core component, not an\nafterthought."
+    "narrationText": "Complex domains (legal, finance, healthcare) require human experts\nto conduct studies"
   },
   {
     "id": "narration-unit-0179",
-    "narrationText": "The patterns vary by agent type, but the fundamentals described here are constant.\nStart early and don’t wait for the perfect suite. Source realistic tasks from the\nfailures you see. Define unambiguous, robust success criteria. Design graders\nthoughtfully and combine multiple types. Make sure the problems are hard enough for\nthe model. Iterate on the evaluations to improve their signal-to-noise ratio. Read\nthe transcripts!"
+    "narrationText": "These methods map to different stages of agent development. Automated evals are\nespecially useful pre-launch and in CI/CD, running on each agent change and model\nupgrade as the first line of defense against quality problems. Production monitoring\nkicks in post-launch to detect distribution drift and unanticipated real-world\nfailures. A/B testing validates significant changes once you have sufficient\ntraffic. User feedback and transcript review are ongoing practices to fill the gaps:\ntriage feedback constantly, sample transcripts to read weekly, and dig deeper as\nneeded. Reserve systematic human studies for calibrating LLM graders or evaluating\nsubjective outputs where human consensus serves as the reference standard."
   },
   {
     "id": "narration-unit-0180",
-    "narrationText": "AI agent evaluation is still a nascent, fast-evolving field. As agents take on\nlonger tasks, collaborate in multi-agent systems, and handle increasingly subjective\nwork, we will need to adapt our techniques. We’ll keep sharing best practices as we\nlearn more."
+    "narrationText": "The most effective teams combine these methods: automated evals for fast iteration,\nproduction monitoring for ground truth, and periodic human review for calibration."
   },
   {
     "id": "narration-unit-0181",
-    "narrationText": "Acknowledgements\n\nWritten by Mikaela Grace, Jeremy Hadfield, Rodrigo Olivares, and Jiri De Jonghe.\nWe're also grateful to David Hershey, Gian Segato, Mike Merrill, Alex Shaw, Nicholas\nCarlini, Ethan Dixon, Pedram Navid, Jake Eaton, Alyssa Baum, Lina Tawfik, Karen\nZhou, Alexander Bricken, Sam Kennedy, Robert Ying, and others for their\ncontributions. Special thanks to the customers and partners we have learned from\nthrough collaborating on evals, including iGent, Cognition, Bolt, Sierra, Vals.ai,\nMacroscope, PromptLayer, Stripe, Shopify, the Terminal Bench team, and more. This\nwork reflects the collective efforts of several teams who helped develop the\npractice of evaluations at Anthropic."
+    "narrationText": "Conclusion\n\nTeams without evals get bogged down in reactive loops—fixing one failure, creating\nanother, unable to distinguish real regressions from noise. Teams that invest early\nfind the opposite: development accelerates as failures become test cases, test cases\nprevent regressions, and metrics replace guesswork. Evals give the whole team a\nclear hill to climb, turning “the agent feels worse” into something actionable. The\nvalue compounds, but only if you treat evals as a core component, not an\nafterthought."
   },
   {
     "id": "narration-unit-0182",
-    "narrationText": "Appendix: Eval frameworks\n\nSeveral open-source and commercial frameworks can help teams implement agent\nevaluations without building infrastructure from scratch. The right choice depends\non your agent type, existing stack, and whether you need offline evaluation,\nproduction observability, or both.\nHarbor\nis designed for running agents in containerized environments, with infrastructure\nfor running trials at scale across cloud providers and a standardized format for\ndefining tasks and graders. Popular benchmarks like Terminal-Bench 2.0 ship through\nthe Harbor registry, making it easy to run established benchmarks along with custom\neval suites.\nBraintrust is a\nplatform that combines offline evaluation with production observability and\nexperiment tracking—useful for teams that need to both iterate during development\nand monitor quality in production. Its `autoevals` library includes pre-built\nscorers for factuality, relevance, and other common dimensions.\nLangSmith\noffers tracing, offline and online evaluations, and dataset management with tight\nintegration into the LangChain ecosystem.\nLangfuse provides similar capabilities as a\nself-hosted open-source alternative for teams with data residency requirements."
+    "narrationText": "The patterns vary by agent type, but the fundamentals described here are constant.\nStart early and don’t wait for the perfect suite. Source realistic tasks from the\nfailures you see. Define unambiguous, robust success criteria. Design graders\nthoughtfully and combine multiple types. Make sure the problems are hard enough for\nthe model. Iterate on the evaluations to improve their signal-to-noise ratio. Read\nthe transcripts!"
   },
   {
     "id": "narration-unit-0183",
+    "narrationText": "AI agent evaluation is still a nascent, fast-evolving field. As agents take on\nlonger tasks, collaborate in multi-agent systems, and handle increasingly subjective\nwork, we will need to adapt our techniques. We’ll keep sharing best practices as we\nlearn more."
+  },
+  {
+    "id": "narration-unit-0184",
+    "narrationText": "Acknowledgements\n\nWritten by Mikaela Grace, Jeremy Hadfield, Rodrigo Olivares, and Jiri De Jonghe.\nWe're also grateful to David Hershey, Gian Segato, Mike Merrill, Alex Shaw, Nicholas\nCarlini, Ethan Dixon, Pedram Navid, Jake Eaton, Alyssa Baum, Lina Tawfik, Karen\nZhou, Alexander Bricken, Sam Kennedy, Robert Ying, and others for their\ncontributions. Special thanks to the customers and partners we have learned from\nthrough collaborating on evals, including iGent, Cognition, Bolt, Sierra, Vals.ai,\nMacroscope, PromptLayer, Stripe, Shopify, the Terminal Bench team, and more. This\nwork reflects the collective efforts of several teams who helped develop the\npractice of evaluations at Anthropic."
+  },
+  {
+    "id": "narration-unit-0185",
+    "narrationText": "Appendix: Eval frameworks\n\nSeveral open-source and commercial frameworks can help teams implement agent\nevaluations without building infrastructure from scratch. The right choice depends\non your agent type, existing stack, and whether you need offline evaluation,\nproduction observability, or both.\nHarbor\nis designed for running agents in containerized environments, with infrastructure\nfor running trials at scale across cloud providers and a standardized format for\ndefining tasks and graders. Popular benchmarks like Terminal-Bench 2.0 ship through\nthe Harbor registry, making it easy to run established benchmarks along with custom\neval suites.\nBraintrust is a\nplatform that combines offline evaluation with production observability and\nexperiment tracking—useful for teams that need to both iterate during development\nand monitor quality in production. Its `autoevals` library includes pre-built\nscorers for factuality, relevance, and other common dimensions.\nLangSmith\noffers tracing, offline and online evaluations, and dataset management with tight\nintegration into the LangChain ecosystem.\nLangfuse provides similar capabilities as a\nself-hosted open-source alternative for teams with data residency requirements."
+  },
+  {
+    "id": "narration-unit-0186",
     "narrationText": "Arize\noffers Phoenix, an open-source platform for LLM tracing, debugging, and offline or\nonline evaluations, and AX, a SaaS offering that extends Phoenix for scale,\noptimization and monitoring.\nMany teams combine multiple tools, roll\ntheir own eval framework, or just use simple evaluation scripts as a starting point.\nWe find that while frameworks can be a valuable way to accelerate progress and\nstandardize, they’re only as good as the eval tasks you run through them. It’s often\nbest to quickly pick a framework that fits your workflow, then invest your energy in\nthe evals themselves by iterating on high-quality test cases and graders."
   }
 ]

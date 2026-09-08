@@ -309,106 +309,154 @@
   },
   {
     "id": "narration-unit-0078",
-    "narrationText": "Chromium wins the stopwatch because a\nJIT\nthat has already seen this page always beats a cold software renderer — and today\nit does, by about 1.7x. Most of that gap comes from rasterization and JPEG/PNG\nencoding, which we will keep optimizing."
+    "narrationText": "Memory: HTML extraction"
   },
   {
     "id": "narration-unit-0079",
-    "narrationText": "But Kitesurf wins on memory and CPU, the things that actually drive your bill, by\n3-7x compared to what Chromium uses. Less memory means we can run more sessions,\nscale better, and fundamentally lower both our costs and yours."
+    "narrationText": "39.4 MiB"
   },
   {
     "id": "narration-unit-0080",
-    "narrationText": "The most important test of all: Kitesurf runs Doom\n\nWe highlighted the importance of testing in our design decisions, but we all know\nthat no matter how many tests you have, a project isn't truly complete until Doom\nruns on it. Here’s Kitesurf running\nhttps://silentspacemarine.com/\nfrom our little Doom\nexperiment\na few years ago."
+    "narrationText": "273.7 MiB"
   },
   {
     "id": "narration-unit-0081",
-    "narrationText": "Try it today in Browser Run\n\nYou can try Kitesurf with Browser Run today,\navailable for free while in beta, behind per-account\nlimits."
+    "narrationText": "7.0× less than Chromium"
   },
   {
     "id": "narration-unit-0082",
-    "narrationText": "The\nBrowser Run CDP endpoint\nnow supports Kitesurf as an option, so your existing client\nPuppeteer,\nPlaywright,\nchrome-remote-interface, or any AI Agent that speaks MCP and CDP, already works. All you need to do is\nadd the browser=kitesurf parameter to our endpoints."
+    "narrationText": "Wall time: screenshot"
   },
   {
     "id": "narration-unit-0083",
-    "narrationText": "For example, to use Kitesurf with Opencode see\nUsing with MCP clients (CDP)\nin our developer documentation and use this configuration:"
+    "narrationText": "1,148 ms"
   },
   {
     "id": "narration-unit-0084",
-    "narrationText": "Another way to use Kitesurf is with\nBrowser Run’s Quick Actions. Again, just add browser=kitesurf to the quick action endpoint and\nit will work. For example, if you need a quick screenshot from Wikipedia, this\nwill work just fine:"
+    "narrationText": "637 ms"
   },
   {
     "id": "narration-unit-0085",
-    "narrationText": "Use the Kitesurf Playground with Chrome DevTools"
+    "narrationText": "1.8× slower than Chromium"
   },
   {
     "id": "narration-unit-0086",
-    "narrationText": "Another option to start exploring Kitesurf is to use our\npublic playground here. You can type in any URL to see how Kitesurf renders the page and interact with\nit."
+    "narrationText": "Wall time: HTML extraction"
   },
   {
     "id": "narration-unit-0087",
-    "narrationText": "One interesting feature of the playground is that we inject Chrome DevTools in the\nUI, so you can inspect expanded DOM elements, read console messages, and watch\nnetwork activity while Kitesurf renders pages. More interestingly, we implemented\nthe necessary CDP instructions for the\nMemory panel\nto report the WebAssembly footprint of each isolate, including frames, so you can\ngain a clear understanding of the resources each page is consuming."
+    "narrationText": "820 ms"
   },
   {
     "id": "narration-unit-0088",
-    "narrationText": "Check our\nDeveloper Documentation\nfor all the details on how to use Kitesurf with Browser Run."
+    "narrationText": "472 ms"
   },
   {
     "id": "narration-unit-0089",
-    "narrationText": "When is Kitesurf better?\n\nAs of today, Kitesurf correctly renders pages like\nTodoMVC\n(vanilla, React, Vue, Angular, Preact), Wikipedia, Hacker News, the Cloudflare\nBlog, and much of the Cloudflare dashboard. We will keep improving Kitesurf and\nincreasing the percentage of WPT tests that pass, to improve compatibility for\nmore complex web pages."
+    "narrationText": "1.7× slower than Chromium"
   },
   {
     "id": "narration-unit-0090",
-    "narrationText": "Kitesurf is great for AI agents that need to render pages but can accept the\ntrade-offs of not using a full-featured, pixel-perfect Chromium browser. It is\nalso excellent for automations and applications that rely on one-shot\nQuick Actions, such as extracting content from a page or generating PDFs or screenshots, for\ncompatible sites."
+    "narrationText": "Chromium wins the stopwatch because a\nJIT\nthat has already seen this page always beats a cold software renderer — and today\nit does, by about 1.7x. Most of that gap comes from rasterization and JPEG/PNG\nencoding, which we will keep optimizing."
   },
   {
     "id": "narration-unit-0091",
-    "narrationText": "Think of Kitesurf as an ephemeral, fully-isolated, stateless engine designed to\nexist only for the duration of a task, that scales well for bursty, AI-driven\nworkloads."
+    "narrationText": "But Kitesurf wins on memory and CPU, the things that actually drive your bill, by\n3-7x compared to what Chromium uses. Less memory means we can run more sessions,\nscale better, and fundamentally lower both our costs and yours."
   },
   {
     "id": "narration-unit-0092",
-    "narrationText": "What Kitesurf is not yet able to do\n\nIf you need to play video, render WebGL, negotiate a bot-challenge handshake with\nreal TLS fingerprints, or start a ten-minute authenticated session that requires\npersistent state — Kitesurf isn’t yet the right option. Just use Browser Run’s\ndefault, which is powered by Chromium."
+    "narrationText": "The most important test of all: Kitesurf runs Doom\n\nWe highlighted the importance of testing in our design decisions, but we all know\nthat no matter how many tests you have, a project isn't truly complete until Doom\nruns on it. Here’s Kitesurf running\nhttps://silentspacemarine.com/\nfrom our little Doom\nexperiment\na few years ago."
   },
   {
     "id": "narration-unit-0093",
-    "narrationText": "The best way to know if a specific site is compatible with Kitesurf is to try it.\nYou can do this by using the APIs or, more quickly, try it in our\npublic playground."
+    "narrationText": "Try it today in Browser Run\n\nYou can try Kitesurf with Browser Run today,\navailable for free while in beta, behind per-account\nlimits."
   },
   {
     "id": "narration-unit-0094",
-    "narrationText": "Explore the DevTools panels and see what’s happening behind the scenes, with\nparticular attention to the console and the memory metrics."
+    "narrationText": "The\nBrowser Run CDP endpoint\nnow supports Kitesurf as an option, so your existing client\nPuppeteer,\nPlaywright,\nchrome-remote-interface, or any AI Agent that speaks MCP and CDP, already works. All you need to do is\nadd the browser=kitesurf parameter to our endpoints."
   },
   {
     "id": "narration-unit-0095",
-    "narrationText": "Where it goes\n\nKitesurf is twelve weeks old. The first commit was in May. Here are some of the\nthings we're actively working on:"
+    "narrationText": "For example, to use Kitesurf with Opencode see\nUsing with MCP clients (CDP)\nin our developer documentation and use this configuration:"
   },
   {
     "id": "narration-unit-0096",
-    "narrationText": "Better CDP coverage. Kitesurf implements a subset of the CDP\nprotocol — enough to cover the requirements of most agents and automation tools,\nincluding robust DOM and network inspection — and we continue to expand its\ncapabilities to be as complete as possible."
+    "narrationText": "Another way to use Kitesurf is with\nBrowser Run’s Quick Actions. Again, just add browser=kitesurf to the quick action endpoint and\nit will work. For example, if you need a quick screenshot from Wikipedia, this\nwill work just fine:"
   },
   {
     "id": "narration-unit-0097",
-    "narrationText": "Rendering fidelity for screenshots and PDFs, because we know\nthat LLMs can often work better from an image than from the underlying\ntext."
+    "narrationText": "Use the Kitesurf Playground with Chrome DevTools"
   },
   {
     "id": "narration-unit-0098",
-    "narrationText": "WPT coverage. We are iterating rapidly to add more web APIs and\npass more WPT tests on the road to making Kitesurf production-ready."
+    "narrationText": "Another option to start exploring Kitesurf is to use our\npublic playground here. You can type in any URL to see how Kitesurf renders the page and interact with\nit."
   },
   {
     "id": "narration-unit-0099",
-    "narrationText": "Efficiency. We keep CPU, memory, and wall time benchmarks\nrunning all the time and are working hand-in-hand with other Developer Platform\nteams to make Kitesurf as cost-effective and efficient as possible."
+    "narrationText": "One interesting feature of the playground is that we inject Chrome DevTools in the\nUI, so you can inspect expanded DOM elements, read console messages, and watch\nnetwork activity while Kitesurf renders pages. More interestingly, we implemented\nthe necessary CDP instructions for the\nMemory panel\nto report the WebAssembly footprint of each isolate, including frames, so you can\ngain a clear understanding of the resources each page is consuming."
   },
   {
     "id": "narration-unit-0100",
-    "narrationText": "Final notes\n\nThank you for making it all the way here — we know this was a long and technical\nblog post, but hopefully an interesting one. We went into detail because we don't\ntake lightly how important, but also how complex, it is to build a new browser,\neven a very specific one."
+    "narrationText": "Check our\nDeveloper Documentation\nfor all the details on how to use Kitesurf with Browser Run."
   },
   {
     "id": "narration-unit-0101",
-    "narrationText": "Kitesurf is in its early stages, but we wanted to open it up to you as soon as\npossible and learn from your feedback. The team will be actively improving it with\nfrequent updates focused on performance, efficiency, and compatibility."
+    "narrationText": "When is Kitesurf better?\n\nAs of today, Kitesurf correctly renders pages like\nTodoMVC\n(vanilla, React, Vue, Angular, Preact), Wikipedia, Hacker News, the Cloudflare\nBlog, and much of the Cloudflare dashboard. We will keep improving Kitesurf and\nincreasing the percentage of WPT tests that pass, to improve compatibility for\nmore complex web pages."
   },
   {
     "id": "narration-unit-0102",
-    "narrationText": "One last thing: we're going to open source Kitesurf once we're ready — hopefully\nsoon. Our goal is to let any customer deploy their own version of Kitesurf on\ntheir own accounts, if they want to."
+    "narrationText": "Kitesurf is great for AI agents that need to render pages but can accept the\ntrade-offs of not using a full-featured, pixel-perfect Chromium browser. It is\nalso excellent for automations and applications that rely on one-shot\nQuick Actions, such as extracting content from a page or generating PDFs or screenshots, for\ncompatible sites."
   },
   {
     "id": "narration-unit-0103",
+    "narrationText": "Think of Kitesurf as an ephemeral, fully-isolated, stateless engine designed to\nexist only for the duration of a task, that scales well for bursty, AI-driven\nworkloads."
+  },
+  {
+    "id": "narration-unit-0104",
+    "narrationText": "What Kitesurf is not yet able to do\n\nIf you need to play video, render WebGL, negotiate a bot-challenge handshake with\nreal TLS fingerprints, or start a ten-minute authenticated session that requires\npersistent state — Kitesurf isn’t yet the right option. Just use Browser Run’s\ndefault, which is powered by Chromium."
+  },
+  {
+    "id": "narration-unit-0105",
+    "narrationText": "The best way to know if a specific site is compatible with Kitesurf is to try it.\nYou can do this by using the APIs or, more quickly, try it in our\npublic playground."
+  },
+  {
+    "id": "narration-unit-0106",
+    "narrationText": "Explore the DevTools panels and see what’s happening behind the scenes, with\nparticular attention to the console and the memory metrics."
+  },
+  {
+    "id": "narration-unit-0107",
+    "narrationText": "Where it goes\n\nKitesurf is twelve weeks old. The first commit was in May. Here are some of the\nthings we're actively working on:"
+  },
+  {
+    "id": "narration-unit-0108",
+    "narrationText": "Better CDP coverage. Kitesurf implements a subset of the CDP\nprotocol — enough to cover the requirements of most agents and automation tools,\nincluding robust DOM and network inspection — and we continue to expand its\ncapabilities to be as complete as possible."
+  },
+  {
+    "id": "narration-unit-0109",
+    "narrationText": "Rendering fidelity for screenshots and PDFs, because we know\nthat LLMs can often work better from an image than from the underlying\ntext."
+  },
+  {
+    "id": "narration-unit-0110",
+    "narrationText": "WPT coverage. We are iterating rapidly to add more web APIs and\npass more WPT tests on the road to making Kitesurf production-ready."
+  },
+  {
+    "id": "narration-unit-0111",
+    "narrationText": "Efficiency. We keep CPU, memory, and wall time benchmarks\nrunning all the time and are working hand-in-hand with other Developer Platform\nteams to make Kitesurf as cost-effective and efficient as possible."
+  },
+  {
+    "id": "narration-unit-0112",
+    "narrationText": "Final notes\n\nThank you for making it all the way here — we know this was a long and technical\nblog post, but hopefully an interesting one. We went into detail because we don't\ntake lightly how important, but also how complex, it is to build a new browser,\neven a very specific one."
+  },
+  {
+    "id": "narration-unit-0113",
+    "narrationText": "Kitesurf is in its early stages, but we wanted to open it up to you as soon as\npossible and learn from your feedback. The team will be actively improving it with\nfrequent updates focused on performance, efficiency, and compatibility."
+  },
+  {
+    "id": "narration-unit-0114",
+    "narrationText": "One last thing: we're going to open source Kitesurf once we're ready — hopefully\nsoon. Our goal is to let any customer deploy their own version of Kitesurf on\ntheir own accounts, if they want to."
+  },
+  {
+    "id": "narration-unit-0115",
     "narrationText": "So give it a try in the\nplayground, keep an eye on our\nchangelog, and come chat with the team on\nDiscord. Share your experience and send us feedback; we’ll be listening."
   }
 ]

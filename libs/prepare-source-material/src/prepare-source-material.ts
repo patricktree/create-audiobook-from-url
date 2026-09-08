@@ -403,20 +403,31 @@ function removeIrrelevantAndEmptyElements(parentNode: DefaultTreeAdapterMap["par
   for (let childIndex = parentNode.childNodes.length - 1; childIndex >= 0; childIndex -= 1) {
     const childNode = parentNode.childNodes[childIndex];
 
-    if (!childNode || !("tagName" in childNode)) {
-      continue;
-    }
-
-    if (IRRELEVANT_ELEMENT_TAG_NAMES.has(childNode.tagName)) {
+    if (childNode?.nodeName === "#comment") {
       parentNode.childNodes.splice(childIndex, 1);
       continue;
     }
 
-    removeIrrelevantAndEmptyElements(childNode);
+    if (!childNode || !("tagName" in childNode)) {
+      continue;
+    }
+
+    const role = childNode.attrs.find((attribute) => attribute.name === "role")?.value;
+    if (
+      IRRELEVANT_ELEMENT_TAG_NAMES.has(childNode.tagName) ||
+      role === "navigation" ||
+      role === "search"
+    ) {
+      parentNode.childNodes.splice(childIndex, 1);
+      continue;
+    }
+
+    const content = isTemplateElement(childNode) ? childNode.content : childNode;
+    removeIrrelevantAndEmptyElements(content);
 
     if (
       MEANINGFUL_EMPTY_ELEMENT_TAG_NAMES.has(childNode.tagName) ||
-      childNode.childNodes.some(
+      content.childNodes.some(
         (grandchildNode) =>
           "tagName" in grandchildNode ||
           (grandchildNode.nodeName === "#text" && Boolean(grandchildNode.value.trim())),
@@ -427,4 +438,10 @@ function removeIrrelevantAndEmptyElements(parentNode: DefaultTreeAdapterMap["par
 
     parentNode.childNodes.splice(childIndex, 1);
   }
+}
+
+function isTemplateElement(
+  element: DefaultTreeAdapterMap["element"],
+): element is DefaultTreeAdapterMap["template"] {
+  return element.tagName === "template" && "content" in element;
 }

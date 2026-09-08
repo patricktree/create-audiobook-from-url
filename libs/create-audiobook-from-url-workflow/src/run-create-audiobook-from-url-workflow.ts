@@ -16,7 +16,10 @@ import {
   type ConversionFailureCategory,
   type ConversionGrantDurableObject,
 } from "@create-audiobook-from-url/conversion-grants";
-import type { NarrationContentSelectionResult } from "@create-audiobook-from-url/narration-content-selection";
+import type {
+  NarrationContentSelectionResult,
+  SelectionChunkRunner,
+} from "@create-audiobook-from-url/narration-content-selection";
 import { createNarrationDocument } from "@create-audiobook-from-url/narration-document-creation";
 import type { SourceMaterialPreparer } from "@create-audiobook-from-url/prepare-source-material";
 
@@ -33,11 +36,11 @@ const PREPARE_STEP_CONFIG = {
 
 const AI_STEP_CONFIG = {
   retries: {
-    limit: 0,
-    delay: "30 seconds",
+    limit: 2,
+    delay: "10 seconds",
     backoff: "exponential",
   },
-  timeout: "10 minutes",
+  timeout: "3 minutes",
 } as const satisfies WorkflowStepConfig;
 
 const NARRATION_SYNTHESIS_STEP_CONFIG = {
@@ -74,7 +77,7 @@ export type CreateAudiobookFromUrlWorkflowServices = {
   prepareSourceMaterial: SourceMaterialPreparer;
   selectNarrationContent(
     sourceMaterialHtml: string,
-    options: { conversionId: string },
+    options: { conversionId: string; runChunk: SelectionChunkRunner },
   ): Promise<NarrationContentSelectionResult>;
   speechSynthesisAi: SpeechSynthesisAi;
 };
@@ -119,19 +122,15 @@ export async function runCreateAudiobookFromUrlWorkflow({
       );
 
       stage = "content-selection";
-      const { selectedSourceMaterialHtml, usage: contentSelectionUsage } = await step.do(
-        "select narration content",
-        AI_STEP_CONFIG,
-        async () => {
-          await recordPhaseStarted(
-            env,
-            grantId,
-            conversionId,
-            ConversionPhase.NARRATION_CONTENT_SELECTION,
-          );
-          return services.selectNarrationContent(sourceMaterial.html, { conversionId });
-        },
+      await step.do("start narration content selection", PROCESSING_STEP_CONFIG, () =>
+        recordPhaseStarted(env, grantId, conversionId, ConversionPhase.NARRATION_CONTENT_SELECTION),
       );
+      const { selectedSourceMaterialHtml, usage: contentSelectionUsage } =
+        await services.selectNarrationContent(sourceMaterial.html, {
+          conversionId,
+          runChunk: (chunkIndex, select) =>
+            step.do(`select narration content chunk ${chunkIndex + 1}`, AI_STEP_CONFIG, select),
+        });
 
       const narrationDocument = await step.do(
         "create narration document",

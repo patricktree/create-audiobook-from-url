@@ -50,8 +50,8 @@ export const PRODUCTION_CONFIG = {
   completionOptions: {
     reasoningEffort: "low",
     temperature: 0,
-    maxTokens: 512,
-    maxRetries: 1,
+    maxTokens: 4_096,
+    maxRetries: 0,
   },
 } satisfies SelectionConfig;
 

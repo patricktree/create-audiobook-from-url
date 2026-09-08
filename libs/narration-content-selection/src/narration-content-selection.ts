@@ -126,10 +126,24 @@ const SOURCE_ELEMENT_ID_ATTRIBUTE_PATTERN = new RegExp(
   `\\s${SOURCE_ELEMENT_ID_ATTRIBUTE}="([^"]*)"`,
   "g",
 );
-const MAX_ANNOTATED_SOURCE_CHUNK_CHARACTERS = 4_000;
-const MAX_ANNOTATED_SOURCE_CHUNK_ELEMENTS = 40;
-const LENGTH_RETRY_MAX_TOKENS = [768, 1_024, 2_048, 4_096] as const;
+const MAX_ANNOTATED_SOURCE_CHUNK_CHARACTERS = 24_000;
+const MAX_ANNOTATED_SOURCE_CHUNK_ELEMENTS = 200;
+const SELECTION_REQUEST_TIMEOUT_MILLISECONDS = 120_000;
 const SELECTION_CONCURRENCY = 6;
+
+export type SelectionChunkResult = {
+  selectedElementIds: string[];
+  responses: Array<
+    Omit<SelectionCompletionResponse, "toolCalls"> & {
+      toolCalls: Array<{ id: string; name: string; arguments: { element_ids: string[] } }>;
+    }
+  >;
+};
+
+export type SelectionChunkRunner = (
+  chunkIndex: number,
+  select: () => Promise<SelectionChunkResult>,
+) => Promise<SelectionChunkResult>;
 
 export function createContentSelector(configuration: SelectionConfig) {
   return async function selectNarrationContent(
@@ -137,9 +151,11 @@ export function createContentSelector(configuration: SelectionConfig) {
     {
       signal,
       conversionId,
+      runChunk,
     }: {
       signal?: AbortSignal;
       conversionId?: string;
+      runChunk?: SelectionChunkRunner;
     } = {},
   ): Promise<NarrationContentSelectionResult> {
     const result = await runSelection({
@@ -147,6 +163,7 @@ export function createContentSelector(configuration: SelectionConfig) {
       sourceMaterialHtml,
       ...(signal ? { signal } : {}),
       ...(conversionId ? { conversionId } : {}),
+      ...(runChunk ? { runChunk } : {}),
     });
 
     return {
@@ -162,11 +179,13 @@ export async function runSelection({
   sourceMaterialHtml,
   signal,
   conversionId,
+  runChunk = (_chunkIndex, select) => select(),
 }: {
   configuration: SelectionConfig;
   sourceMaterialHtml: string;
   signal?: AbortSignal;
   conversionId?: string;
+  runChunk?: SelectionChunkRunner;
 }): Promise<SelectionResult> {
   const annotatedSourceMaterial = await annotateSourceElements(sourceMaterialHtml);
   const annotatedSourceChunks = await createAnnotatedSourceChunks(annotatedSourceMaterial);
@@ -174,20 +193,22 @@ export async function runSelection({
     annotatedSourceChunks,
     async (annotatedSourceChunk, chunkIndex) => {
       try {
-        return await selectElementIds({
-          configuration,
-          annotatedSourceMaterial: annotatedSourceChunk,
-          ...(signal ? { signal } : {}),
-          ...(conversionId
-            ? {
-                gatewayMetadata: {
-                  conversionId,
-                  stage: "content-selection",
-                  chunkIndex: chunkIndex + 1,
-                },
-              }
-            : {}),
-        });
+        return await runChunk(chunkIndex, () =>
+          selectElementIds({
+            configuration,
+            annotatedSourceMaterial: annotatedSourceChunk,
+            ...(signal ? { signal } : {}),
+            ...(conversionId
+              ? {
+                  gatewayMetadata: {
+                    conversionId,
+                    stage: "content-selection",
+                    chunkIndex: chunkIndex + 1,
+                  },
+                }
+              : {}),
+          }),
+        );
       } catch (error) {
         const chunkContext = `Narration content selection chunk ${chunkIndex + 1} of ${annotatedSourceChunks.length} failed`;
 
@@ -244,7 +265,7 @@ export async function selectElementIds({
   annotatedSourceMaterial: AnnotatedSource;
   signal?: AbortSignal;
   gatewayMetadata?: Record<string, string | number>;
-}): Promise<{ selectedElementIds: string[]; responses: SelectionCompletionResponse[] }> {
+}): Promise<SelectionChunkResult> {
   const request: SelectionCompletionRequest = {
     systemPrompt: configuration.systemPrompt,
     userPrompt: `<audiobook-source-material-html>\n${annotatedSourceMaterial.html}\n</audiobook-source-material-html>`,
@@ -252,44 +273,35 @@ export async function selectElementIds({
   };
   const completionOptions = {
     ...configuration.completionOptions,
-    ...(signal ? { signal } : {}),
+    signal: signal
+      ? AbortSignal.any([signal, AbortSignal.timeout(SELECTION_REQUEST_TIMEOUT_MILLISECONDS)])
+      : AbortSignal.timeout(SELECTION_REQUEST_TIMEOUT_MILLISECONDS),
   };
-  const responses = [
-    await configuration.completion(request, {
-      ...completionOptions,
-      ...(gatewayMetadata ? { gatewayMetadata: { ...gatewayMetadata, selectionAttempt: 1 } } : {}),
-    }),
-  ];
-  for (const maxTokens of LENGTH_RETRY_MAX_TOKENS) {
-    const previousResponse = responses[responses.length - 1]!;
-
-    if (
-      previousResponse.stopReason !== "length" ||
-      completionOptions.maxTokens === undefined ||
-      completionOptions.maxTokens >= maxTokens
-    ) {
-      continue;
-    }
-
-    responses.push(
-      await configuration.completion(request, {
-        ...completionOptions,
-        maxTokens,
-        ...(gatewayMetadata
-          ? { gatewayMetadata: { ...gatewayMetadata, selectionAttempt: responses.length + 1 } }
-          : {}),
-      }),
-    );
-  }
-
-  const response = responses[responses.length - 1]!;
+  const response = await configuration.completion(request, {
+    ...completionOptions,
+    ...(gatewayMetadata ? { gatewayMetadata: { ...gatewayMetadata, selectionAttempt: 1 } } : {}),
+  });
   const selectedElementIds = parseSourceElementIds(
     response,
     annotatedSourceMaterial,
     configuration.tool.name,
   );
 
-  return { selectedElementIds, responses };
+  return {
+    selectedElementIds,
+    responses: [
+      {
+        ...response,
+        toolCalls: [
+          {
+            id: response.toolCalls.find((call) => call.name === configuration.tool.name)!.id,
+            name: configuration.tool.name,
+            arguments: { element_ids: selectedElementIds },
+          },
+        ],
+      },
+    ],
+  };
 }
 
 function aggregateSelectionUsage(
@@ -500,6 +512,10 @@ function parseSourceElementIds(
   annotatedSourceMaterial: AnnotatedSource,
   toolName: string,
 ): string[] {
+  if (response.stopReason === "length") {
+    throw new Error("Narration content selection exceeded its output token budget");
+  }
+
   if (response.stopReason === "error" || response.stopReason === "aborted") {
     throw new Error(
       `The AI request ${response.stopReason}: ${response.errorMessage ?? "The provider did not provide an error message"}`,

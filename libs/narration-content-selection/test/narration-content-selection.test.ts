@@ -9,6 +9,7 @@ import {
   type SelectionConfig,
   type SelectionCompletion,
   type SelectionToolCall,
+  type SelectionChunkRunner,
 } from "#src/narration-content-selection.ts";
 import { PRODUCTION_CONFIG } from "#src/production-narration-content-selection.ts";
 import { SOURCE_ELEMENT_ID_ATTRIBUTE } from "#src/source-element-selection.ts";
@@ -28,8 +29,78 @@ test("returns selected narration HTML in document order without internal element
   expect(result).toEqual(fauxSelectionResult("<p>Zero</p><p>Two</p>"));
 });
 
+test("preserves semantic attributes in model input and selected output", async () => {
+  let input = "";
+  const response = fauxAssistantMessage([], { stopReason: "toolUse" });
+  const selector = createContentSelector(
+    createConfiguration(response, {
+      completion: async (request) => {
+        input = request.userPrompt;
+        return fauxAssistantMessage(
+          fauxToolCall("select_narration_content", { element_ids: ["0"] }),
+          { stopReason: "toolUse" },
+        );
+      },
+    }),
+  );
+  const result = await selector(
+    '<div id="article" class="article-body" data-section="main"><p class="body" style="color:red">Read <a href="/source" title="Source">this</a>.</p></div>',
+  );
+  expect(input).toContain('class="article-body"');
+  expect(input).toContain('id="article"');
+  expect(input).toContain('data-section="main"');
+  expect(input).toContain('style="color:red"');
+  expect(input).toContain("Read ");
+  expect(input).toContain('href="/source"');
+  expect(result.selectedSourceMaterialHtml).toBe(
+    '<div id="article" class="article-body" data-section="main"><p class="body" style="color:red">Read <a href="/source" title="Source">this</a>.</p></div>',
+  );
+});
+
+test("reuses completed chunk results when selection is replayed after a failure", async () => {
+  const cached = new Map<number, Awaited<ReturnType<SelectionChunkRunner>>>();
+  const calls: number[] = [];
+  let shouldFail = true;
+  const runChunk: SelectionChunkRunner = async (index, select) => {
+    const previous = cached.get(index);
+    if (previous) return previous;
+    calls.push(index);
+    if (index === 1 && shouldFail) throw new Error("Temporary provider failure");
+    const result = await select();
+    cached.set(index, result);
+    return result;
+  };
+  const response = fauxAssistantMessage([], { stopReason: "toolUse" });
+  const selector = createContentSelector(
+    createConfiguration(response, {
+      completion: async (request) =>
+        fauxAssistantMessage(
+          fauxToolCall("select_narration_content", {
+            element_ids: [
+              ...request.userPrompt.matchAll(
+                new RegExp(`${SOURCE_ELEMENT_ID_ATTRIBUTE}="([^"]+)"`, "g"),
+              ),
+            ].map((match) => match[1]!),
+          }),
+          { stopReason: "toolUse" },
+        ),
+    }),
+  );
+  const source =
+    "<article>" +
+    Array.from({ length: 201 }, (_, index) => `<p>Paragraph ${index}</p>`).join("") +
+    "</article>";
+  await expect(selector(source, { runChunk })).rejects.toThrow("Temporary provider failure");
+  await expect.poll(() => cached.has(0)).toBe(true);
+  shouldFail = false;
+  const result = await selector(source, { runChunk });
+  expect(calls).toEqual([0, 1, 1]);
+  expect(result.selectedSourceMaterialHtml).toBe(source);
+  expect(result.chunkCount).toBe(2);
+});
+
 test("selects narration content from source material larger than one completion request", async () => {
-  const maximumElementsPerCompletion = 40;
+  const maximumElementsPerCompletion = 200;
   const completionElementCounts: number[] = [];
   const completionInputs: string[] = [];
   const sourceMaterialHtml = `<article>${Array.from(
@@ -110,7 +181,7 @@ test("starts the next completion as soon as a concurrency slot becomes available
   let startedCompletionCount = 0;
   const sourceMaterialHtml = `<article>${Array.from(
     { length: 7 },
-    (_, index) => `<p>${index}-${"A".repeat(4_000)}</p>`,
+    (_, index) => `<p>${index}-${"A".repeat(24_000)}</p>`,
   ).join("")}</article>`;
   const selectNarrationContent = createContentSelector(
     createConfiguration(fauxAssistantMessage(), {
@@ -220,7 +291,7 @@ test("uses the configured prompt, tool, completion options, and abort signal", a
   expect(completionOptions).toEqual([
     {
       maxTokens: 2_048,
-      signal: abortController.signal,
+      signal: expect.any(AbortSignal),
       temperature: 0.3,
       gatewayMetadata: {
         conversionId: "conversion-123",
@@ -275,13 +346,6 @@ test("uses a synchronous Cloudflare response for production selection", async ()
 
         requestBodies.push(JSON.parse(init.body));
 
-        if (requestBodies.length === 1) {
-          return new Response(JSON.stringify({ errors: [{ message: "Request timeout" }] }), {
-            status: 408,
-            headers: { "Content-Type": "application/json" },
-          });
-        }
-
         return new Response(
           JSON.stringify({
             id: "response-1",
@@ -317,7 +381,7 @@ test("uses a synchronous Cloudflare response for production selection", async ()
     },
   );
 
-  expect(requestBodies).toHaveLength(2);
+  expect(requestBodies).toHaveLength(1);
 
   for (const requestBody of requestBodies) {
     expect(requestBody).toEqual(
@@ -327,7 +391,7 @@ test("uses a synchronous Cloudflare response for production selection", async ()
         tool_choice: "required",
         reasoning_effort: "low",
         temperature: 0,
-        max_completion_tokens: 512,
+        max_completion_tokens: 4_096,
       }),
     );
   }
@@ -362,67 +426,20 @@ test("uses a synchronous Cloudflare response for production selection", async ()
   });
 });
 
-test("retries a length-limited chunk with a larger completion budget", async () => {
-  const completionOptions: unknown[] = [];
-  const responses = [
-    fauxAssistantMessage([], { stopReason: "length" }),
-    fauxAssistantMessage([], { stopReason: "length" }),
-    fauxAssistantMessage([], { stopReason: "length" }),
-    fauxAssistantMessage([], { stopReason: "length" }),
-    fauxAssistantMessage(fauxToolCall("select_narration_content", { element_ids: ["0"] }), {
-      stopReason: "toolUse",
-    }),
-  ].map((response, index) => ({
-    ...response,
-    usage: {
-      inputTokens: index + 1,
-      outputTokens: 2,
-      reasoningTokens: 1,
-      totalTokens: index + 4,
-      cacheReadTokens: 3,
-      cacheWriteTokens: 4,
-      estimatedCostUsd: 0.001,
-    },
-  }));
-  const selectNarrationContent = createContentSelector(
-    createConfiguration(responses[0]!, {
-      completion: async (_context, options) => {
-        completionOptions.push(options);
-        const response = responses.shift();
-
-        if (!response) {
-          throw new Error("Expected a configured completion response");
-        }
-
+test("rejects truncated output without repeatedly generating the same selection", async () => {
+  let requestCount = 0;
+  const response = fauxAssistantMessage([], { stopReason: "length" });
+  const selector = createContentSelector(
+    createConfiguration(response, {
+      completion: async () => {
+        requestCount += 1;
         return response;
       },
-      completionOptions: { maxTokens: 512 },
+      completionOptions: { maxTokens: 4_096 },
     }),
   );
-
-  await expect(selectNarrationContent("<p>Narrate me</p>")).resolves.toEqual({
-    selectedSourceMaterialHtml: "<p>Narrate me</p>",
-    chunkCount: 1,
-    usage: {
-      provider: "faux",
-      model: "faux-model",
-      requestCount: 5,
-      inputTokens: 15,
-      outputTokens: 10,
-      reasoningTokens: 5,
-      totalTokens: 30,
-      cacheReadTokens: 15,
-      cacheWriteTokens: 20,
-      estimatedCostUsd: 0.005,
-    },
-  });
-  expect(completionOptions).toEqual([
-    { maxTokens: 512 },
-    { maxTokens: 768 },
-    { maxTokens: 1_024 },
-    { maxTokens: 2_048 },
-    { maxTokens: 4_096 },
-  ]);
+  await expect(selector("<p>Narrate me</p>")).rejects.toThrow("exceeded its output token budget");
+  expect(requestCount).toBe(1);
 });
 
 test("rejects a response without the selection tool call", async () => {

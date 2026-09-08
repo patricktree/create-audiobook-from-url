@@ -56,6 +56,16 @@ test("recursively removes empty elements while preserving meaningful leaf elemen
   expect(html).toContain('<img src="cover.jpg" alt="Source cover">');
 });
 
+test("removes comments and role-based page controls while preserving article attributes", () => {
+  const html = cleanAudiobookSourceMaterialHtml(
+    '<article class="layout"><!-- tracking --><div role="navigation">Home</div><div role="search">Search</div><p class="body" style="color:red">Read <a href="/source" title="Source">this</a>.</p><template><!-- hidden --><nav>Menu</nav><p>Template text</p></template></article>',
+  );
+
+  expect(html).toBe(
+    '<article class="layout"><p class="body" style="color:red">Read <a href="/source" title="Source">this</a>.</p><template><p>Template text</p></template></article>',
+  );
+});
+
 test.each([
   "http://127.0.0.1/source",
   "http://10.1.2.3/source",
