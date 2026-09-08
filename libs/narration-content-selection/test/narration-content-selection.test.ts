@@ -303,127 +303,175 @@ test("uses the configured prompt, tool, completion options, and abort signal", a
   ]);
 });
 
-test("uses a synchronous Cloudflare response for production selection", async () => {
-  const requestBodies: unknown[] = [];
+test("uses Gemini through AI Gateway and accounts for cached input and reasoning", async () => {
   const response = await PRODUCTION_CONFIG.completion(
     {
       systemPrompt: "Select narration content",
-      userPrompt: '<p data-createaudiobookfromurl-element-id="0">Narrate me</p>',
+      userPrompt: "<p>Text</p>",
       tool: PRODUCTION_CONFIG.tool,
     },
     {
       ...PRODUCTION_CONFIG.completionOptions,
       apiKey: "test-api-key",
       env: { CLOUDFLARE_ACCOUNT_ID: "test-account" },
-      gatewayMetadata: {
-        conversionId: "conversion-123",
-        stage: "content-selection",
-        chunkIndex: 1,
-        selectionAttempt: 1,
-      },
-      fetch: async (input, init) => {
-        const requestUrl =
-          typeof input === "string" ? input : input instanceof URL ? input.href : input.url;
-
-        expect(requestUrl).toBe(
-          "https://api.cloudflare.com/client/v4/accounts/test-account/ai/v1/chat/completions",
+      gatewayMetadata: { conversionId: "conversion-123", chunkIndex: 1 },
+      fetch: async (url, init) => {
+        expect(url).toBe(
+          "https://gateway.ai.cloudflare.com/v1/test-account/default/google-ai-studio/v1beta/openai/chat/completions",
         );
-        expect(init?.method).toBe("POST");
         const headers = new Headers(init?.headers);
-        expect(headers.get("cf-aig-gateway-id")).toBe("default");
-        expect(headers.get("cf-aig-collect-log")).toBe("true");
+        expect(headers.get("cf-aig-authorization")).toBe("Bearer test-api-key");
         expect(headers.get("cf-aig-collect-log-payload")).toBe("false");
-        expect(JSON.parse(headers.get("cf-aig-metadata") ?? "")).toEqual({
+        expect(JSON.parse(headers.get("cf-aig-metadata")!)).toEqual({
           conversionId: "conversion-123",
-          stage: "content-selection",
           chunkIndex: 1,
-          selectionAttempt: 1,
         });
-
-        if (typeof init?.body !== "string") {
-          throw new Error("Expected a JSON request body");
-        }
-
-        requestBodies.push(JSON.parse(init.body));
-
-        return new Response(
-          JSON.stringify({
-            id: "response-1",
-            model: "@cf/qwen/qwen3.8-27b",
-            choices: [
-              {
-                finish_reason: "tool_calls",
-                message: {
-                  content: null,
-                  tool_calls: [
-                    {
-                      id: "tool-call-1",
-                      type: "function",
-                      function: {
-                        name: "select_narration_content",
-                        arguments: JSON.stringify({ element_ids: ["0"] }),
-                      },
+        if (typeof init?.body !== "string") throw new Error("Expected a JSON request body");
+        expect(JSON.parse(init.body)).toMatchObject({
+          model: "gemini-3.8-flash",
+          temperature: 0,
+          max_tokens: 4096,
+          reasoning_effort: "low",
+          messages: [
+            { role: "system", content: "Select narration content" },
+            { role: "user", content: "<p>Text</p>" },
+          ],
+          tools: [{ type: "function", function: PRODUCTION_CONFIG.tool }],
+          tool_choice: { type: "function", function: { name: "select_narration_content" } },
+        });
+        expect(headers.has("authorization")).toBe(false);
+        return Response.json({
+          id: "completion-123",
+          model: "gemini-3.8-flash",
+          choices: [
+            {
+              finish_reason: "tool_calls",
+              message: {
+                role: "assistant",
+                tool_calls: [
+                  {
+                    id: "0",
+                    type: "function",
+                    function: {
+                      name: "select_narration_content",
+                      arguments: JSON.stringify({ element_ids: ["0"] }),
                     },
-                  ],
-                },
+                  },
+                ],
               },
-            ],
-            usage: {
-              prompt_tokens: 10,
-              completion_tokens: 5,
-              total_tokens: 15,
-              completion_tokens_details: { reasoning_tokens: 2 },
             },
-          }),
-          { status: 200, headers: { "Content-Type": "application/json" } },
-        );
+          ],
+          usage: {
+            prompt_tokens: 10,
+            prompt_tokens_details: { cached_tokens: 4 },
+            completion_tokens: 5,
+            completion_tokens_details: { reasoning_tokens: 2 },
+            total_tokens: 15,
+          },
+        });
       },
     },
   );
-
-  expect(requestBodies).toHaveLength(1);
-
-  for (const requestBody of requestBodies) {
-    expect(requestBody).toEqual(
-      expect.objectContaining({
-        model: "@cf/qwen/qwen3.8-27b",
-        stream: false,
-        tool_choice: "required",
-        reasoning_effort: "low",
-        temperature: 0,
-        max_completion_tokens: 4_096,
-      }),
-    );
-  }
-  expect(response).toEqual(
-    expect.objectContaining({
-      provider: "cloudflare-workers-ai",
-      model: "@cf/qwen/qwen3.8-27b",
-      stopReason: "toolUse",
-      toolCalls: [
-        {
-          id: "tool-call-1",
-          name: "select_narration_content",
-          arguments: { element_ids: ["0"] },
-        },
-      ],
-      usage: expect.objectContaining({
-        inputTokens: 10,
-        outputTokens: 5,
-        reasoningTokens: 2,
-        totalTokens: 15,
-      }),
-    }),
-  );
-  expect(response.usage).not.toHaveProperty("cacheReadTokens");
-  expect(response.usage).not.toHaveProperty("cacheWriteTokens");
-  expect(response.usage.estimatedCostUsd).toBeCloseTo(0.000_020_5);
-  expect(response.usage.costEstimateBasis).toEqual({
-    currency: "USD",
-    inputUsdPerMillionTokens: 0.45,
-    outputUsdPerMillionTokens: 3.2,
-    pricingSource: "https://developers.cloudflare.com/workers-ai/models/qwen3.8-27b/",
+  expect(response).toMatchObject({
+    provider: "google-ai-studio",
+    model: "gemini-3.8-flash",
+    stopReason: "toolUse",
+    toolCalls: [{ id: "0", name: "select_narration_content", arguments: { element_ids: ["0"] } }],
+    usage: {
+      inputTokens: 6,
+      cacheReadTokens: 4,
+      outputTokens: 5,
+      reasoningTokens: 2,
+      totalTokens: 15,
+    },
   });
+  expect(response.usage.estimatedCostUsd).toBeCloseTo(0.00002355, 10);
+});
+
+test("preserves truncation and missing reasoning usage with partial tool arguments", async () => {
+  const response = await PRODUCTION_CONFIG.completion(
+    { systemPrompt: "Select", userPrompt: "Text", tool: PRODUCTION_CONFIG.tool },
+    {
+      apiKey: "test-api-key",
+      env: { CLOUDFLARE_ACCOUNT_ID: "test-account" },
+      fetch: async () =>
+        Response.json({
+          id: "truncated",
+          model: "gemini-3.8-flash",
+          choices: [
+            {
+              finish_reason: "length",
+              message: {
+                role: "assistant",
+                tool_calls: [
+                  {
+                    id: "0",
+                    type: "function",
+                    function: {
+                      name: "select_narration_content",
+                      arguments: '{"element_ids":[',
+                    },
+                  },
+                ],
+              },
+            },
+          ],
+          usage: { prompt_tokens: 10, completion_tokens: 4096, total_tokens: 4106 },
+        }),
+    },
+  );
+  expect(response.stopReason).toBe("length");
+  expect(response.toolCalls).toEqual([]);
+  expect(response.usage.outputTokens).toBe(4096);
+  expect(response.usage.reasoningTokens).toBeUndefined();
+});
+
+test("does not retry failed Gemini requests inside the workflow attempt", async () => {
+  let requests = 0;
+  await expect(
+    PRODUCTION_CONFIG.completion(
+      { systemPrompt: "Select", userPrompt: "Text", tool: PRODUCTION_CONFIG.tool },
+      {
+        ...PRODUCTION_CONFIG.completionOptions,
+        apiKey: "test-api-key",
+        env: { CLOUDFLARE_ACCOUNT_ID: "test-account" },
+        fetch: async () => {
+          requests += 1;
+          return Response.json({ error: { message: "Unavailable" } }, { status: 503 });
+        },
+      },
+    ),
+  ).rejects.toThrow("Unavailable");
+  expect(requests).toBe(1);
+});
+
+test("cancels an in-flight Gemini request when the caller aborts", async () => {
+  const controller = new AbortController();
+  let requests = 0;
+  await expect(
+    PRODUCTION_CONFIG.completion(
+      { systemPrompt: "Select", userPrompt: "Text", tool: PRODUCTION_CONFIG.tool },
+      {
+        apiKey: "test-api-key",
+        env: { CLOUDFLARE_ACCOUNT_ID: "test-account" },
+        signal: controller.signal,
+        fetch: async (_url, init) => {
+          requests += 1;
+          const signal = init?.signal;
+          if (!signal) throw new Error("Expected request signal");
+          return new Promise<Response>((_resolve, reject) => {
+            signal.addEventListener(
+              "abort",
+              () => reject(new DOMException("Aborted", "AbortError")),
+              { once: true },
+            );
+            controller.abort();
+          });
+        },
+      },
+    ),
+  ).rejects.toThrow(/abort/i);
+  expect(requests).toBe(1);
 });
 
 test("rejects truncated output without repeatedly generating the same selection", async () => {

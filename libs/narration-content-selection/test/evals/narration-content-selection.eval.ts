@@ -65,7 +65,7 @@ for (const candidate of CANDIDATES) {
 
           await vitest.expect(result).toSatisfyJudge(EXACT_SYNCHRONIZATION_UNITS_JUDGE, {
             expectedSynchronizationUnits: evalCase.expectedSynchronizationUnits,
-            threshold: null,
+            threshold: 1,
           });
 
           if (candidate.role === "production") {
