@@ -3,7 +3,7 @@ import { AUDIO_FORMAT, AUDIOBOOK_CONTENT_TYPE } from "#src/audio-format.ts";
 const SYNTHESIS_POLICY_VERSION = "3";
 const SPEECH_PROVIDER = "google-ai-studio";
 const SPEECH_MODEL = "gemini-3.1-flash-tts-preview";
-const SPEECH_VOICE = "Kore";
+const SPEECH_VOICE = "Charon";
 // https://developers.cloudflare.com/r2/platform/limits/
 const R2_OBJECT_METADATA_MAX_BYTE_LENGTH = 8_192;
 
