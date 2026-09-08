@@ -240,7 +240,9 @@ async function synthesizeAudioSegment({
       },
       query: {
         model: SPEECH_CONFIG.model,
-        input: narrationText,
+        // Explicit speech instructions avoid Gemini's documented prompt-classifier false rejections.
+        // https://ai.google.dev/gemini-api/docs/speech-generation#limitations
+        input: `Synthesize speech by reading the following transcript verbatim.\nSpeak only the transcript, without adding commentary.\n\nTRANSCRIPT:\n${narrationText}`,
         response_format: {
           type: "audio",
           sample_rate: AUDIO_FORMAT.sampleRate,

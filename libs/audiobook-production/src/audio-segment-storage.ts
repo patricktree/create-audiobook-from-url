@@ -1,6 +1,6 @@
 import { AUDIO_FORMAT, AUDIOBOOK_CONTENT_TYPE } from "#src/audio-format.ts";
 
-const SYNTHESIS_POLICY_VERSION = "2";
+const SYNTHESIS_POLICY_VERSION = "3";
 const SPEECH_PROVIDER = "google-ai-studio";
 const SPEECH_MODEL = "gemini-3.1-flash-tts-preview";
 const SPEECH_VOICE = "Kore";

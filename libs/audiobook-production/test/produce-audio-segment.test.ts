@@ -43,7 +43,8 @@ test("configures a bounded observable non-streaming synthesis attempt", async ()
       "Content-Type": "application/json",
     },
     query: {
-      input: "A bounded narration request.",
+      input:
+        "Synthesize speech by reading the following transcript verbatim.\nSpeak only the transcript, without adding commentary.\n\nTRANSCRIPT:\nA bounded narration request.",
       stream: false,
     },
   });
@@ -62,6 +63,34 @@ test("configures a bounded observable non-streaming synthesis attempt", async ()
     signal: expect.any(AbortSignal),
   });
 });
+
+test.each(["streaming", "non-streaming"] as const)(
+  "identifies short text as a verbatim transcript in %s requests",
+  async (synthesisResponseMode) => {
+    let gatewayRequest: unknown;
+    const run: SpeechSynthesisRun = async (request: SpeechSynthesisRequest) => {
+      gatewayRequest = request;
+      return createAudioResponse();
+    };
+
+    await produceAudioSegment({
+      ai: createSpeechSynthesisAi(run),
+      bucket: createAudioSegmentBucket(),
+      conversionId: CONVERSION_ID,
+      sequence: 4,
+      narrationChunk: { text: "News Writer" },
+      synthesisResponseMode,
+    });
+
+    expect(gatewayRequest).toMatchObject({
+      query: {
+        input:
+          "Synthesize speech by reading the following transcript verbatim.\nSpeak only the transcript, without adding commentary.\n\nTRANSCRIPT:\nNews Writer",
+        stream: synthesisResponseMode === "streaming",
+      },
+    });
+  },
+);
 
 test("reports sanitized interaction diagnostics when a stream contains no audio", async () => {
   const run: SpeechSynthesisRun = async () =>
