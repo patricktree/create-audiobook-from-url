@@ -4,7 +4,6 @@ import { encodePcmAsMp3 } from "@create-audiobook-from-url/mp3-encoding";
 
 import { AUDIO_FORMAT, AUDIOBOOK_CONTENT_TYPE, analyzeMp3 } from "#src/audio-format.ts";
 import {
-  SPEECH_CONFIG,
   assertMatchingAudioSegmentIdentity,
   createAudioSegmentReference,
   createAudioSegmentKey,
@@ -13,10 +12,13 @@ import {
   type StoredAudioSegment,
 } from "#src/audio-segment-storage.ts";
 import { calculateCrc32 } from "#src/crc32.ts";
+import { SPEECH_CONFIG } from "#src/speech-synthesis-config.ts";
 
 const MP3_BITRATE_KILOBITS_PER_SECOND = 128;
 
 const AUDIO_STREAM_CHUNK_SIZE = 64 * 1024;
+const SPEECH_GATEWAY_ID = "default";
+const SPEECH_ENDPOINT = "v1beta/interactions";
 const GOOGLE_INTERACTIONS_API_REVISION = "2026-05-20";
 const SYNTHESIS_REQUEST_TIMEOUT_MILLISECONDS = 90_000;
 const RETRYABLE_INPUT_POLICY_BLOCK_PREFIX =
@@ -229,10 +231,10 @@ async function synthesizeAudioSegment({
   synthesisResponseMode: NarrationSynthesisResponseMode;
 }): Promise<Uint8Array> {
   const isStreaming = synthesisResponseMode === "streaming";
-  const response = await ai.gateway(SPEECH_CONFIG.gatewayId).run(
+  const response = await ai.gateway(SPEECH_GATEWAY_ID).run(
     {
       provider: SPEECH_CONFIG.provider,
-      endpoint: SPEECH_CONFIG.endpoint,
+      endpoint: SPEECH_ENDPOINT,
       headers: {
         "Api-Revision": GOOGLE_INTERACTIONS_API_REVISION,
         "cf-aig-collect-log-payload": false,
@@ -256,7 +258,7 @@ async function synthesizeAudioSegment({
     {
       gateway: {
         collectLog: true,
-        id: SPEECH_CONFIG.gatewayId,
+        id: SPEECH_GATEWAY_ID,
         metadata: {
           conversionId,
           narrationSegmentSequence: sequence,

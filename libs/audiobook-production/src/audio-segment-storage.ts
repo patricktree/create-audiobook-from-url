@@ -1,9 +1,6 @@
 import { AUDIO_FORMAT, AUDIOBOOK_CONTENT_TYPE } from "#src/audio-format.ts";
+import { SPEECH_CONFIG } from "#src/speech-synthesis-config.ts";
 
-const SYNTHESIS_POLICY_VERSION = "3";
-const SPEECH_PROVIDER = "google-ai-studio";
-const SPEECH_MODEL = "gemini-3.1-flash-tts-preview";
-const SPEECH_VOICE = "Charon";
 // https://developers.cloudflare.com/r2/platform/limits/
 const R2_OBJECT_METADATA_MAX_BYTE_LENGTH = 8_192;
 
@@ -67,13 +64,13 @@ export function createAudioSegmentMetadata(
   const metadata = {
     [SEGMENT_METADATA_KEYS.channelCount]: AUDIO_FORMAT.channelCount.toString(),
     [SEGMENT_METADATA_KEYS.encoding]: AUDIO_FORMAT.encoding,
-    [SEGMENT_METADATA_KEYS.model]: SPEECH_MODEL,
+    [SEGMENT_METADATA_KEYS.model]: SPEECH_CONFIG.model,
     // JSON preserves the exact input while keeping line breaks safe for metadata header transport.
     [SEGMENT_METADATA_KEYS.narrationText]: JSON.stringify(narrationText),
-    [SEGMENT_METADATA_KEYS.policyVersion]: SYNTHESIS_POLICY_VERSION,
-    [SEGMENT_METADATA_KEYS.provider]: SPEECH_PROVIDER,
+    [SEGMENT_METADATA_KEYS.policyVersion]: SPEECH_CONFIG.policyVersion,
+    [SEGMENT_METADATA_KEYS.provider]: SPEECH_CONFIG.provider,
     [SEGMENT_METADATA_KEYS.sampleRate]: AUDIO_FORMAT.sampleRate.toString(),
-    [SEGMENT_METADATA_KEYS.voice]: SPEECH_VOICE,
+    [SEGMENT_METADATA_KEYS.voice]: SPEECH_CONFIG.voice,
     ...(durationMilliseconds === undefined
       ? {}
       : {
@@ -189,25 +186,16 @@ function getStoredAudioSegmentCrc32(metadata: Readonly<Record<string, string>>):
   return Number.parseInt(value, 16);
 }
 
-/** Provider, model, voice, and gateway used for audiobook speech synthesis. */
-export const SPEECH_CONFIG = {
-  gatewayId: "default",
-  provider: SPEECH_PROVIDER,
-  endpoint: "v1beta/interactions",
-  model: SPEECH_MODEL,
-  voice: SPEECH_VOICE,
-} as const;
-
 function hasExpectedFixedSynthesisMetadata(metadata: Readonly<Record<string, string>>): boolean {
   return (
     metadata[SEGMENT_METADATA_KEYS.channelCount] === AUDIO_FORMAT.channelCount.toString() &&
     metadata[SEGMENT_METADATA_KEYS.encoding] === AUDIO_FORMAT.encoding &&
-    metadata[SEGMENT_METADATA_KEYS.model] === SPEECH_MODEL &&
+    metadata[SEGMENT_METADATA_KEYS.model] === SPEECH_CONFIG.model &&
     typeof metadata[SEGMENT_METADATA_KEYS.narrationText] === "string" &&
-    metadata[SEGMENT_METADATA_KEYS.policyVersion] === SYNTHESIS_POLICY_VERSION &&
-    metadata[SEGMENT_METADATA_KEYS.provider] === SPEECH_PROVIDER &&
+    metadata[SEGMENT_METADATA_KEYS.policyVersion] === SPEECH_CONFIG.policyVersion &&
+    metadata[SEGMENT_METADATA_KEYS.provider] === SPEECH_CONFIG.provider &&
     metadata[SEGMENT_METADATA_KEYS.sampleRate] === AUDIO_FORMAT.sampleRate.toString() &&
-    metadata[SEGMENT_METADATA_KEYS.voice] === SPEECH_VOICE
+    metadata[SEGMENT_METADATA_KEYS.voice] === SPEECH_CONFIG.voice
   );
 }
 
