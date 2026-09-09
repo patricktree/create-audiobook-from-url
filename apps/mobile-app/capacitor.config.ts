@@ -9,6 +9,7 @@ const config: CapacitorConfig = {
   appId: "me.patricktree.createaudiobookfromurl",
   appName: "Create Audiobook from URL",
   webDir: pathToWebAppDist,
+  plugins: { CapacitorHttp: { enabled: true } },
 };
 
 module.exports = config;

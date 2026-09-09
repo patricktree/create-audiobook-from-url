@@ -12,8 +12,7 @@ import {
   type StartConversionResponse,
 } from "@create-audiobook-from-url/web-app-api.routes";
 
-import { createAppApiClient, usesBearerSession } from "#src/api-client.js";
-import { grantSessionStorage } from "#src/grant-session-storage.js";
+import { createAppApiClient } from "#src/api-client.js";
 
 const POLL_INTERVAL_MS = 2_000;
 const rpcClient = createAppApiClient();
@@ -55,16 +54,7 @@ export async function exchangeCredential(
   grantId: string,
   credential: string,
 ): Promise<GrantSnapshot> {
-  const response = await rpcClient.exchangeCredential(
-    { grantId },
-    { credential },
-    usesBearerSession() ? "bearer" : "cookie",
-  );
-  if (usesBearerSession() && response.status === 201) {
-    const token = response.headers.get("X-Grant-Session");
-    if (!token) throw new Error("Backend did not return a grant session.");
-    grantSessionStorage.store({ token });
-  }
+  const response = await rpcClient.exchangeCredential({ grantId }, { credential });
   return parseResponse(response, (body) => grantSnapshotSchema.parse(body));
 }
 

@@ -161,29 +161,28 @@ test("updates only the selected grant allowance through the authenticated operat
   expect(missing.status).toBe(404);
 });
 
-test("exchanges native sessions and authorizes grant and conversion requests without cookies", async () => {
+test("exchanges persistent cookies and authorizes native requests without a browser origin", async () => {
   const grant = await createTrial();
   const response = await fetch(`${origin}/api/grants/${grant.grantId}/sessions`, {
     method: "POST",
     headers: {
       "Content-Type": "application/json",
       "X-Create-Audiobook-From-URL-Request": "1",
-      "X-Grant-Session-Transport": "bearer",
     },
     body: JSON.stringify({ credential: grant.credential }),
   });
   expect(response.status).toBe(201);
-  expect(response.headers.get("Set-Cookie")).toBeNull();
+  expect(response.headers.get("Set-Cookie")).toContain("HttpOnly");
   expect(response.headers.get("Cache-Control")).toBe("private, no-store");
-  const token = response.headers.get("X-Grant-Session");
-  expect(token).toMatch(/^v1\./);
-  const headers = { Authorization: `Bearer ${token}` };
+  const cookie = response.headers.get("Set-Cookie");
+  expect(cookie).toContain("Max-Age=");
+  const headers = { Cookie: cookie!.split(";")[0]! };
   const snapshot = await fetch(`${origin}/api/grants/${grant.grantId}`, { headers });
   expect(snapshot.status).toBe(200);
-  expect(snapshot.headers.get("Set-Cookie")).toBeNull();
+  expect(snapshot.headers.get("Set-Cookie")).toContain("HttpOnly");
   const history = await fetch(`${origin}/api/grants/${grant.grantId}/conversions`, { headers });
   expect(history.status).toBe(200);
-  expect(history.headers.get("Set-Cookie")).toBeNull();
+  expect(history.headers.get("Set-Cookie")).toContain("HttpOnly");
 
   const start = await fetch(`${origin}/api/grants/${grant.grantId}/conversions`, {
     method: "POST",
@@ -211,7 +210,7 @@ test("exchanges native sessions and authorizes grant and conversion requests wit
   }
   const detail = await fetch(`${origin}/api/conversions/${conversion.conversionId}`, { headers });
   expect(detail.status).toBe(200);
-  expect(detail.headers.get("Set-Cookie")).toBeNull();
+  expect(detail.headers.get("Set-Cookie")).toContain("HttpOnly");
   const otherGrant = await createTrial();
   expect((await fetch(`${origin}/api/grants/${otherGrant.grantId}`, { headers })).status).toBe(401);
 
@@ -233,80 +232,6 @@ test("exchanges native sessions and authorizes grant and conversion requests wit
     body: JSON.stringify({ sourceUrl: "https://source.example.test/fixture" }),
   });
   expect(revokedStart.status).toBe(403);
-});
-
-test("keeps persistent browser cookies and never falls back from invalid bearer authentication", async () => {
-  const grant = await createTrial();
-  const response = await fetch(`${origin}/api/grants/${grant.grantId}/sessions`, {
-    method: "POST",
-    headers: {
-      "Content-Type": "application/json",
-      "X-Create-Audiobook-From-URL-Request": "1",
-      Origin: origin,
-    },
-    body: JSON.stringify({ credential: grant.credential }),
-  });
-  expect(response.status).toBe(201);
-  expect(response.headers.get("X-Grant-Session")).toBeNull();
-  const cookie = response.headers.get("Set-Cookie");
-  expect(cookie).toContain("HttpOnly; SameSite=Lax");
-  const cookieHeader = cookie?.split(";")[0] ?? "";
-  expect(
-    (await fetch(`${origin}/api/grants/${grant.grantId}`, { headers: { Cookie: cookieHeader } }))
-      .status,
-  ).toBe(200);
-  for (const authorization of ["Bearer invalid", "Basic invalid", "Bearer"]) {
-    const invalid = await fetch(`${origin}/api/grants/${grant.grantId}`, {
-      headers: { Cookie: cookieHeader, Authorization: authorization },
-    });
-    expect(invalid.status).toBe(401);
-    expect(invalid.headers.get("Set-Cookie")).toBeNull();
-  }
-  const invalidStart = await fetch(`${origin}/api/grants/${grant.grantId}/conversions`, {
-    method: "POST",
-    headers: {
-      Cookie: cookieHeader,
-      Authorization: "Bearer invalid",
-      "Content-Type": "application/json",
-      "X-Create-Audiobook-From-URL-Request": "1",
-      "Idempotency-Key": crypto.randomUUID(),
-    },
-    body: JSON.stringify({ sourceUrl: "https://source.example.test/fixture" }),
-  });
-  expect(invalidStart.status).toBe(401);
-});
-
-test("native exchange requires a valid credential and refuses other browser origins", async () => {
-  const grant = await createTrial();
-  for (const extraHeaders of [
-    { Origin: origin },
-    { Origin: "https://evil.example" },
-    { Cookie: "session=test" },
-  ]) {
-    const response = await fetch(`${origin}/api/grants/${grant.grantId}/sessions`, {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-        "X-Create-Audiobook-From-URL-Request": "1",
-        "X-Grant-Session-Transport": "bearer",
-        ...extraHeaders,
-      },
-      body: JSON.stringify({ credential: grant.credential }),
-    });
-    expect(response.status).toBe(403);
-    expect(response.headers.get("X-Grant-Session")).toBeNull();
-  }
-  const invalid = await fetch(`${origin}/api/grants/${grant.grantId}/sessions`, {
-    method: "POST",
-    headers: {
-      "Content-Type": "application/json",
-      "X-Create-Audiobook-From-URL-Request": "1",
-      "X-Grant-Session-Transport": "bearer",
-    },
-    body: JSON.stringify({ credential: `v1.${"a".repeat(43)}` }),
-  });
-  expect(invalid.status).toBe(401);
-  expect(invalid.headers.get("X-Grant-Session")).toBeNull();
 });
 
 async function createTrial(): Promise<{ grantId: string; credential: string }> {
@@ -332,36 +257,27 @@ async function createTrial(): Promise<{ grantId: string; credential: string }> {
   return { grantId: body.grantId, credential };
 }
 
-test("allows Capacitor fetch preflight and exposes the exchanged bearer session", async () => {
+test("rejects native-style mutations without the request marker or with a foreign origin", async () => {
   const grant = await createTrial();
-  const url = `${origin}/api/grants/${grant.grantId}/sessions`;
-  const preflight = await fetch(url, {
-    method: "OPTIONS",
-    headers: {
-      Origin: "https://localhost",
-      "Access-Control-Request-Method": "POST",
-      "Access-Control-Request-Headers": "content-type,x-grant-session-transport,authorization",
-    },
-  });
-  expect(preflight.status).toBe(204);
-  expect(preflight.headers.get("Access-Control-Allow-Origin")).toBe("https://localhost");
-  expect(preflight.headers.get("Access-Control-Allow-Headers")?.toLowerCase()).toContain(
-    "authorization",
-  );
-  expect(preflight.headers.get("Access-Control-Allow-Credentials")).toBeNull();
-  const response = await fetch(url, {
-    method: "POST",
-    headers: {
-      Origin: "https://localhost",
+  for (const headers of [
+    { "Content-Type": "application/json" },
+    {
       "Content-Type": "application/json",
       "X-Create-Audiobook-From-URL-Request": "1",
-      "X-Grant-Session-Transport": "bearer",
+      Origin: "https://evil.example",
     },
-    body: JSON.stringify({ credential: grant.credential }),
-  });
-  expect(response.status).toBe(201);
-  expect(response.headers.get("Access-Control-Allow-Origin")).toBe("https://localhost");
-  expect(response.headers.get("Access-Control-Expose-Headers")).toContain("X-Grant-Session");
-  expect(response.headers.get("X-Grant-Session")).toBeTruthy();
-  expect(response.headers.get("Set-Cookie")).toBeNull();
+    {
+      "Content-Type": "application/json",
+      "X-Create-Audiobook-From-URL-Request": "1",
+      "Sec-Fetch-Site": "cross-site",
+    },
+  ]) {
+    const response = await fetch(`${origin}/api/grants/${grant.grantId}/sessions`, {
+      method: "POST",
+      headers,
+      body: JSON.stringify({ credential: grant.credential }),
+    });
+    expect(response.status).toBe("X-Create-Audiobook-From-URL-Request" in headers ? 403 : 400);
+    expect(response.headers.get("Set-Cookie")).toBeNull();
+  }
 });

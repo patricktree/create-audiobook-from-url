@@ -13,8 +13,8 @@ const hcWithType = (...args: Parameters<typeof hc>): WebAppApiClient => hc<WebAp
 export type HonoClient = ReturnType<typeof hcWithType>;
 
 /** Creates a typed Hono client for the supplied API base URL. */
-export function createHonoClient(baseUrl: string, transport: typeof fetch = fetch): HonoClient {
-  return hcWithType(trimTrailingSlash(baseUrl), { fetch: transport });
+export function createHonoClient(baseUrl: string): HonoClient {
+  return hcWithType(trimTrailingSlash(baseUrl), {});
 }
 
 type MapAnyToUnknown<T> = {

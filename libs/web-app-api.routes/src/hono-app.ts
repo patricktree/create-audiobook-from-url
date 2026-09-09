@@ -47,8 +47,7 @@ const exchangeSessionRoute = createRoute({
   responses: {
     201: {
       content: { "application/json": { schema: grantSnapshotSchema } },
-      description:
-        "Grant session created. Browser clients receive an HttpOnly cookie. Native clients sending X-Grant-Session-Transport: bearer without cookies and with either the Capacitor Android origin or no Origin receive the token in X-Grant-Session instead.",
+      description: "Grant session created.",
     },
     400: errorResponse("Invalid request."),
     401: errorResponse("Invalid credential."),

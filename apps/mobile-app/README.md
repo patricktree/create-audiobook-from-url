@@ -38,7 +38,7 @@ cd apps/mobile-app/android
 adb shell am start -n me.patricktree.createaudiobookfromurl/.MainActivity
 ```
 
-The debug APK is written to `apps/mobile-app/android/app/build/outputs/apk/debug/app-debug.apk`. Run `./gradlew :app:connectedDebugAndroidTest` with an emulator or device connected to verify encrypted session persistence. Confirm the landing page renders and the app can close and reopen without a crash.
+The debug APK is written to `apps/mobile-app/android/app/build/outputs/apk/debug/app-debug.apk`. Confirm the landing page renders and the app can close and reopen without a crash.
 
 ## iOS
 
@@ -69,8 +69,10 @@ See [Android's App Links verification guide](https://developer.android.com/train
 
 ## Backend access and grant sessions
 
-Android uses the WebView's standard JavaScript fetch to call `https://create-audiobook-from-url.patricktree.me`. A TypeScript wrapper adds bearer authentication. The API permits CORS from Capacitor's default Android origin, `https://localhost`. Browser clients continue using same-origin fetch and persistent HttpOnly cookies.
+Mobile API requests use ordinary `fetch` calls patched by `CapacitorHttp` to use native networking. The backend origin is `https://create-audiobook-from-url.patricktree.me`. Browser requests continue using the browser's same-origin fetch.
 
-Credential exchange uses the existing `/api/grants/{grantId}/sessions` endpoint with `X-Grant-Session-Transport: bearer`. It validates the grant credential and returns the session in the CORS-exposed `X-Grant-Session` header without setting a cookie. Android omits cookies from fetch requests and stores one active session as Zod-validated JSON in localStorage. This token persists across app restarts and is accessible to JavaScript. Subsequent requests carry `Authorization: Bearer …`. Both transports share grant scope, validation, and revocation rules.
+Both clients exchange trial credentials for persistent Secure, HttpOnly cookies. Capacitor's native cookie manager stores the server-issued cookies and sends them on later requests. The app does not store session tokens in localStorage or add Authorization headers. The `CapacitorCookies` document.cookie patch (https://capacitorjs.com/docs/apis/cookies) is not enabled.
 
-The app uses one grant at a time. Opening a new trial link replaces the stored session. Every API request uses that session without path inspection or token retries. Fetch retains its standard abort behavior, and authenticated requests reject redirects.
+Native mutations omit Origin and must include the existing custom request header and JSON content type. Browser mutations must have a matching Origin; cross-site Fetch Metadata is rejected. No cross-origin browser CORS access is enabled.
+
+Capacitor's native HTTP response headers can expose Set-Cookie to JavaScript, so HttpOnly does not provide the same isolation as browser networking.
