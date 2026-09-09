@@ -1,5 +1,6 @@
 import { Hono } from "hono";
 import { bodyLimit } from "hono/body-limit";
+import { cors } from "hono/cors";
 import { NONCE, secureHeaders } from "hono/secure-headers";
 import { createRemoteJWKSet, jwtVerify } from "jose";
 import { Temporal } from "temporal-polyfill";
@@ -53,7 +54,12 @@ const productionDependencies: ApiServerDependencies = {
 
 const webAppApiHandlers: WebAppApiHandlers<ApiServerEnvironment> = {
   async exchangeSession(context) {
-    const validation = validateBrowserMutationRequest(context.req.raw, context.get("requestId"));
+    const transport = context.req.header("X-Grant-Session-Transport");
+    const validation = validateSessionMutationRequest(
+      context.req.raw,
+      context.get("requestId"),
+      transport === "bearer" ? "native-exchange" : "browser",
+    );
     if (validation.result === "invalid") return validation.response;
     const { grantId } = context.req.valid("param");
     try {
@@ -74,9 +80,13 @@ const webAppApiHandlers: WebAppApiHandlers<ApiServerEnvironment> = {
           "This trial link was revoked.",
           403,
         );
-      return context.json(result.snapshot, 201, {
-        "Set-Cookie": createGrantSessionCookie(grantId, result.sessionToken),
-      });
+      return context.json(
+        result.snapshot,
+        201,
+        transport === "bearer"
+          ? { "X-Grant-Session": result.sessionToken }
+          : { "Set-Cookie": createGrantSessionCookie(grantId, result.sessionToken) },
+      );
     } catch (error) {
       if (error instanceof Error && error.message.includes("not initialized"))
         return jsonError(
@@ -96,11 +106,7 @@ const webAppApiHandlers: WebAppApiHandlers<ApiServerEnvironment> = {
 
   async getGrant(context) {
     const { grantId } = context.req.valid("param");
-    const authenticated = await authenticateGrant(
-      context.env,
-      grantId,
-      context.req.header("Cookie"),
-    );
+    const authenticated = await authenticateGrant(context.env, grantId, context.req.raw);
     if (authenticated.result === "missing")
       return jsonError(
         context.get("requestId"),
@@ -114,7 +120,7 @@ const webAppApiHandlers: WebAppApiHandlers<ApiServerEnvironment> = {
         "grant-session-invalid",
         "This browser no longer has access. Open the original trial link again.",
         401,
-        { "Set-Cookie": clearGrantSessionCookie(grantId) },
+        browserSessionHeaders(context.req.raw, clearGrantSessionCookie(grantId)),
       );
     if (authenticated.result === "operational-error")
       return jsonError(
@@ -123,18 +129,19 @@ const webAppApiHandlers: WebAppApiHandlers<ApiServerEnvironment> = {
         "The grant could not be loaded.",
         500,
       );
-    return context.json(authenticated.snapshot, 200, {
-      "Set-Cookie": createGrantSessionCookie(grantId, authenticated.token),
-    });
+    return context.json(
+      authenticated.snapshot,
+      200,
+      browserSessionHeaders(
+        context.req.raw,
+        createGrantSessionCookie(grantId, authenticated.token),
+      ),
+    );
   },
 
   async getGrantConversions(context) {
     const { grantId } = context.req.valid("param");
-    const authenticated = await authenticateGrant(
-      context.env,
-      grantId,
-      context.req.header("Cookie"),
-    );
+    const authenticated = await authenticateGrant(context.env, grantId, context.req.raw);
     if (authenticated.result === "missing")
       return jsonError(
         context.get("requestId"),
@@ -148,7 +155,7 @@ const webAppApiHandlers: WebAppApiHandlers<ApiServerEnvironment> = {
         "grant-session-invalid",
         "This browser no longer has access. Open the original trial link again.",
         401,
-        { "Set-Cookie": clearGrantSessionCookie(grantId) },
+        browserSessionHeaders(context.req.raw, clearGrantSessionCookie(grantId)),
       );
     if (authenticated.result === "operational-error")
       return jsonError(
@@ -158,9 +165,14 @@ const webAppApiHandlers: WebAppApiHandlers<ApiServerEnvironment> = {
         500,
       );
     try {
-      return context.json(await getGrantStub(context.env, grantId).listConversions(), 200, {
-        "Set-Cookie": createGrantSessionCookie(grantId, authenticated.token),
-      });
+      return context.json(
+        await getGrantStub(context.env, grantId).listConversions(),
+        200,
+        browserSessionHeaders(
+          context.req.raw,
+          createGrantSessionCookie(grantId, authenticated.token),
+        ),
+      );
     } catch {
       return jsonError(
         context.get("requestId"),
@@ -181,11 +193,7 @@ const webAppApiHandlers: WebAppApiHandlers<ApiServerEnvironment> = {
         "Conversion not found.",
         404,
       );
-    const authenticated = await authenticateGrant(
-      context.env,
-      grantId,
-      context.req.header("Cookie"),
-    );
+    const authenticated = await authenticateGrant(context.env, grantId, context.req.raw);
     if (authenticated.result === "missing")
       return jsonError(
         context.get("requestId"),
@@ -199,7 +207,7 @@ const webAppApiHandlers: WebAppApiHandlers<ApiServerEnvironment> = {
         "grant-session-invalid",
         "This browser no longer has access. Open the original trial link again.",
         401,
-        { "Set-Cookie": clearGrantSessionCookie(grantId) },
+        browserSessionHeaders(context.req.raw, clearGrantSessionCookie(grantId)),
       );
     if (authenticated.result === "operational-error")
       return jsonError(
@@ -216,11 +224,19 @@ const webAppApiHandlers: WebAppApiHandlers<ApiServerEnvironment> = {
           "conversion-not-found",
           "Conversion not found.",
           404,
-          { "Set-Cookie": createGrantSessionCookie(grantId, authenticated.token) },
+          browserSessionHeaders(
+            context.req.raw,
+            createGrantSessionCookie(grantId, authenticated.token),
+          ),
         );
-      return context.json(conversion, 200, {
-        "Set-Cookie": createGrantSessionCookie(grantId, authenticated.token),
-      });
+      return context.json(
+        conversion,
+        200,
+        browserSessionHeaders(
+          context.req.raw,
+          createGrantSessionCookie(grantId, authenticated.token),
+        ),
+      );
     } catch {
       return jsonError(
         context.get("requestId"),
@@ -232,14 +248,14 @@ const webAppApiHandlers: WebAppApiHandlers<ApiServerEnvironment> = {
   },
 
   async startConversion(context) {
-    const validation = validateBrowserMutationRequest(context.req.raw, context.get("requestId"));
+    const validation = validateSessionMutationRequest(
+      context.req.raw,
+      context.get("requestId"),
+      context.req.header("Authorization") === undefined ? "browser" : "bearer",
+    );
     if (validation.result === "invalid") return validation.response;
     const { grantId } = context.req.valid("param");
-    const authenticated = await authenticateGrant(
-      context.env,
-      grantId,
-      context.req.header("Cookie"),
-    );
+    const authenticated = await authenticateGrant(context.env, grantId, context.req.raw);
     if (authenticated.result === "missing")
       return jsonError(
         context.get("requestId"),
@@ -253,7 +269,7 @@ const webAppApiHandlers: WebAppApiHandlers<ApiServerEnvironment> = {
         "grant-session-invalid",
         "This browser no longer has access. Open the original trial link again.",
         401,
-        { "Set-Cookie": clearGrantSessionCookie(grantId) },
+        browserSessionHeaders(context.req.raw, clearGrantSessionCookie(grantId)),
       );
     if (authenticated.result === "operational-error")
       return jsonError(
@@ -352,7 +368,10 @@ const webAppApiHandlers: WebAppApiHandlers<ApiServerEnvironment> = {
         slots: result.slots,
       },
       result.result === "created" ? 202 : 200,
-      { "Set-Cookie": createGrantSessionCookie(grantId, authenticated.token) },
+      browserSessionHeaders(
+        context.req.raw,
+        createGrantSessionCookie(grantId, authenticated.token),
+      ),
     );
   },
 
@@ -695,6 +714,21 @@ export function createApiServer(dependencies: ApiServerDependencies = production
       xFrameOptions: "DENY",
     }),
   );
+  app.use(
+    "/api/*",
+    cors({
+      origin: "https://localhost",
+      allowMethods: ["GET", "POST"],
+      allowHeaders: [
+        "Content-Type",
+        "Authorization",
+        "Idempotency-Key",
+        "X-Create-Audiobook-From-URL-Request",
+        "X-Grant-Session-Transport",
+      ],
+      exposeHeaders: ["X-Grant-Session", "Retry-After"],
+    }),
+  );
   app.use("*", async (context, next) => {
     context.set("requestId", crypto.randomUUID());
     const allowedMethods = allowedMethodsForApiPath(context.req.path);
@@ -711,6 +745,7 @@ export function createApiServer(dependencies: ApiServerDependencies = production
     if (
       context.req.path.startsWith("/trials/") ||
       context.req.path.startsWith("/api/grants/") ||
+      context.req.path.startsWith("/api/conversions/") ||
       context.req.path.startsWith("/audiobooks/") ||
       context.req.path.startsWith("/api/audiobooks/")
     )
@@ -792,12 +827,15 @@ function getRegistryStub(env: ApiServerEnvironment): RegistryStub {
   return env.CONVERSION_GRANT_REGISTRY.get(env.CONVERSION_GRANT_REGISTRY.idFromName("registry"));
 }
 
-async function authenticateGrant(
-  env: ApiServerEnvironment,
-  grantId: string,
-  cookieHeader: string | undefined,
-) {
-  const token = getGrantSessionCookie(cookieHeader, grantId);
+async function authenticateGrant(env: ApiServerEnvironment, grantId: string, request: Request) {
+  const authorization = request.headers.get("Authorization");
+  if (authorization !== null && !/^Bearer [A-Za-z0-9._~-]+$/i.test(authorization)) {
+    return { result: "invalid" as const };
+  }
+  const token =
+    authorization === null
+      ? getGrantSessionCookie(request.headers.get("Cookie") ?? undefined, grantId)
+      : authorization.slice(7);
   if (token === undefined || token === "") return { result: "missing" as const };
   try {
     const result = await getGrantStub(env, grantId).validateSession(token);
@@ -809,14 +847,19 @@ async function authenticateGrant(
   }
 }
 
-type BrowserMutationRequestValidation =
+type SessionMutationRequestValidation =
   | { result: "valid" }
   | { result: "invalid"; response: Response };
 
-function validateBrowserMutationRequest(
+function browserSessionHeaders(request: Request, cookie: string): Record<string, string> {
+  return request.headers.has("Authorization") ? {} : { "Set-Cookie": cookie };
+}
+
+function validateSessionMutationRequest(
   request: Request,
   requestId: string,
-): BrowserMutationRequestValidation {
+  transport: "browser" | "bearer" | "native-exchange" = "browser",
+): SessionMutationRequestValidation {
   if (request.headers.get("Content-Type") !== "application/json")
     return {
       result: "invalid",
@@ -828,7 +871,10 @@ function validateBrowserMutationRequest(
       ),
     };
   if (
-    request.headers.get("Origin") !== new URL(request.url).origin ||
+    (transport === "browser" && request.headers.get("Origin") !== new URL(request.url).origin) ||
+    (transport === "native-exchange" &&
+      ((request.headers.has("Origin") && request.headers.get("Origin") !== "https://localhost") ||
+        request.headers.has("Cookie"))) ||
     request.headers.get("X-Create-Audiobook-From-URL-Request") !== "1"
   )
     return {

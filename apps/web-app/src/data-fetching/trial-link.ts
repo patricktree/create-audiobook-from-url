@@ -1,6 +1,5 @@
 import { queryOptions, useMutation } from "@tanstack/react-query";
 
-import { WebAppApiClient } from "@create-audiobook-from-url/web-app-api.client";
 import {
   audiobookSchema,
   conversionDetailSchema,
@@ -13,8 +12,11 @@ import {
   type StartConversionResponse,
 } from "@create-audiobook-from-url/web-app-api.routes";
 
+import { createAppApiClient, usesBearerSession } from "#src/api-client.js";
+import { grantSessionStorage } from "#src/grant-session-storage.js";
+
 const POLL_INTERVAL_MS = 2_000;
-const rpcClient = new WebAppApiClient(window.location.origin);
+const rpcClient = createAppApiClient();
 
 export const createGrantQueryKey = (grantId: string) => ["conversion-grant", grantId] as const;
 const createConversionQueryKey = (conversionId: string) => ["conversion", conversionId] as const;
@@ -53,7 +55,16 @@ export async function exchangeCredential(
   grantId: string,
   credential: string,
 ): Promise<GrantSnapshot> {
-  const response = await rpcClient.exchangeCredential({ grantId }, { credential });
+  const response = await rpcClient.exchangeCredential(
+    { grantId },
+    { credential },
+    usesBearerSession() ? "bearer" : "cookie",
+  );
+  if (usesBearerSession() && response.status === 201) {
+    const token = response.headers.get("X-Grant-Session");
+    if (!token) throw new Error("Backend did not return a grant session.");
+    grantSessionStorage.store({ token });
+  }
   return parseResponse(response, (body) => grantSnapshotSchema.parse(body));
 }
 

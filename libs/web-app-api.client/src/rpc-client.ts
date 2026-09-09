@@ -12,17 +12,26 @@ export class WebAppApiClient {
   #honoClient: HonoClient;
   #baseUrl: string;
 
-  constructor(baseUrl: string) {
+  constructor(baseUrl: string, transport: typeof fetch = fetch) {
     this.#baseUrl = baseUrl;
-    this.#honoClient = createHonoClient(baseUrl);
+    this.#honoClient = createHonoClient(baseUrl, transport);
   }
 
-  async exchangeCredential(params: GrantParams, input: ExchangeCredentialRequest) {
-    return this.#honoClient.api.grants[":grantId"].sessions.$post({
-      param: params,
-      json: input,
-      header: browserHeaders(),
-    });
+  async exchangeCredential(
+    params: GrantParams,
+    input: ExchangeCredentialRequest,
+    transport: "cookie" | "bearer" = "cookie",
+  ) {
+    return this.#honoClient.api.grants[":grantId"].sessions.$post(
+      {
+        param: params,
+        json: input,
+        header: browserHeaders(),
+      },
+      {
+        headers: transport === "bearer" ? { "X-Grant-Session-Transport": "bearer" } : {},
+      },
+    );
   }
 
   async getGrant(params: GrantParams, signal?: AbortSignal) {

@@ -39,7 +39,7 @@ The secret carried by a trial link that proves access to its conversion grant.
 _Avoid_: trial link, user identity
 
 **grant session**:
-Browser authorization derived from a grant credential. A grant session does not expire independently. It may inspect its conversion grant and, while the grant remains open, start conversions. After grant expiry or revocation, an existing grant session retains read-only access to grant history and ready audiobooks unless an emergency signing-key replacement invalidates every session for the grant.
+Browser or native-app authorization derived from a grant credential. A grant session does not expire independently. It may inspect its conversion grant and, while the grant remains open, start conversions. After grant expiry or revocation, an existing grant session retains read-only access to grant history and ready audiobooks unless an emergency signing-key replacement invalidates every session for the grant.
 _Avoid_: grant credential, user session
 
 **conversion status**:

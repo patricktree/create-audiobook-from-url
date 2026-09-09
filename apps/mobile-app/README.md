@@ -38,7 +38,7 @@ cd apps/mobile-app/android
 adb shell am start -n me.patricktree.createaudiobookfromurl/.MainActivity
 ```
 
-The debug APK is written to `apps/mobile-app/android/app/build/outputs/apk/debug/app-debug.apk`. The native template has no unit tests; the Gradle test task currently reports `NO-SOURCE`. Android lint and installation provide native build checks. Confirm the landing page renders and the app can close and reopen without a crash.
+The debug APK is written to `apps/mobile-app/android/app/build/outputs/apk/debug/app-debug.apk`. Run `./gradlew :app:connectedDebugAndroidTest` with an emulator or device connected to verify encrypted session persistence. Confirm the landing page renders and the app can close and reopen without a crash.
 
 ## iOS
 
@@ -67,6 +67,10 @@ adb shell am start -W -a android.intent.action.VIEW -c android.intent.category.B
 
 See [Android's App Links verification guide](https://developer.android.com/training/app-links/verify-applinks) for device settings and troubleshooting.
 
-## Backend access limitation
+## Backend access and grant sessions
 
-This setup bundles the existing web UI. Trial conversion requires the server's same-origin session API, which is not available at Capacitor's local origin. App Links deliver the trial route and credential, but mobile backend access still needs to be configured before credential exchange and conversion work in the native app.
+Android uses the WebView's standard JavaScript fetch to call `https://create-audiobook-from-url.patricktree.me`. A TypeScript wrapper adds bearer authentication. The API permits CORS from Capacitor's default Android origin, `https://localhost`. Browser clients continue using same-origin fetch and persistent HttpOnly cookies.
+
+Credential exchange uses the existing `/api/grants/{grantId}/sessions` endpoint with `X-Grant-Session-Transport: bearer`. It validates the grant credential and returns the session in the CORS-exposed `X-Grant-Session` header without setting a cookie. Android omits cookies from fetch requests and stores one active session as Zod-validated JSON in localStorage. This token persists across app restarts and is accessible to JavaScript. Subsequent requests carry `Authorization: Bearer …`. Both transports share grant scope, validation, and revocation rules.
+
+The app uses one grant at a time. Opening a new trial link replaces the stored session. Every API request uses that session without path inspection or token retries. Fetch retains its standard abort behavior, and authenticated requests reject redirects.
