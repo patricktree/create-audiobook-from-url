@@ -53,8 +53,9 @@ export function StartConversionForm({ grant }: { grant: GrantSnapshot }): React.
                   margin-block-end: 32px;
                 `,
                 input: css`
-                  /* ensure the input field is above the &::before pseudo element radial background */
-                  isolation: isolate;
+                  /* Reveal the animated page glow only through the transparent border. */
+                  background: var(--color-bg) padding-box;
+                  backdrop-filter: saturate(6);
                 `,
               }}
               label="URL"

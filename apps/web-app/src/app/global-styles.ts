@@ -111,6 +111,7 @@ export const cssBase = css`
       --spacing-base: 8px;
       --app-padding-block: var(--spacing-base);
       --app-padding-inline: calc(2 * var(--spacing-base));
+      --app-max-width: 800px;
 
       --border-radius-md: 4px;
     }

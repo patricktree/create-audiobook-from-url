@@ -121,9 +121,10 @@ async function showGallery(): Promise<void> {
   toolbar.style.cssText =
     "display:flex;gap:16px;align-items:center;padding:12px 16px;font:14px system-ui;background:#fff;border-bottom:1px solid #ddd;flex-wrap:wrap";
   const label = document.createElement("label");
+  label.style.cssText = "min-width:0;max-width:100%";
   label.textContent = "ui-gallery — Story ";
   const select = document.createElement("select");
-  select.style.cssText = "font:inherit;max-width:100%;padding:8px";
+  select.style.cssText = "box-sizing:border-box;font:inherit;max-width:100%;padding:8px";
   for (const id of storyIds) select.add(new Option(id, id));
   label.append(select);
   const reload = document.createElement("button");

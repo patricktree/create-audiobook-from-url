@@ -57,10 +57,6 @@ function TextField({
 
             font-size: 18px;
             color: var(--color-fg);
-            background:
-              linear-gradient(var(--color-bg), var(--color-bg)) padding-box,
-              linear-gradient(90deg, #0e0668 0%, #450099 46%, #ff00fb 100%) border-box;
-            background-color: var(--color-bg);
             border: 2px solid transparent;
             border-radius: 999px;
             box-shadow: 4px 4px 20px rgb(0 0 0 / 12%);
