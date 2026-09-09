@@ -22,6 +22,21 @@ test("converts controlled source content into downloadable MP3 and EPUB artifact
   const [epubDownload] = await Promise.all([page.waitForEvent("download"), epubLink.click()]);
   expect(epubDownload.suggestedFilename()).toBe("audiobook.epub");
 
+  const playerHtml = await page.locator("audio").evaluate((element) => element.outerHTML);
+  const crossOriginPage = await page.context().newPage();
+  await crossOriginPage.setContent(playerHtml);
+  await expect
+    .poll(() =>
+      crossOriginPage
+        .locator("audio")
+        .evaluate(
+          (element) =>
+            element instanceof HTMLAudioElement && element.readyState >= 1 && element.duration > 0,
+        ),
+    )
+    .toBe(true);
+  await crossOriginPage.close();
+
   await validateAudiobookArtifacts({
     audioUrl: new URL(audioUrl, page.url()).href,
     epubUrl: new URL(epubUrl, page.url()).href,

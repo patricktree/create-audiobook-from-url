@@ -42,14 +42,15 @@ export async function serveAudio(
   const object = await env.AUDIO_BUCKET.get(audiobook.audio.key);
   if (object === null) return audiobookNotFound(requestId);
 
-  if (request.headers.get("If-None-Match") === object.httpEtag)
-    return new Response(null, { status: 304, headers: { ETag: object.httpEtag } });
-
   const headers = new Headers({
+    "Access-Control-Allow-Origin": "*",
     "Accept-Ranges": "bytes",
     "Content-Type": "audio/mpeg",
     ETag: object.httpEtag,
   });
+  if (request.headers.get("If-None-Match") === object.httpEtag)
+    return new Response(null, { status: 304, headers });
+
   const range = request.headers.get("Range");
   if (range === null) {
     headers.set("Content-Length", object.size.toString());
@@ -93,6 +94,7 @@ export async function serveCaptions(
 
   return new Response(createAudiobookCaptions(audiobook), {
     headers: {
+      "Access-Control-Allow-Origin": "*",
       "Content-Type": "text/vtt; charset=utf-8",
       "Content-Disposition": 'inline; filename="captions.vtt"',
     },
