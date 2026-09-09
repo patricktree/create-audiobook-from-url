@@ -28,16 +28,15 @@ test("shows the public portfolio page", async ({ page, workerEnvironment }) => {
   await expect(
     page.getByText(/Conversions are available only through a supplied trial link/),
   ).toBeVisible();
-  await captureScreenshot(page, "landing.png");
 });
 
-test("captures the initial Trial", async ({ page, workerEnvironment }) => {
+test("shows the open trial URL input screen", async ({ page, workerEnvironment }) => {
   await mockCredentialExchange(page, workerEnvironment.origin);
   await gotoPage(page, trialLink(workerEnvironment.origin));
 
   await expect(page.getByRole("heading", { name: "Just Listen." })).toBeVisible();
   await expect(page.getByRole("button", { name: "Turn into audio" })).toBeDisabled();
-  await captureScreenshot(page, "initial.png");
+  await expect(page).toHaveScreenshot("initial.png");
 });
 
 test("rejects malformed and invalid trial links", async ({
@@ -48,7 +47,6 @@ test("rejects malformed and invalid trial links", async ({
   expectConsoleError(/^TrialLinkInvalidError: This trial link is invalid\./);
   await gotoPage(page, `${workerEnvironment.origin}/trials/${GRANT_ID}#credential=malformed`);
   await expect(page.getByRole("heading", { name: "This trial link is invalid." })).toBeVisible();
-  await captureScreenshot(page, "malformed-trial-link.png");
 
   await gotoPage(page, workerEnvironment.origin);
   await page.route(`${workerEnvironment.origin}/api/grants/${GRANT_ID}/sessions`, async (route) => {
@@ -69,7 +67,6 @@ test("shows a revoked trial link", async ({ expectConsoleError, page, workerEnvi
 
   await gotoPage(page, trialLink(workerEnvironment.origin));
   await expect(page.getByRole("heading", { name: "This trial link was revoked." })).toBeVisible();
-  await captureScreenshot(page, "revoked-trial-link.png");
 });
 
 test("recovers from an operational credential exchange error", async ({
@@ -95,7 +92,6 @@ test("recovers from an operational credential exchange error", async ({
     page.getByRole("heading", { name: "The trial link could not be opened." }),
   ).toBeVisible();
   await expect(page).toHaveURL(trialLink(workerEnvironment.origin));
-  await captureScreenshot(page, "credential-exchange-error.png");
 
   await page.getByRole("button", { name: "Try again" }).click();
   await expect(page.getByRole("heading", { name: "Just Listen." })).toBeVisible();
@@ -123,7 +119,6 @@ test("retries an initial grant loading failure", async ({
   await expect(
     page.getByRole("heading", { name: "The trial link could not be opened." }),
   ).toBeVisible();
-  await captureScreenshot(page, "grant-load-error.png");
   await page.getByRole("button", { name: "Try again" }).click();
   await expect(page.getByRole("heading", { name: "Just Listen." })).toBeVisible();
   expect(grantAttempts).toBeGreaterThanOrEqual(2);
@@ -137,7 +132,6 @@ test("validates a source URL before starting", async ({ page, workerEnvironment 
   await page.getByLabel("URL").blur();
   await expect(page.getByLabel("URL")).toHaveAttribute("aria-invalid", "true");
   await expect(page.getByRole("button", { name: "Turn into audio" })).toBeDisabled();
-  await captureScreenshot(page, "invalid-article-url.png");
 });
 
 test("disables duplicate submission while a conversion start is pending", async ({
@@ -163,7 +157,6 @@ test("disables duplicate submission while a conversion start is pending", async 
   await page.getByRole("button", { name: "Turn into audio" }).click();
   await expect(page.getByRole("button", { name: "Turn into audio" })).toBeDisabled();
   await expect(page.getByLabel("URL")).toHaveValue(SOURCE_URL);
-  await captureScreenshot(page, "start-pending.png");
 
   finishStart?.();
   await expect(page).toHaveURL(`${workerEnvironment.origin}/conversions/${CONVERSION_ID}`);
@@ -172,22 +165,20 @@ test("disables duplicate submission while a conversion start is pending", async 
   ).toBeVisible();
 });
 
-test("captures a deterministic pending conversion", async ({ page, workerEnvironment }) => {
+test("shows a deterministic pending conversion", async ({ page, workerEnvironment }) => {
   await mockConversion(page, workerEnvironment.origin, createPendingConversion());
   await gotoPage(page, `${workerEnvironment.origin}/conversions/${CONVERSION_ID}`);
 
   await expect(
     page.getByRole("progressbar", { name: "selecting narration content..." }),
   ).toBeVisible();
-  await captureScreenshot(page, "pending-conversion.png");
 });
 
-test("captures a deterministic failed conversion", async ({ page, workerEnvironment }) => {
+test("shows a deterministic failed conversion", async ({ page, workerEnvironment }) => {
   await mockConversion(page, workerEnvironment.origin, createFailedConversion());
   await gotoPage(page, `${workerEnvironment.origin}/conversions/${CONVERSION_ID}`);
 
   await expect(page.getByText("Failed!", { exact: true })).toBeVisible();
-  await captureScreenshot(page, "failed-conversion.png");
 });
 
 test("retries a conversion loading failure", async ({
@@ -214,7 +205,6 @@ test("retries a conversion loading failure", async ({
   await expect(
     page.getByRole("heading", { name: "The conversion could not be opened." }),
   ).toBeVisible();
-  await captureScreenshot(page, "conversion-load-error.png");
   await page.getByRole("button", { name: "Try again" }).click();
   await expect(
     page.getByRole("progressbar", { name: "selecting narration content..." }),
@@ -234,7 +224,6 @@ test("redirects a ready conversion to its audiobook", async ({ page, workerEnvir
     page.getByLabel("Play A deterministic document about careful testing"),
   ).toBeVisible();
   await expect(page).toHaveURL(`${workerEnvironment.origin}/audiobooks/${CONVERSION_ID}`);
-  await captureScreenshot(page, "audiobook.png");
 });
 
 test("shows an audiobook not-found state without a retry action", async ({
@@ -251,7 +240,6 @@ test("shows an audiobook not-found state without a retry action", async ({
   await gotoPage(page, `${workerEnvironment.origin}/audiobooks/${CONVERSION_ID}`);
   await expect(page.getByRole("heading", { name: "Audiobook not found." })).toBeVisible();
   await expect(page.getByRole("button", { name: "Try again" })).toHaveCount(0);
-  await captureScreenshot(page, "audiobook-not-found.png");
 });
 
 test("retries an audiobook loading failure", async ({
@@ -276,7 +264,6 @@ test("retries an audiobook loading failure", async ({
   await expect(
     page.getByRole("heading", { name: "The audiobook could not be loaded." }),
   ).toBeVisible();
-  await captureScreenshot(page, "audiobook-load-error.png");
   await page.getByRole("button", { name: "Try again" }).click();
   await expect(
     page.getByRole("heading", { name: "A deterministic document about careful testing" }),
@@ -285,7 +272,6 @@ test("retries an audiobook loading failure", async ({
     "href",
     SOURCE_URL,
   );
-  await captureScreenshot(page, "audiobook.png");
 });
 
 function createGrant(): Record<string, unknown> {
@@ -413,10 +399,6 @@ async function mockAudiobookMedia(page: Page, origin: string): Promise<void> {
       body: "WEBVTT\n\n00:00:00.000 --> 00:00:01.000\nKeep the important boundaries real.\n",
     });
   });
-}
-
-async function captureScreenshot(page: Page, name: string): Promise<void> {
-  await expect(page).toHaveScreenshot(name);
 }
 
 async function fulfillJson(route: Route, status: number, body: unknown): Promise<void> {

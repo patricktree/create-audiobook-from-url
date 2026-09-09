@@ -25,6 +25,8 @@ The E2E suite is intentionally separate from `pnpm validate`. It is slower and r
 
 ## Update screenshots
 
+The E2E suite keeps one screenshot assertion for the open-trial URL input screen, with desktop and mobile baselines. Detailed visual coverage lives in the [web app component tests](../../apps/web-app/README.md#component-tests-and-visual-coverage); the E2E tests retain their behavior assertions.
+
 After an intentional visual change, run:
 
 ```sh

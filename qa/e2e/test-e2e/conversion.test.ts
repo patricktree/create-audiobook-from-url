@@ -11,7 +11,6 @@ test("converts controlled source content into downloadable MP3 and EPUB artifact
   await expect(
     page.getByRole("heading", { name: "A deterministic document about careful testing" }),
   ).toBeVisible({ timeout: 90_000 });
-  await expect(page).toHaveScreenshot("audiobook.png");
   const audioLink = page.getByRole("link", { name: "Download MP3" });
   const epubLink = page.getByRole("link", { name: "Download EPUB" });
   const audioUrl = await audioLink.getAttribute("href");
@@ -41,7 +40,6 @@ test.describe("provider failure and recovery", () => {
     const { grantId } = await openNewTrial(page, workerEnvironment);
     await startConversion(page);
     await expect(page.getByText("Failed!", { exact: true })).toBeVisible({ timeout: 90_000 });
-    await expect(page).toHaveScreenshot("failed-conversion.png");
 
     await workerEnvironment.restart("success");
     await page.goto(`${workerEnvironment.origin}/trials/${grantId}`);

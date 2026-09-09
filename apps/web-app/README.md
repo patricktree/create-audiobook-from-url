@@ -38,3 +38,21 @@ The build produces:
 - run the build and confirm it succeeds
 - open the web app in a browser
 - submit an empty or malformed URL and confirm the form shows an inline validation message
+
+## Component tests and visual coverage
+
+Route stories in `src/routes/*.story.tsx` render the application with deterministic MSW responses. Component tests cover the landing page, open trial, URL validation, pending submission, trial errors, conversion progress and failure, and audiobook results and errors on desktop and mobile. The E2E suite keeps one screenshot assertion for the open-trial URL input screen.
+
+Run the component tests from the repository root:
+
+```sh
+pnpm --filter '@create-audiobook-from-url/web-app' test:components
+```
+
+After intentional visual changes, regenerate the Docker baselines and review the images under `apps/web-app/snapshots`:
+
+```sh
+pnpm --filter '@create-audiobook-from-url/web-app' test:components --update-snapshots
+```
+
+Explore the stories with `pnpm --filter '@create-audiobook-from-url/web-app' dev:gallery`.
