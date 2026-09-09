@@ -1,6 +1,8 @@
 #!/bin/sh
 set -e
 
+pnpm --filter env-setup env:check
+
 if [ "${CI}" = "true" ]; then
     # in CI/CD (i.e. GitHub Actions runners and Docker builds), we are finished
     exit 0

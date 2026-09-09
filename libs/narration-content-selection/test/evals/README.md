@@ -6,9 +6,7 @@ Live evals call Cloudflare Workers AI through the OpenAI SDK and can incur usage
 
 ## Configure credentials
 
-Copy `.env.evals.example` to `.env.evals.local` in the package directory and configure the credentials required by each candidate. The production candidate uses `CLOUDFLARE_ACCOUNT_ID` and `CLOUDFLARE_API_KEY`. An experimental candidate can supply a different `SelectionCompletion` implementation and its required credentials. The local environment file is ignored by Git.
-
-CI can inject the same environment variables directly without creating the file.
+After the initial dependency installation, run `node tooling/env-setup/src/cli.ts setup --from /absolute/path/to/existing.env` from the repository root to create `.env.evals` and the Worker’s `.env.local` with matching credentials. See the root README for initial setup. The production candidate uses `CLOUDFLARE_ACCOUNT_ID` and `CLOUDFLARE_API_KEY`. An experimental candidate can supply a different `SelectionCompletion` implementation and its required credentials. The local environment file is ignored by Git.
 
 ## Add an eval case
 
