@@ -456,6 +456,9 @@ importers:
       '@base-ui/react':
         specifier: ^1.7.0
         version: 1.7.0(@types/react@19.2.18)(react-dom@19.2.8(react@19.2.8))(react@19.2.8)
+      '@capacitor/core':
+        specifier: ^8.5.1
+        version: 8.5.1
       '@create-audiobook-from-url/conversion-grants':
         specifier: workspace:*
         version: link:../../libs/conversion-grants
@@ -492,6 +495,9 @@ importers:
       react-dom:
         specifier: catalog:web-app
         version: 19.2.8(react@19.2.8)
+      zod:
+        specifier: ^4.5.4
+        version: 4.5.4
     devDependencies:
       '@create-audiobook-from-url/config-oxlint':
         specifier: workspace:*

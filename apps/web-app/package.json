@@ -19,10 +19,6 @@
   },
   "exports": {
     "./package.json": "./package.json",
-    "./main": {
-      "types": "./dist/types/main.d.ts",
-      "default": "./src/main.tsx"
-    },
     "./vite": "./vite.shared.ts"
   },
   "scripts": {
@@ -41,6 +37,7 @@
   },
   "dependencies": {
     "@base-ui/react": "^1.7.0",
+    "@capacitor/core": "^8.5.1",
     "@create-audiobook-from-url/conversion-grants": "workspace:*",
     "@create-audiobook-from-url/web-app-api.client": "workspace:*",
     "@create-audiobook-from-url/web-app-api.routes": "workspace:*",
@@ -52,7 +49,8 @@
     "@tanstack/react-query": "^5.102.8",
     "@tanstack/react-router": "^1.170.32",
     "react": "catalog:web-app",
-    "react-dom": "catalog:web-app"
+    "react-dom": "catalog:web-app",
+    "zod": "^4.5.4"
   },
   "devDependencies": {
     "@create-audiobook-from-url/config-oxlint": "workspace:*",

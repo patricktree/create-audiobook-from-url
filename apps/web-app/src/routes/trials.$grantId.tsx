@@ -18,6 +18,7 @@ import {
   createGrantQueryKey,
   exchangeCredential,
 } from "#src/data-fetching/trial-link.js";
+import { settingsStorage } from "#src/settings-storage.js";
 
 export const Route = createFileRoute("/trials/$grantId")({
   component: TrialPage,
@@ -33,6 +34,7 @@ export const Route = createFileRoute("/trials/$grantId")({
     if (access.kind === "credential") {
       const snapshot = await exchangeCredential(params.grantId, access.credential);
       context.queryClient.setQueryData(createGrantQueryKey(params.grantId), snapshot);
+      settingsStorage.store({ lastGrantId: params.grantId });
       return redirect({ to: ".", hash: "" });
     }
 
