@@ -1,3 +1,5 @@
+import { App } from "@capacitor/app";
+import { Capacitor } from "@capacitor/core";
 import React from "react";
 import ReactDOM from "react-dom/client";
 
@@ -14,6 +16,16 @@ if (rootElement === null) {
 }
 
 const router = createAppRouter();
+
+if (Capacitor.getPlatform() === "android") {
+  await App.addListener("backButton", () => {
+    if (router.history.canGoBack()) {
+      router.history.back();
+    } else {
+      void App.minimizeApp();
+    }
+  });
+}
 
 await Promise.all([
   initializeAndroidAppLinks((href) => router.history.push(href)).catch((error: unknown) => {
