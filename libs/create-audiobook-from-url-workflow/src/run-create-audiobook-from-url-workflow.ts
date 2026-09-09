@@ -256,7 +256,7 @@ export async function runCreateAudiobookFromUrlWorkflow({
             failureCategory: stage,
             explanation:
               error instanceof ContentLimitError
-                ? "The source content exceeds the 40,000-character narration limit."
+                ? "The source content exceeds the narration limit of 40,000 characters or 200 chunks."
                 : "The conversion could not be completed.",
             diagnosticReference: crypto.randomUUID(),
             cleanupState: "pending" as const,

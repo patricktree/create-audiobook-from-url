@@ -47,7 +47,7 @@ test("preserves semantic attributes in model input and selected output", async (
     '<div id="article" class="article-body" data-section="main"><p class="body" style="color:red">Read <a href="/source" title="Source">this</a>.</p></div>',
   );
   expect(input).toContain('class="article-body"');
-  expect(input).toContain('id="article"');
+  expect(input).not.toContain(' id="article"');
   expect(input).toContain('data-section="main"');
   expect(input).toContain('style="color:red"');
   expect(input).toContain("Read ");
@@ -55,6 +55,58 @@ test("preserves semantic attributes in model input and selected output", async (
   expect(result.selectedSourceMaterialHtml).toBe(
     '<div id="article" class="article-body" data-section="main"><p class="body" style="color:red">Read <a href="/source" title="Source">this</a>.</p></div>',
   );
+});
+
+test("corrects Wikipedia IDs without losing source attributes or retry usage", async () => {
+  const requests: string[] = [];
+  const attempts: unknown[] = [];
+  const selector = createContentSelector(
+    createConfiguration(fauxAssistantMessage(), {
+      completion: async (request, options) => {
+        requests.push(request.userPrompt);
+        attempts.push(options?.gatewayMetadata?.["selectionAttempt"]);
+        return fauxAssistantMessage(
+          fauxToolCall("select_narration_content", {
+            element_ids: requests.length === 1 ? ["mwBhY"] : ["0"],
+          }),
+          { stopReason: "toolUse", usage: { inputTokens: 10, outputTokens: 2, totalTokens: 12 } },
+        );
+      },
+    }),
+  );
+  const source = '<p id="mwBhY">Sherlock Holmes <a href="#mwBig">reference</a></p>';
+  const result = await selector(source, { conversionId: "wikipedia" });
+  expect(requests[0]).not.toContain(' id="mwBhY"');
+  expect(requests[0]).toContain('data-createaudiobookfromurl-element-id="0"');
+  expect(requests[1]).toContain("mwBhY");
+  expect(requests[1]).toContain('Valid element IDs for this chunk: ["0","1"]');
+  expect(attempts).toEqual([1, 2]);
+  expect(result.selectedSourceMaterialHtml).toBe(source);
+  expect(result.usage).toMatchObject({
+    requestCount: 2,
+    inputTokens: 20,
+    outputTokens: 4,
+    totalTokens: 24,
+  });
+});
+
+test("stops after one correction when the model keeps returning unknown IDs", async () => {
+  let calls = 0;
+  const selector = createContentSelector(
+    createConfiguration(fauxAssistantMessage(), {
+      completion: async () => {
+        calls += 1;
+        return fauxAssistantMessage(
+          fauxToolCall("select_narration_content", { element_ids: ["mwBhY"] }),
+          { stopReason: "toolUse" },
+        );
+      },
+    }),
+  );
+  await expect(selector('<p id="mwBhY">Sherlock Holmes</p>')).rejects.toThrow(
+    "unknown data-createaudiobookfromurl-element-id values: mwBhY",
+  );
+  expect(calls).toBe(2);
 });
 
 test("reuses completed chunk results when selection is replayed after a failure", async () => {

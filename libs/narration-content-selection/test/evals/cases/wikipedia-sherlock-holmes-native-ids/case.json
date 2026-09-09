@@ -1,0 +1,4 @@
+{
+  "description": "Four prose paragraphs from the captured https://en.wikipedia.org/wiki/Sherlock_Holmes source of failed production conversion 5081e631-4aa3-4b9c-9a95-9f3bc47ae293 (2026-09-09). Their native IDs were incorrectly returned by Gemini in chunk 19. All four paragraphs should be narrated; native IDs, inline links, and citation metadata remain in the fixture.",
+  "tags": ["regression", "wikipedia", "native-element-ids"]
+}
