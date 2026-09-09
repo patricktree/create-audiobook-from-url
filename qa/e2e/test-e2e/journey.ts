@@ -14,8 +14,16 @@ export async function openNewTrial(
   await expect(page).toHaveURL(`${workerEnvironment.origin}/trials/${grant.grantId}`);
   await expect(page.getByRole("heading", { name: "Just Listen." })).toBeVisible();
   expect(
-    await page.evaluate(() => ({ local: localStorage.length, session: sessionStorage.length })),
-  ).toEqual({ local: 0, session: 0 });
+    await page.evaluate(() => ({
+      local: localStorage.length,
+      settings: localStorage.getItem("settings"),
+      session: sessionStorage.length,
+    })),
+  ).toEqual({
+    local: 1,
+    settings: JSON.stringify({ lastGrantId: grant.grantId }),
+    session: 0,
+  });
   expect(await page.content()).not.toContain("#credential=");
 
   return { grantId: grant.grantId };
