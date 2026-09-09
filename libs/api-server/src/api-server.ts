@@ -687,6 +687,11 @@ export type { ApiServerEnvironment } from "#src/api-server-environment.ts";
 /** Creates the HTTP server for the web application and operator interfaces. */
 export function createApiServer(dependencies: ApiServerDependencies = productionDependencies) {
   const app = new Hono<ApiServerHonoEnvironment>();
+  app.use("*", async (context, next) => {
+    await next();
+    if (!context.res.headers.has("Cache-Control"))
+      context.header("Cache-Control", "private, no-store");
+  });
   const limitApiRequestBody = bodyLimit({
     maxSize: 4_096,
     onError: (context) =>
@@ -742,14 +747,6 @@ export function createApiServer(dependencies: ApiServerDependencies = production
       );
     else await next();
     context.header("X-Request-Id", context.get("requestId"));
-    if (
-      context.req.path.startsWith("/trials/") ||
-      context.req.path.startsWith("/api/grants/") ||
-      context.req.path.startsWith("/api/conversions/") ||
-      context.req.path.startsWith("/audiobooks/") ||
-      context.req.path.startsWith("/api/audiobooks/")
-    )
-      context.header("Cache-Control", "private, no-store");
     return context.res;
   });
 
