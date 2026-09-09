@@ -1,13 +1,37 @@
 import { cloudflare } from "@cloudflare/vite-plugin";
+import { check } from "@patricktree-stack/utils-ecma/assert.utils";
+import fs from "node:fs";
+import path from "node:path";
 import { defineConfig, mergeConfig } from "vite";
 
-import { WEB_APP_CSP_NONCE_PLACEHOLDER } from "@create-audiobook-from-url/api-server/web-app-csp";
-import { createWebAppViteConfig } from "@create-audiobook-from-url/web-app/vite";
+import { createWebAppViteConfig, WEB_APP_DIRECTORY } from "@create-audiobook-from-url/web-app/vite";
 
-export default mergeConfig(
-  createWebAppViteConfig(),
-  defineConfig({
-    html: { cspNonce: WEB_APP_CSP_NONCE_PLACEHOLDER },
-    plugins: [cloudflare()],
-  }),
-);
+const WORKER_DIRECTORY = import.meta.dirname;
+
+export default defineConfig(({ command }) => {
+  const workerConfig = defineConfig({
+    envDir: WORKER_DIRECTORY,
+    build: { outDir: path.join(WORKER_DIRECTORY, "dist") },
+    plugins: [cloudflare({ configPath: path.join(WORKER_DIRECTORY, "wrangler.jsonc") })],
+  });
+
+  if (command === "build") {
+    const webBundleDirectory = path.join(WEB_APP_DIRECTORY, "dist/web");
+    // The web package builds first through Turbo; never deploy without its SPA assets.
+    fs.accessSync(path.join(webBundleDirectory, "index.html"));
+
+    return mergeConfig(workerConfig, {
+      root: WORKER_DIRECTORY,
+      publicDir: webBundleDirectory,
+    });
+  } else if (command === "serve") {
+    return mergeConfig(
+      createWebAppViteConfig(),
+      mergeConfig(workerConfig, {
+        root: WEB_APP_DIRECTORY,
+      }),
+    );
+  }
+
+  return check.assertIsUnreachable(command);
+});

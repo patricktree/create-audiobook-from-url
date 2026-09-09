@@ -1,4 +1,4 @@
-export const WEB_APP_CSP_NONCE_PLACEHOLDER = "csp-nonce-placeholder";
+import { WEB_APP_CSP_NONCE_PLACEHOLDER } from "@create-audiobook-from-url/web-app-api.routes/web-app-csp";
 
 /** Replaces Vite's build-time CSP nonce placeholder with the nonce for this response. */
 export async function applyWebAppCspNonce(response: Response, nonce: string): Promise<Response> {

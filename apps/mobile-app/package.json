@@ -1,0 +1,22 @@
+{
+  "name": "@create-audiobook-from-url/mobile-app",
+  "private": true,
+  "scripts": {
+    "build": "turbo run turbo:build && pnpm run native:sync",
+    "native:sync": "cap sync",
+    "turbo:build": "tsc --build --noEmit"
+  },
+  "dependencies": {
+    "@capacitor/android": "^8.5.1",
+    "@capacitor/core": "^8.5.1",
+    "@capacitor/ios": "^8.5.1",
+    "@create-audiobook-from-url/web-app": "workspace:*"
+  },
+  "devDependencies": {
+    "@capacitor/cli": "^8.5.1",
+    "@patricktree-stack/config-typescript": "workspace:*",
+    "@types/node": "catalog:",
+    "@typescript/native": "catalog:",
+    "typescript": "catalog:"
+  }
+}

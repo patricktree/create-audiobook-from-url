@@ -1,7 +1,7 @@
 import React from "react";
 import ReactDOM from "react-dom/client";
 
-import { WebApp } from "@create-audiobook-from-url/web-app/main";
+import { WebApp } from "#src/main.js";
 
 const rootElement = document.getElementById("root");
 

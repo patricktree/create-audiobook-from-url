@@ -1,0 +1,13 @@
+{
+  /* just for IDE support for capacitor.config.ts */
+
+  "extends": [
+    "@patricktree-stack/config-typescript/tsconfig.defaults.json",
+    "@patricktree-stack/config-typescript/tsconfig.typescript-execution-via-type-stripping.json"
+  ],
+  "compilerOptions": {
+    /* Modules */
+    "types": ["node"]
+  },
+  "include": ["capacitor.config.ts"]
+}
