@@ -8,6 +8,7 @@ import {
 } from "@tanstack/react-router";
 import React from "react";
 
+import { appIdentity } from "#src/app-identity.js";
 import { ErrorMessage } from "#src/app/components/error-message.js";
 import { MainSection, SuperHeader } from "#src/app/components/main-components.js";
 import { StartConversionForm } from "#src/app/components/start-conversion-form.js";
@@ -18,7 +19,6 @@ import {
   createGrantQueryKey,
   exchangeCredential,
 } from "#src/data-fetching/trial-link.js";
-import { settingsStorage } from "#src/settings-storage.js";
 
 export const Route = createFileRoute("/trials/$grantId")({
   component: TrialPage,
@@ -34,7 +34,7 @@ export const Route = createFileRoute("/trials/$grantId")({
     if (access.kind === "credential") {
       const snapshot = await exchangeCredential(params.grantId, access.credential);
       context.queryClient.setQueryData(createGrantQueryKey(params.grantId), snapshot);
-      settingsStorage.store({ lastGrantId: params.grantId });
+      appIdentity.store({ lastGrantId: params.grantId });
       return redirect({ to: ".", hash: "" });
     }
 

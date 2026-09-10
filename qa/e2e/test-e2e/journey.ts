@@ -16,12 +16,12 @@ export async function openNewTrial(
   expect(
     await page.evaluate(() => ({
       local: localStorage.length,
-      settings: localStorage.getItem("settings"),
+      appIdentity: localStorage.getItem("app-identity"),
       session: sessionStorage.length,
     })),
   ).toEqual({
     local: 1,
-    settings: JSON.stringify({ lastGrantId: grant.grantId }),
+    appIdentity: JSON.stringify({ lastGrantId: grant.grantId }),
     session: 0,
   });
   expect(await page.content()).not.toContain("#credential=");
@@ -33,4 +33,10 @@ export async function startConversion(page: Page): Promise<void> {
   await page.getByLabel("URL").fill(CONTROLLED_SOURCE_URL);
   await page.getByRole("button", { name: "Turn into audio" }).click();
   await expect(page).toHaveURL(/\/conversions\/[0-9a-f-]+$/);
+}
+
+export async function waitForAudiobook(page: Page): Promise<void> {
+  await expect(
+    page.getByRole("heading", { name: "A deterministic document about careful testing" }),
+  ).toBeVisible({ timeout: 90_000 });
 }

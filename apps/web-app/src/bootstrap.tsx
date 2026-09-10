@@ -3,11 +3,11 @@ import { Capacitor } from "@capacitor/core";
 import React from "react";
 import ReactDOM from "react-dom/client";
 
+import { appIdentity } from "#src/app-identity.js";
 import { AppStyles } from "#src/app/app-styles.js";
 import { createAppRouter, GlobalProviders } from "#src/app/global-providers.js";
 import { initializeAndroidAppLinks } from "#src/platform/app-links.android.js";
 import { initializeAndroidShare } from "#src/platform/share-plugin.android.js";
-import { settingsStorage } from "#src/settings-storage.js";
 
 const rootElement = document.getElementById("root");
 
@@ -32,7 +32,7 @@ await Promise.all([
     console.error("Failed to initialize Android App Links", error);
   }),
   initializeAndroidShare(() => {
-    const settings = settingsStorage.load();
+    const settings = appIdentity.load();
     if (settings !== null) {
       void router.navigate({ to: "/trials/$grantId", params: { grantId: settings.lastGrantId } });
     }
