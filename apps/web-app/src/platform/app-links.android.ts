@@ -20,14 +20,6 @@ export async function initializeAndroidAppLinks(navigate: (href: string) => void
     if (parsed === null || parsed.origin !== APP_ORIGIN || parsed.username || parsed.password) {
       return;
     }
-    if (
-      parsed.pathname !== "/" &&
-      !parsed.pathname.startsWith("/trials/") &&
-      !parsed.pathname.startsWith("/conversions/") &&
-      !parsed.pathname.startsWith("/audiobooks/")
-    ) {
-      return;
-    }
     // Keep query parameters and the trial credential fragment when changing origins.
     navigate(parsed.pathname + parsed.search + parsed.hash);
   });

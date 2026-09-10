@@ -828,7 +828,9 @@ function validateSessionMutationRequest(
   if (
     (request.headers.has("Origin") &&
       request.headers.get("Origin") !== new URL(request.url).origin) ||
+    // Reject browser requests from another site; native HTTP requests can omit Fetch Metadata.
     request.headers.get("Sec-Fetch-Site") === "cross-site" ||
+    // Require a custom header that cross-origin browser requests cannot send without a CORS preflight.
     request.headers.get("X-Create-Audiobook-From-URL-Request") !== "1"
   )
     return {
