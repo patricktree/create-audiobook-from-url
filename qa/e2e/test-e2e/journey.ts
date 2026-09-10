@@ -14,8 +14,16 @@ export async function openNewTrial(
   await expect(page).toHaveURL(`${workerEnvironment.origin}/trials/${grant.grantId}`);
   await expect(page.getByRole("heading", { name: "Just Listen." })).toBeVisible();
   expect(
-    await page.evaluate(() => ({ local: localStorage.length, session: sessionStorage.length })),
-  ).toEqual({ local: 0, session: 0 });
+    await page.evaluate(() => ({
+      local: localStorage.length,
+      appIdentity: localStorage.getItem("app-identity"),
+      session: sessionStorage.length,
+    })),
+  ).toEqual({
+    local: 1,
+    appIdentity: JSON.stringify({ lastGrantId: grant.grantId }),
+    session: 0,
+  });
   expect(await page.content()).not.toContain("#credential=");
 
   return { grantId: grant.grantId };
@@ -25,4 +33,10 @@ export async function startConversion(page: Page): Promise<void> {
   await page.getByLabel("URL").fill(CONTROLLED_SOURCE_URL);
   await page.getByRole("button", { name: "Turn into audio" }).click();
   await expect(page).toHaveURL(/\/conversions\/[0-9a-f-]+$/);
+}
+
+export async function waitForAudiobook(page: Page): Promise<void> {
+  await expect(
+    page.getByRole("heading", { name: "A deterministic document about careful testing" }),
+  ).toBeVisible({ timeout: 90_000 });
 }

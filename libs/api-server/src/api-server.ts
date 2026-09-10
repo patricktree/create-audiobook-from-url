@@ -53,7 +53,7 @@ const productionDependencies: ApiServerDependencies = {
 
 const webAppApiHandlers: WebAppApiHandlers<ApiServerEnvironment> = {
   async exchangeSession(context) {
-    const validation = validateBrowserMutationRequest(context.req.raw, context.get("requestId"));
+    const validation = validateSessionMutationRequest(context.req.raw, context.get("requestId"));
     if (validation.result === "invalid") return validation.response;
     const { grantId } = context.req.valid("param");
     try {
@@ -232,7 +232,7 @@ const webAppApiHandlers: WebAppApiHandlers<ApiServerEnvironment> = {
   },
 
   async startConversion(context) {
-    const validation = validateBrowserMutationRequest(context.req.raw, context.get("requestId"));
+    const validation = validateSessionMutationRequest(context.req.raw, context.get("requestId"));
     if (validation.result === "invalid") return validation.response;
     const { grantId } = context.req.valid("param");
     const authenticated = await authenticateGrant(
@@ -668,6 +668,11 @@ export type { ApiServerEnvironment } from "#src/api-server-environment.ts";
 /** Creates the HTTP server for the web application and operator interfaces. */
 export function createApiServer(dependencies: ApiServerDependencies = productionDependencies) {
   const app = new Hono<ApiServerHonoEnvironment>();
+  app.use("*", async (context, next) => {
+    await next();
+    if (!context.res.headers.has("Cache-Control"))
+      context.header("Cache-Control", "private, no-store");
+  });
   const limitApiRequestBody = bodyLimit({
     maxSize: 4_096,
     onError: (context) =>
@@ -708,13 +713,6 @@ export function createApiServer(dependencies: ApiServerDependencies = production
       );
     else await next();
     context.header("X-Request-Id", context.get("requestId"));
-    if (
-      context.req.path.startsWith("/trials/") ||
-      context.req.path.startsWith("/api/grants/") ||
-      context.req.path.startsWith("/audiobooks/") ||
-      context.req.path.startsWith("/api/audiobooks/")
-    )
-      context.header("Cache-Control", "private, no-store");
     return context.res;
   });
 
@@ -809,14 +807,14 @@ async function authenticateGrant(
   }
 }
 
-type BrowserMutationRequestValidation =
+type SessionMutationRequestValidation =
   | { result: "valid" }
   | { result: "invalid"; response: Response };
 
-function validateBrowserMutationRequest(
+function validateSessionMutationRequest(
   request: Request,
   requestId: string,
-): BrowserMutationRequestValidation {
+): SessionMutationRequestValidation {
   if (request.headers.get("Content-Type") !== "application/json")
     return {
       result: "invalid",
@@ -828,7 +826,11 @@ function validateBrowserMutationRequest(
       ),
     };
   if (
-    request.headers.get("Origin") !== new URL(request.url).origin ||
+    (request.headers.has("Origin") &&
+      request.headers.get("Origin") !== new URL(request.url).origin) ||
+    // Reject browser requests from another site; native HTTP requests can omit Fetch Metadata.
+    request.headers.get("Sec-Fetch-Site") === "cross-site" ||
+    // Require a custom header that cross-origin browser requests cannot send without a CORS preflight.
     request.headers.get("X-Create-Audiobook-From-URL-Request") !== "1"
   )
     return {

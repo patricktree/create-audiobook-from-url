@@ -18,7 +18,7 @@ const router = createAppRouter(memoryHistory);
 export const OpenGrant = {
   component: () => <TrialRoute />,
   handlers: [
-    http.get(`/api/grants/${GRANT_ID}`, () =>
+    http.get(`*/api/grants/${GRANT_ID}`, () =>
       HttpResponse.json({
         grantId: GRANT_ID,
         createdAt: "2026-08-28T10:00:00Z",
@@ -73,7 +73,7 @@ export const CredentialExchangeError = {
 export const GrantLoadError = {
   component: () => <TrialRoute />,
   handlers: [
-    http.get(`/api/grants/${GRANT_ID}`, () =>
+    http.get(`*/api/grants/${GRANT_ID}`, () =>
       HttpResponse.json(
         {
           error: {

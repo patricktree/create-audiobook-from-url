@@ -9,6 +9,7 @@ import {
 
 import { useAppForm } from "#src/app/form.js";
 import { useStartConversionMutation } from "#src/data-fetching/trial-link.js";
+import { subscribeToSharedUrl } from "#src/platform/share-plugin.android.js";
 
 export function StartConversionForm({ grant }: { grant: GrantSnapshot }): React.JSX.Element {
   const navigate = useNavigate();
@@ -32,6 +33,10 @@ export function StartConversionForm({ grant }: { grant: GrantSnapshot }): React.
       });
     },
   });
+
+  React.useEffect(() => {
+    return subscribeToSharedUrl((url) => form.setFieldValue("sourceUrl", url));
+  }, [form]);
 
   return (
     <form

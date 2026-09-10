@@ -45,6 +45,7 @@ function AudiobookPage(): React.JSX.Element {
         `}
         aria-label={`Play ${audiobook.title}`}
         controls
+        crossOrigin="anonymous"
         preload="metadata"
       >
         <source src={audiobook.audio.url} type={audiobook.audio.contentType} />

@@ -1,6 +1,5 @@
 import { queryOptions, useMutation } from "@tanstack/react-query";
 
-import { WebAppApiClient } from "@create-audiobook-from-url/web-app-api.client";
 import {
   audiobookSchema,
   conversionDetailSchema,
@@ -13,8 +12,10 @@ import {
   type StartConversionResponse,
 } from "@create-audiobook-from-url/web-app-api.routes";
 
+import { createAppApiClient } from "#src/api-client.js";
+
 const POLL_INTERVAL_MS = 2_000;
-const rpcClient = new WebAppApiClient(window.location.origin);
+const rpcClient = createAppApiClient();
 
 export const createGrantQueryKey = (grantId: string) => ["conversion-grant", grantId] as const;
 const createConversionQueryKey = (conversionId: string) => ["conversion", conversionId] as const;

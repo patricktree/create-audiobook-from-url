@@ -1,6 +1,6 @@
 import { validateAudiobookArtifacts } from "#test-e2e/artifacts.ts";
 import { expect, test } from "#test-e2e/fixtures.ts";
-import { openNewTrial, startConversion } from "#test-e2e/journey.ts";
+import { openNewTrial, startConversion, waitForAudiobook } from "#test-e2e/journey.ts";
 
 test("converts controlled source content into downloadable MP3 and EPUB artifacts", async ({
   page,
@@ -8,9 +8,7 @@ test("converts controlled source content into downloadable MP3 and EPUB artifact
 }) => {
   await openNewTrial(page, workerEnvironment);
   await startConversion(page);
-  await expect(
-    page.getByRole("heading", { name: "A deterministic document about careful testing" }),
-  ).toBeVisible({ timeout: 90_000 });
+  await waitForAudiobook(page);
   const audioLink = page.getByRole("link", { name: "Download MP3" });
   const epubLink = page.getByRole("link", { name: "Download EPUB" });
   const audioUrl = await audioLink.getAttribute("href");
@@ -26,6 +24,27 @@ test("converts controlled source content into downloadable MP3 and EPUB artifact
     audioUrl: new URL(audioUrl, page.url()).href,
     epubUrl: new URL(epubUrl, page.url()).href,
   });
+});
+
+test("loads audiobook audio from another origin", async ({ page, workerEnvironment }) => {
+  await openNewTrial(page, workerEnvironment);
+  await startConversion(page);
+  await waitForAudiobook(page);
+
+  const playerHtml = await page.locator("audio").evaluate((element) => element.outerHTML);
+  const crossOriginPage = await page.context().newPage();
+  await crossOriginPage.setContent(playerHtml);
+  await expect
+    .poll(() =>
+      crossOriginPage
+        .locator("audio")
+        .evaluate(
+          (element) =>
+            element instanceof HTMLAudioElement && element.readyState >= 1 && element.duration > 0,
+        ),
+    )
+    .toBe(true);
+  await crossOriginPage.close();
 });
 
 test.describe("provider failure and recovery", () => {

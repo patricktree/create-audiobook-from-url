@@ -5,7 +5,7 @@
 - provides the React UI for submitting a source URL
 - keeps the web source in `src/`
 - uses TanStack Form for typed form state and URL validation
-- exposes its browser entry point as `@create-audiobook-from-url/web-app/main`
+- initializes native listeners and renders the app from `src/bootstrap.tsx`
 - builds the shared SPA bundle consumed by `apps/cloudflare-worker` and `apps/mobile-app`
 
 ## Development
