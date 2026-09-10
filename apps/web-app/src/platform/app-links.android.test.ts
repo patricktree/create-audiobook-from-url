@@ -16,7 +16,7 @@ test("opens cold-start and repeat App Links while rejecting other origins", asyn
           listener: (payload: { url: string }) => void,
         ) => {
           listener({
-            url: "https://create-audiobook-from-url.patricktree.me/app/trials/test?from=link#credential=v1.test",
+            url: "https://cup-audio.com/app/trials/test?from=link#credential=v1.test",
           });
           window.addEventListener("test-app-link", (event) => {
             if (event instanceof CustomEvent) listener({ url: String(event.detail) });
@@ -33,18 +33,19 @@ test("opens cold-start and repeat App Links while rejecting other origins", asyn
     const { initializeAndroidAppLinks } = await import(modulePath);
     await initializeAndroidAppLinks((href: string) => paths.push(href));
     for (const url of [
-      "https://create-audiobook-from-url.patricktree.me/app/conversions/next",
+      "https://cup-audio.com/app/conversions/next",
+      "https://create-audiobook-from-url.patricktree.me/app/trials/old",
       "https://example.com/trials/untrusted",
-      "http://create-audiobook-from-url.patricktree.me/",
-      "https://create-audiobook-from-url.patricktree.me.evil.test/",
+      "http://cup-audio.com/",
+      "https://cup-audio.com.evil.test/",
       "not a URL",
-      "https://create-audiobook-from-url.patricktree.me/app/audiobooks/test",
-      "https://create-audiobook-from-url.patricktree.me/app/",
-      "https://create-audiobook-from-url.patricktree.me/app",
-      "https://create-audiobook-from-url.patricktree.me/",
-      "https://create-audiobook-from-url.patricktree.me/trials/legacy",
-      "https://create-audiobook-from-url.patricktree.me/application",
-      "https://create-audiobook-from-url.patricktree.me/api/grants/test",
+      "https://cup-audio.com/app/audiobooks/test",
+      "https://cup-audio.com/app/",
+      "https://cup-audio.com/app",
+      "https://cup-audio.com/",
+      "https://cup-audio.com/trials/legacy",
+      "https://cup-audio.com/application",
+      "https://cup-audio.com/api/grants/test",
     ]) {
       window.dispatchEvent(new CustomEvent("test-app-link", { detail: url }));
     }

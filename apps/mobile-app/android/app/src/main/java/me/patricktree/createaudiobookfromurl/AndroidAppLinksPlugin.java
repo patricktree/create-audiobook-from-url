@@ -24,7 +24,7 @@ public class AndroidAppLinksPlugin extends Plugin {
         }
         Uri url = intent.getData();
         if (url == null || !"https".equals(url.getScheme()) ||
-            !"create-audiobook-from-url.patricktree.me".equals(url.getHost())) {
+            !"cup-audio.com".equals(url.getHost())) {
             return;
         }
 

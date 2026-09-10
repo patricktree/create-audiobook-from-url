@@ -7,6 +7,14 @@
   "preview_urls": false,
   "routes": [
     {
+      "pattern": "www.cup-audio.com",
+      "custom_domain": true,
+    },
+    {
+      "pattern": "cup-audio.com",
+      "custom_domain": true,
+    },
+    {
       "pattern": "create-audiobook-from-url.patricktree.me",
       "custom_domain": true,
     },

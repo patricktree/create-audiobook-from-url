@@ -24,6 +24,7 @@ import {
 } from "@create-audiobook-from-url/web-app-api.routes";
 
 import type { ApiServerEnvironment } from "#src/api-server-environment.ts";
+import { routeApplicationDomain } from "#src/domain-routing.ts";
 import { isDevelopmentOperatorRequest } from "#src/operator-access.ts";
 import {
   loadReadyAudiobookFromEnvironment,
@@ -672,6 +673,11 @@ export function createApiServer(dependencies: ApiServerDependencies = production
     await next();
     if (!context.res.headers.has("Cache-Control"))
       context.header("Cache-Control", "private, no-store");
+  });
+  app.use("*", async (context, next) => {
+    const response = routeApplicationDomain(context.req.raw);
+    if (response !== undefined) return response;
+    return next();
   });
   const limitApiRequestBody = bodyLimit({
     maxSize: 4_096,

@@ -2,7 +2,7 @@ import { Capacitor } from "@capacitor/core";
 
 import { WebAppApiClient } from "@create-audiobook-from-url/web-app-api.client";
 
-const BACKEND_ORIGIN = "https://create-audiobook-from-url.patricktree.me";
+const BACKEND_ORIGIN = "https://cup-audio.com";
 
 export function createAppApiClient(): WebAppApiClient {
   return new WebAppApiClient(

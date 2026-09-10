@@ -8,7 +8,7 @@ type AndroidAppLinksPlugin = {
 };
 
 const androidAppLinksPlugin = registerPlugin<AndroidAppLinksPlugin>("AndroidAppLinks");
-const APP_ORIGIN = "https://create-audiobook-from-url.patricktree.me";
+const APP_ORIGIN = "https://cup-audio.com";
 
 export async function initializeAndroidAppLinks(navigate: (href: string) => void): Promise<void> {
   if (!Capacitor.isNativePlatform() || Capacitor.getPlatform() !== "android") {
