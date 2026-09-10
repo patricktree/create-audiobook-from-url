@@ -134,7 +134,7 @@ describe("web application transport contracts", () => {
           acceptedAt: "2026-08-28T12:00:00.000Z",
           completedAt: "2026-08-28T12:01:00.000Z",
           status: "ready",
-          audiobookUrl: `/audiobooks/${UUID}`,
+          audiobookUrl: `/app/audiobooks/${UUID}`,
         },
       ]).success,
     ).toBe(true);

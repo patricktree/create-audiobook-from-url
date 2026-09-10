@@ -45,7 +45,7 @@ test("rejects malformed and invalid trial links", async ({
   workerEnvironment,
 }) => {
   expectConsoleError(/^TrialLinkInvalidError: This trial link is invalid\./);
-  await gotoPage(page, `${workerEnvironment.origin}/trials/${GRANT_ID}#credential=malformed`);
+  await gotoPage(page, `${workerEnvironment.origin}/app/trials/${GRANT_ID}#credential=malformed`);
   await expect(page.getByRole("heading", { name: "This trial link is invalid." })).toBeVisible();
 
   await gotoPage(page, workerEnvironment.origin);
@@ -115,7 +115,7 @@ test("retries an initial grant loading failure", async ({
   expectConsoleError(CONSOLE_ERRORS.serverError);
   expectConsoleError(/^ApiError: The Trial could not be loaded\./);
 
-  await gotoPage(page, `${workerEnvironment.origin}/trials/${GRANT_ID}`);
+  await gotoPage(page, `${workerEnvironment.origin}/app/trials/${GRANT_ID}`);
   await expect(
     page.getByRole("heading", { name: "The trial link could not be opened." }),
   ).toBeVisible();
@@ -159,7 +159,7 @@ test("disables duplicate submission while a conversion start is pending", async 
   await expect(page.getByLabel("URL")).toHaveValue(SOURCE_URL);
 
   finishStart?.();
-  await expect(page).toHaveURL(`${workerEnvironment.origin}/conversions/${CONVERSION_ID}`);
+  await expect(page).toHaveURL(`${workerEnvironment.origin}/app/conversions/${CONVERSION_ID}`);
   await expect(
     page.getByRole("progressbar", { name: "selecting narration content..." }),
   ).toBeVisible();
@@ -167,7 +167,7 @@ test("disables duplicate submission while a conversion start is pending", async 
 
 test("shows a deterministic pending conversion", async ({ page, workerEnvironment }) => {
   await mockConversion(page, workerEnvironment.origin, createPendingConversion());
-  await gotoPage(page, `${workerEnvironment.origin}/conversions/${CONVERSION_ID}`);
+  await gotoPage(page, `${workerEnvironment.origin}/app/conversions/${CONVERSION_ID}`);
 
   await expect(
     page.getByRole("progressbar", { name: "selecting narration content..." }),
@@ -176,7 +176,7 @@ test("shows a deterministic pending conversion", async ({ page, workerEnvironmen
 
 test("shows a deterministic failed conversion", async ({ page, workerEnvironment }) => {
   await mockConversion(page, workerEnvironment.origin, createFailedConversion());
-  await gotoPage(page, `${workerEnvironment.origin}/conversions/${CONVERSION_ID}`);
+  await gotoPage(page, `${workerEnvironment.origin}/app/conversions/${CONVERSION_ID}`);
 
   await expect(page.getByText("Failed!", { exact: true })).toBeVisible();
 });
@@ -201,7 +201,7 @@ test("retries a conversion loading failure", async ({
   expectConsoleError(CONSOLE_ERRORS.serverError);
   expectConsoleError(/^ApiError: The conversion could not be loaded\./);
 
-  await gotoPage(page, `${workerEnvironment.origin}/conversions/${CONVERSION_ID}`);
+  await gotoPage(page, `${workerEnvironment.origin}/app/conversions/${CONVERSION_ID}`);
   await expect(
     page.getByRole("heading", { name: "The conversion could not be opened." }),
   ).toBeVisible();
@@ -216,14 +216,14 @@ test("redirects a ready conversion to its audiobook", async ({ page, workerEnvir
   await mockConversion(page, workerEnvironment.origin, createReadyConversion());
   await mockAudiobook(page, workerEnvironment.origin);
 
-  await gotoPage(page, `${workerEnvironment.origin}/conversions/${CONVERSION_ID}`);
+  await gotoPage(page, `${workerEnvironment.origin}/app/conversions/${CONVERSION_ID}`);
   await expect(
     page.getByRole("heading", { name: "A deterministic document about careful testing" }),
   ).toBeVisible({ timeout: 5_000 });
   await expect(
     page.getByLabel("Play A deterministic document about careful testing"),
   ).toBeVisible();
-  await expect(page).toHaveURL(`${workerEnvironment.origin}/audiobooks/${CONVERSION_ID}`);
+  await expect(page).toHaveURL(`${workerEnvironment.origin}/app/audiobooks/${CONVERSION_ID}`);
 });
 
 test("shows an audiobook not-found state without a retry action", async ({
@@ -237,7 +237,7 @@ test("shows an audiobook not-found state without a retry action", async ({
   expectConsoleError(CONSOLE_ERRORS.notFound);
   expectConsoleError(/^ApiError: The audiobook was not found\./);
 
-  await gotoPage(page, `${workerEnvironment.origin}/audiobooks/${CONVERSION_ID}`);
+  await gotoPage(page, `${workerEnvironment.origin}/app/audiobooks/${CONVERSION_ID}`);
   await expect(page.getByRole("heading", { name: "Audiobook not found." })).toBeVisible();
   await expect(page.getByRole("button", { name: "Try again" })).toHaveCount(0);
 });
@@ -260,7 +260,7 @@ test("retries an audiobook loading failure", async ({
   expectConsoleError(CONSOLE_ERRORS.serverError);
   expectConsoleError(/^ApiError: The audiobook could not be loaded\./);
 
-  await gotoPage(page, `${workerEnvironment.origin}/audiobooks/${CONVERSION_ID}`);
+  await gotoPage(page, `${workerEnvironment.origin}/app/audiobooks/${CONVERSION_ID}`);
   await expect(
     page.getByRole("heading", { name: "The audiobook could not be loaded." }),
   ).toBeVisible();
@@ -315,7 +315,7 @@ function createReadyConversion(): Record<string, unknown> {
     title: "A deterministic document about careful testing",
     status: "ready",
     completedAt: "2026-08-28T10:08:00Z",
-    audiobookUrl: `/audiobooks/${CONVERSION_ID}`,
+    audiobookUrl: `/app/audiobooks/${CONVERSION_ID}`,
   };
 }
 
@@ -415,5 +415,5 @@ async function fulfillError(
 }
 
 function trialLink(origin: string): string {
-  return `${origin}/trials/${GRANT_ID}#credential=${CREDENTIAL}`;
+  return `${origin}/app/trials/${GRANT_ID}#credential=${CREDENTIAL}`;
 }

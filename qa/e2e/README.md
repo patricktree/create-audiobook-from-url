@@ -23,6 +23,8 @@ This command builds the workspace and runs the tests with at most two parallel w
 
 The E2E suite is intentionally separate from `pnpm validate`. It is slower and requires Docker.
 
+Routing tests exercise the built Worker: redirect statuses and targets, browser navigation from `/` and `/app`, credential exchange after a legacy trial redirect, query preservation, refresh, `/app/` asset loading, domain association delivery, and 404 responses for retired routes and missing assets. The credential test uses a real browser because fragments are not sent in HTTP requests.
+
 ## Update screenshots
 
 The E2E suite keeps one screenshot assertion for the open-trial URL input screen, with desktop and mobile baselines. Detailed visual coverage lives in the [web app component tests](../../apps/web-app/README.md#component-tests-and-visual-coverage); the E2E tests retain their behavior assertions.

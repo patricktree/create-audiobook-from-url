@@ -337,7 +337,7 @@ const webAppApiHandlers: WebAppApiHandlers<ApiServerEnvironment> = {
             ? {
                 title: result.conversion.title,
                 completedAt: toIsoString(result.conversion.completedAtMs),
-                audiobookUrl: `/audiobooks/${result.conversion.conversionId}`,
+                audiobookUrl: `/app/audiobooks/${result.conversion.conversionId}`,
               }
             : result.conversion.status === "failed"
               ? {
@@ -483,7 +483,7 @@ const operatorApiHandlers: OperatorApiHandlers<ApiServerEnvironment> = {
           createdAt: toIsoString(result.createdAtMs),
           expiresAt: toIsoString(result.expiresAtMs),
           state: "open",
-          trialLink: `${origin}/trials/${result.grantId}#credential=${result.credential}`,
+          trialLink: `${origin}/app/trials/${result.grantId}#credential=${result.credential}`,
         },
         201,
       );
@@ -756,10 +756,34 @@ export function createApiServer(dependencies: ApiServerDependencies = production
   });
 
   app.notFound(async (context) => {
-    if (context.req.path.startsWith("/api/"))
+    if (context.req.path === "/api" || context.req.path.startsWith("/api/"))
       return jsonError(context.get("requestId"), "not-found", "API route not found.", 404);
 
-    const response = await context.env.ASSETS.fetch(context.req.raw);
+    if (context.req.method !== "GET" && context.req.method !== "HEAD")
+      return context.text("Not Found", 404);
+
+    const url = new URL(context.req.url);
+    if (url.pathname === "/") return context.redirect(`/app/${url.search}`, 302);
+    if (url.pathname === "/app") return context.redirect(`/app/${url.search}`, 308);
+    if (/^\/trials\/[^/]+\/?$/.test(url.pathname)) {
+      // Leave Location without a fragment so browsers inherit the original trial credential.
+      return context.redirect(`/app${url.pathname}${url.search}`, 308);
+    }
+
+    // The shell is internal; other existing assets also include Vite's development modules.
+    if (url.pathname === "/index.html") return context.text("Not Found", 404);
+
+    let response = await context.env.ASSETS.fetch(context.req.raw);
+    if (
+      response.status === 404 &&
+      url.pathname.startsWith("/app/") &&
+      url.pathname !== "/app/assets" &&
+      !url.pathname.startsWith("/app/assets/") &&
+      !/\.[^/]*$/.test(url.pathname)
+    ) {
+      url.pathname = "/index.html";
+      response = await context.env.ASSETS.fetch(new Request(url, context.req.raw));
+    }
     if (!response.headers.get("Content-Type")?.startsWith("text/html")) return response;
 
     const nonce = context.get("secureHeadersNonce");

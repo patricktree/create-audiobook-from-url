@@ -14,6 +14,7 @@ const WYW_CONFIG_FILE = url.fileURLToPath(
 
 export function createWebAppViteConfig() {
   return defineConfig({
+    build: { assetsDir: "app/assets" },
     html: { cspNonce: WEB_APP_CSP_NONCE_PLACEHOLDER },
     publicDir: path.join(WEB_APP_DIRECTORY, "public"),
     plugins: [

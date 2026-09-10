@@ -66,7 +66,7 @@ export class WebAppApiClient {
   }
 
   createAudiobookPageUrl(params: ConversionParams): URL {
-    return new URL(`/audiobooks/${encodeURIComponent(params.conversionId)}`, this.#baseUrl);
+    return new URL(`/app/audiobooks/${encodeURIComponent(params.conversionId)}`, this.#baseUrl);
   }
 }
 

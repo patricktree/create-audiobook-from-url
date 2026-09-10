@@ -11,7 +11,7 @@ import { createAppRouter, GlobalProviders } from "#src/app/global-providers.js";
 import { Route as trialRoute } from "#src/routes/trials.$grantId.js";
 
 const GRANT_ID = "b4ad28a8-bbd7-46af-a17c-59527becd745";
-const memoryHistory = createMemoryHistory({ initialEntries: ["/"] });
+const memoryHistory = createMemoryHistory({ initialEntries: ["/app/"] });
 // TanStack initializes route objects in place, so this story module must create one router only.
 const router = createAppRouter(memoryHistory);
 

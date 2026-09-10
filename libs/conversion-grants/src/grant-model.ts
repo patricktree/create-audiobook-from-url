@@ -135,7 +135,7 @@ export function toGrantConversionSnapshot(conversion: GrantConversion): GrantCon
       ...base,
       status: "ready",
       completedAt: toIsoString(conversion.completedAtMs),
-      audiobookUrl: `/audiobooks/${conversion.conversionId}`,
+      audiobookUrl: `/app/audiobooks/${conversion.conversionId}`,
     };
   }
   return {

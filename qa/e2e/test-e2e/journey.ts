@@ -11,7 +11,7 @@ export async function openNewTrial(
   const grant = await workerEnvironment.createGrant();
 
   await gotoPage(page, grant.trialLink);
-  await expect(page).toHaveURL(`${workerEnvironment.origin}/trials/${grant.grantId}`);
+  await expect(page).toHaveURL(`${workerEnvironment.origin}/app/trials/${grant.grantId}`);
   await expect(page.getByRole("heading", { name: "Just Listen." })).toBeVisible();
   expect(
     await page.evaluate(() => ({
@@ -32,7 +32,7 @@ export async function openNewTrial(
 export async function startConversion(page: Page): Promise<void> {
   await page.getByLabel("URL").fill(CONTROLLED_SOURCE_URL);
   await page.getByRole("button", { name: "Turn into audio" }).click();
-  await expect(page).toHaveURL(/\/conversions\/[0-9a-f-]+$/);
+  await expect(page).toHaveURL(/\/app\/conversions\/[0-9a-f-]+$/);
 }
 
 export async function waitForAudiobook(page: Page): Promise<void> {

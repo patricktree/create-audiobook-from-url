@@ -127,7 +127,7 @@ async function handleRequest(request: http.IncomingMessage, response: http.Serve
       createdAt: CREATED_AT,
       expiresAt: EXPIRES_AT,
       state: "open",
-      trialLink: `${operatorUrl}/trials/${GRANT_ID}#credential=v1.${"a".repeat(43)}`,
+      trialLink: `${operatorUrl}/app/trials/${GRANT_ID}#credential=v1.${"a".repeat(43)}`,
     });
   if (request.method === "GET" && url.pathname === "/api/operator/grants")
     return send(response, 200, {

@@ -17,7 +17,13 @@ export async function initializeAndroidAppLinks(navigate: (href: string) => void
 
   await androidAppLinksPlugin.addListener("appLinkReceived", ({ url }) => {
     const parsed = URL.parse(url);
-    if (parsed === null || parsed.origin !== APP_ORIGIN || parsed.username || parsed.password) {
+    if (
+      parsed === null ||
+      parsed.origin !== APP_ORIGIN ||
+      parsed.username ||
+      parsed.password ||
+      (parsed.pathname !== "/app" && !parsed.pathname.startsWith("/app/"))
+    ) {
       return;
     }
     // Keep query parameters and the trial credential fragment when changing origins.

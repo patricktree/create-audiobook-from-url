@@ -15,7 +15,7 @@ import { createAppRouter, GlobalProviders } from "#src/app/global-providers.js";
 import { Route as conversionRoute } from "#src/routes/conversions.$conversionId.js";
 
 const CONVERSION_ID = "a3fcb5d8-9162-4c1a-b804-3be130c5e92a";
-const memoryHistory = createMemoryHistory({ initialEntries: ["/"] });
+const memoryHistory = createMemoryHistory({ initialEntries: ["/app/"] });
 // TanStack initializes route objects in place, so this story module must create one router only.
 const router = createAppRouter(memoryHistory);
 

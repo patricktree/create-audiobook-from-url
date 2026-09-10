@@ -33,10 +33,8 @@
                 <category android:name="android.intent.category.DEFAULT" />
                 <category android:name="android.intent.category.BROWSABLE" />
                 <data android:scheme="https" android:host="create-audiobook-from-url.patricktree.me" />
-                <data android:path="/" />
-                <data android:pathPrefix="/trials/" />
-                <data android:pathPrefix="/conversions/" />
-                <data android:pathPrefix="/audiobooks/" />
+                <data android:path="/app" />
+                <data android:pathPrefix="/app/" />
             </intent-filter>
 
         </activity>

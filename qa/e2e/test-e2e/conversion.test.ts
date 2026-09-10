@@ -61,7 +61,7 @@ test.describe("provider failure and recovery", () => {
     await expect(page.getByText("Failed!", { exact: true })).toBeVisible({ timeout: 90_000 });
 
     await workerEnvironment.restart("success");
-    await page.goto(`${workerEnvironment.origin}/trials/${grantId}`);
+    await page.goto(`${workerEnvironment.origin}/app/trials/${grantId}`);
     await expect(page.getByRole("heading", { name: "Just Listen." })).toBeVisible();
     await startConversion(page);
     await expect(

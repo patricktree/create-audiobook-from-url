@@ -10,7 +10,7 @@ import { createAppRouter, GlobalProviders } from "#src/app/global-providers.js";
 
 const CONVERSION_ID = "693af4c4-9fa8-430d-9dc5-c00e88fb38a7";
 const SOURCE_URL = "https://source.example.test/fixture";
-const memoryHistory = createMemoryHistory({ initialEntries: [`/audiobooks/${CONVERSION_ID}`] });
+const memoryHistory = createMemoryHistory({ initialEntries: [`/app/audiobooks/${CONVERSION_ID}`] });
 const router = createAppRouter(memoryHistory);
 
 export const ReadyAudiobook = {

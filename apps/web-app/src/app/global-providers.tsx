@@ -22,6 +22,7 @@ export function createAppRouter(history?: RouterHistory) {
   });
 
   return createRouter({
+    basepath: "/app",
     history,
     context: {
       queryClient,

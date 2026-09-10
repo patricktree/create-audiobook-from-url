@@ -10,6 +10,7 @@ const config: CapacitorConfig = {
   appId: "me.patricktree.createaudiobookfromurl",
   appName: "Create Audiobook from URL",
   webDir: pathToWebAppDist,
+  server: { appStartPath: "/app/" },
   plugins: { CapacitorHttp: { enabled: true }, App: { disableBackButtonHandler: false } },
 };
 
