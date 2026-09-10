@@ -1,46 +1,30 @@
-# Issue tracker: GitHub
+# Issue tracker: Local Markdown
 
-Issues and specifications for this repository live as GitHub issues. Use the `gh` CLI for all operations.
+Issues and specs for this repo live as markdown files in `.scratch/`.
 
 ## Conventions
 
-- **Create an issue**: `gh issue create --title "..." --body "..."`.
-- **Read an issue**: `gh issue view <number> --comments`.
-- **List issues**: use `gh issue list` with appropriate state and label filters.
-- **Comment**: `gh issue comment <number> --body "..."`.
-- **Apply or remove labels**: `gh issue edit <number> --add-label "..."` or `--remove-label "..."`.
-- **Close**: `gh issue close <number> --comment "..."`.
+- One feature per directory: `.scratch/<feature-slug>/`
+- The spec is `.scratch/<feature-slug>/spec.md`
+- Implementation issues are one file per ticket at `.scratch/<feature-slug>/issues/<NN>-<slug>.md`, numbered from `01`, never a single combined tickets file
+- Triage state is recorded as a `Status:` line near the top of each issue file (see `triage-labels.md` for the role strings)
+- Comments and conversation history append to the bottom of the file under a `## Comments` heading
 
-Infer the repository from `git remote -v`; `gh` does this automatically inside the clone.
+## When a skill says "publish to the issue tracker"
 
-## Pull requests as a triage surface
+Create a new file under `.scratch/<feature-slug>/` (creating the directory if needed).
 
-**PRs as a request surface: no.**
+## When a skill says "fetch the relevant ticket"
 
-GitHub shares one number space across issues and pull requests. When a bare number is ambiguous, try `gh pr view <number>` and fall back to `gh issue view <number>`.
-
-## Skill operations
-
-When a skill says "publish to the issue tracker," create a GitHub issue.
-
-When a skill says "fetch the relevant ticket," run `gh issue view <number> --comments`.
+Read the file at the referenced path. The user will normally pass the path or the issue number directly.
 
 ## Wayfinding operations
 
-The Wayfinder map is a GitHub issue labelled `wayfinder:map`. Its decision tickets are child issues.
+Used by `/wayfinder`. The **map** is a file with one **child** file per ticket.
 
-- **Map**: create an issue labelled `wayfinder:map`.
-- **Child ticket**: create an issue carrying one `wayfinder:<type>` label: `research`, `prototype`, `grilling`, or `task`. Link it to the map using GitHub sub-issues.
-- **Sub-issue fallback**: if native sub-issues are unavailable, add the child to a task list in the map and begin its body with `Part of #<map>`.
-- **Blocking**: use GitHub's native issue dependencies. Add an edge with:
-
-  `gh api --method POST repos/<owner>/<repo>/issues/<child>/dependencies/blocked_by -F issue_id=<blocker-database-id>`
-
-  Obtain the blocker's numeric database ID with:
-
-  `gh api repos/<owner>/<repo>/issues/<number> --jq .id`
-
-- **Blocking fallback**: if native dependencies are unavailable, begin the child body with `Blocked by: #<number>, #<number>`.
-- **Frontier**: the frontier consists of the map's open, unassigned child issues that have no open blockers. The first child in map order wins.
-- **Claim**: `gh issue edit <number> --add-assignee @me` must be the session's first write.
-- **Resolve**: post the answer as a resolution comment, close the ticket, and append a linked one-line gist to the map's Decisions-so-far section.
+- **Map**: `.scratch/<effort>/map.md` (the Notes / Decisions-so-far / Fog body).
+- **Child ticket**: `.scratch/<effort>/issues/NN-<slug>.md`, numbered from `01`, with the question in the body. A `Type:` line records the ticket type (`research`/`prototype`/`grilling`/`task`); a `Status:` line records `claimed`/`resolved`.
+- **Blocking**: a `Blocked by: NN, NN` line near the top. A ticket is unblocked when every file it lists is `resolved`.
+- **Frontier**: scan `.scratch/<effort>/issues/` for files that are open, unblocked, and unclaimed; first by number wins.
+- **Claim**: set `Status: claimed` and save before any work.
+- **Resolve**: append the answer under an `## Answer` heading, set `Status: resolved`, then append a context pointer (gist + link) to the map's Decisions-so-far in `map.md`.
