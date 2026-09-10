@@ -1,6 +1,6 @@
 import { expect, test } from "@playwright/test";
 
-test("opens cold-start and repeat App Links while rejecting other origins", async ({
+test("opens cold-start and repeat App Links while rejecting other origins and non-UI paths", async ({
   page,
   mount,
 }) => {
@@ -38,6 +38,10 @@ test("opens cold-start and repeat App Links while rejecting other origins", asyn
       "http://create-audiobook-from-url.patricktree.me/",
       "https://create-audiobook-from-url.patricktree.me.evil.test/",
       "not a URL",
+      "https://create-audiobook-from-url.patricktree.me/api/audiobooks/test/audio.mp3",
+      "https://create-audiobook-from-url.patricktree.me/api/audiobooks/test/book.epub",
+      "https://create-audiobook-from-url.patricktree.me/assets/app.js",
+      "https://create-audiobook-from-url.patricktree.me/audiobooks/test",
       "https://create-audiobook-from-url.patricktree.me/",
     ]) {
       window.dispatchEvent(new CustomEvent("test-app-link", { detail: url }));
@@ -47,6 +51,7 @@ test("opens cold-start and repeat App Links while rejecting other origins", asyn
   expect(receivedPaths).toEqual([
     "/trials/test?from=link#credential=v1.test",
     "/conversions/next",
+    "/audiobooks/test",
     "/",
   ]);
 });

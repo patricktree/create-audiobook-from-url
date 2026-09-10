@@ -48,7 +48,7 @@ After building, open `apps/mobile-app/ios/App/App.xcodeproj` in Xcode and choose
 
 The Android app accepts shared plain text containing an HTTP or HTTPS URL and fills the conversion form without submitting it. It reopens the last trial whose credential was successfully exchanged in the app. If no trial is remembered, the shared URL waits until a conversion form is opened.
 
-HTTPS links on `create-audiobook-from-url.patricktree.me` open the matching route in the app after Android verifies the domain association. Paths, query parameters, and fragments are preserved, including trial credentials. Both cold starts and links delivered to an already running app are handled.
+HTTPS links to `/`, `/trials/…`, `/conversions/…`, and `/audiobooks/…` on `create-audiobook-from-url.patricktree.me` open the matching route in the app after Android verifies the domain association. API and download URLs are excluded from App Links. Paths, query parameters, and fragments are preserved, including trial credentials. Both cold starts and links delivered to an already running app are handled.
 
 Deploy the web app so `https://create-audiobook-from-url.patricktree.me/.well-known/assetlinks.json` serves the file from `apps/web-app/public/.well-known/assetlinks.json` as JSON, without redirects. That file trusts Patrick's local Android debug certificate. A release or Play Store build requires its signing certificate's SHA-256 fingerprint to be added before deployment; another machine's debug certificate will also differ.
 
@@ -71,7 +71,7 @@ See [Android's App Links verification guide](https://developer.android.com/train
 
 Mobile API requests use ordinary `fetch` calls patched by `CapacitorHttp` to use native networking. The backend origin is `https://create-audiobook-from-url.patricktree.me`. Browser requests continue using the browser's same-origin fetch.
 
-Both clients exchange trial credentials for persistent Secure, HttpOnly cookies. Capacitor's native cookie manager stores the server-issued cookies and sends them on later requests. The app does not store session tokens in localStorage or add Authorization headers. The `CapacitorCookies` document.cookie patch (https://capacitorjs.com/docs/apis/cookies) is not enabled.
+Both clients exchange trial credentials for persistent Secure, HttpOnly cookies. Capacitor's native cookie manager stores the server-issued cookies and sends them on later requests. The app does not store session tokens in localStorage or add Authorization headers. The `CapacitorCookies` document.cookie patch (<https://capacitorjs.com/docs/apis/cookies>) is not enabled.
 
 Native mutations omit Origin and must include the existing custom request header and JSON content type. Browser mutations must have a matching Origin; cross-site Fetch Metadata is rejected. No cross-origin browser CORS access is enabled.
 
