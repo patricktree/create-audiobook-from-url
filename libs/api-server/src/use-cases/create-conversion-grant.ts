@@ -1,4 +1,4 @@
-import type { GrantRegistrySnapshot } from "@create-audiobook-from-url/conversion-grants";
+import type { GrantRegistrySnapshot } from "@cup/conversion-grants";
 
 type GrantSummary = {
   grantId: string;

@@ -1,4 +1,4 @@
-package me.patricktree.createaudiobookfromurl;
+package com.cup_audio.app;
 
 import android.content.Intent;
 import com.getcapacitor.JSObject;

@@ -1,7 +1,7 @@
 import { hc, parseResponse, DetailedError as HonoDetailedError } from "hono/client";
 import type { IsAny } from "type-fest";
 
-import type { WebAppApiApp, WebAppApiClient } from "@create-audiobook-from-url/web-app-api.routes";
+import type { WebAppApiApp, WebAppApiClient } from "@cup/web-app-api.routes";
 
 /** Parses successful Hono responses and rejects non-successful responses. */
 export { parseResponse as parseOkResponse };

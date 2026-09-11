@@ -1,6 +1,6 @@
 import { Capacitor } from "@capacitor/core";
 
-import { WebAppApiClient } from "@create-audiobook-from-url/web-app-api.client";
+import { WebAppApiClient } from "@cup/web-app-api.client";
 
 const BACKEND_ORIGIN = "https://cup-audio.com";
 

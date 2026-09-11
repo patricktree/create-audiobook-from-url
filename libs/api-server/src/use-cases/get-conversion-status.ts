@@ -1,8 +1,4 @@
-import {
-  loadAudiobook,
-  type Audiobook,
-  type AudiobookReference,
-} from "@create-audiobook-from-url/audiobook-production";
+import { loadAudiobook, type Audiobook, type AudiobookReference } from "@cup/audiobook-production";
 
 import type { ApiServerEnvironment } from "#src/api-server-environment.ts";
 import { ConversionConflictError } from "#src/errors.ts";

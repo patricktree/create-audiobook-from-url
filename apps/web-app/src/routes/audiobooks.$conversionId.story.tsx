@@ -4,7 +4,7 @@ import React from "react";
 
 import type { Story } from "#ui-gallery/story.js";
 
-import type { Audiobook, ErrorResponse } from "@create-audiobook-from-url/web-app-api.routes";
+import type { Audiobook, ErrorResponse } from "@cup/web-app-api.routes";
 
 import { createAppRouter, GlobalProviders } from "#src/app/global-providers.js";
 

@@ -6,10 +6,7 @@ vi.mock("cloudflare:workers", () => ({
   },
 }));
 
-import {
-  ConversionPhase,
-  type GrantConversion,
-} from "@create-audiobook-from-url/conversion-grants";
+import { ConversionPhase, type GrantConversion } from "@cup/conversion-grants";
 
 import { getGrantConversion } from "#src/use-cases/get-grant-conversion.ts";
 

@@ -1,5 +1,5 @@
 {
-  "name": "@create-audiobook-from-url/prepare-source-material",
+  "name": "@cup/prepare-source-material",
   "private": true,
   "files": [
     "src/**"
@@ -45,7 +45,7 @@
     "parse5": "^8.0.1"
   },
   "devDependencies": {
-    "@create-audiobook-from-url/config-oxlint": "workspace:*",
+    "@cup/config-oxlint": "workspace:*",
     "@patricktree-stack/config-playwright": "workspace:*",
     "@patricktree-stack/config-typescript": "workspace:*",
     "@patricktree-stack/config-vitest": "workspace:*",

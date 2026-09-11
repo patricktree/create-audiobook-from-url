@@ -38,7 +38,7 @@ Do not use the Worker's **Protect this Worker behind Access** action because it 
 
    ```sh
    pnpm validate
-   pnpm --filter '@create-audiobook-from-url/cloudflare-worker' run deploy
+   pnpm --filter '@cup/cloudflare-worker' run deploy
    ```
 
 Cloudflare documents this configuration under [Protect a specific hostname, Custom Domain, or path][cloudflare-worker-access].

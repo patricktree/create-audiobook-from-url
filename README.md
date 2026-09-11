@@ -1,6 +1,6 @@
-# `create-audiobook-from-url`
+# Cup
 
-Turns the text at a URL into natural-sounding narration.
+Turns the content behind a URL into natural-sounding narration.
 
 ## Product idea
 

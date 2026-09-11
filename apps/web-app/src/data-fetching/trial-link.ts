@@ -10,7 +10,7 @@ import {
   type ConversionDetail,
   type GrantSnapshot,
   type StartConversionResponse,
-} from "@create-audiobook-from-url/web-app-api.routes";
+} from "@cup/web-app-api.routes";
 
 import { createAppApiClient } from "#src/api-client.js";
 

@@ -10,7 +10,7 @@ export const Route = createFileRoute("/")({
 function IndexPage(): React.JSX.Element {
   return (
     <MainSection>
-      <h1>Create Audiobook from URL</h1>
+      <h1>Cup</h1>
       <p>Turn a real source page into a synchronized audiobook with narrated MP3 and EPUB files.</p>
       <p>
         Explore the implementation on{" "}

@@ -1,6 +1,6 @@
 import { z } from "zod";
 
-import { encodePcmAsMp3 } from "@create-audiobook-from-url/mp3-encoding";
+import { encodePcmAsMp3 } from "@cup/mp3-encoding";
 
 import { AUDIO_FORMAT, AUDIOBOOK_CONTENT_TYPE, analyzeMp3 } from "#src/audio-format.ts";
 import {

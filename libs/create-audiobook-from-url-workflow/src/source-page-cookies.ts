@@ -1,6 +1,6 @@
 import { z } from "zod";
 
-import type { SourcePageCookie } from "@create-audiobook-from-url/prepare-source-material";
+import type { SourcePageCookie } from "@cup/prepare-source-material";
 
 const SOURCE_PAGE_COOKIES_SCHEMA = z.array(
   z.strictObject({

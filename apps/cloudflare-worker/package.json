@@ -1,5 +1,5 @@
 {
-  "name": "@create-audiobook-from-url/cloudflare-worker",
+  "name": "@cup/cloudflare-worker",
   "private": true,
   "files": [
     "src/**"
@@ -26,14 +26,14 @@
     "turbo:lint:fix": "pnpm run turbo:lint --fix"
   },
   "dependencies": {
-    "@create-audiobook-from-url/api-server": "workspace:*",
-    "@create-audiobook-from-url/conversion-grants": "workspace:*",
-    "@create-audiobook-from-url/create-audiobook-from-url-workflow": "workspace:*",
-    "@create-audiobook-from-url/web-app": "workspace:*"
+    "@cup/api-server": "workspace:*",
+    "@cup/conversion-grants": "workspace:*",
+    "@cup/create-audiobook-from-url-workflow": "workspace:*",
+    "@cup/web-app": "workspace:*"
   },
   "devDependencies": {
     "@cloudflare/vite-plugin": "catalog:web-app",
-    "@create-audiobook-from-url/config-oxlint": "workspace:*",
+    "@cup/config-oxlint": "workspace:*",
     "@patricktree-stack/config-typescript": "workspace:*",
     "@patricktree-stack/utils-ecma": "workspace:*",
     "@types/node": "catalog:",

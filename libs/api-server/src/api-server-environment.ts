@@ -1,8 +1,8 @@
 import type {
   ConversionGrantDurableObject,
   ConversionGrantRegistryDurableObject,
-} from "@create-audiobook-from-url/conversion-grants";
-import type { ConversionParams } from "@create-audiobook-from-url/create-audiobook-from-url-workflow/runner";
+} from "@cup/conversion-grants";
+import type { ConversionParams } from "@cup/create-audiobook-from-url-workflow/runner";
 
 export type ApiServerEnvironment = {
   CREATE_AUDIOBOOK_FROM_URL_WORKFLOW: Workflow<ConversionParams>;

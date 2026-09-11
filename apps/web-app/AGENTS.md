@@ -19,4 +19,4 @@
 ## Commands
 
 - Final validation from the repo root: `pnpm run fix`, then `pnpm run validate`.
-- Run locally through its host: `pnpm --filter '@create-audiobook-from-url/cloudflare-worker' dev`.
+- Run locally through its host: `pnpm --filter '@cup/cloudflare-worker' dev`.

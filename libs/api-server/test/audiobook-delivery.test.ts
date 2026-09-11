@@ -1,6 +1,6 @@
 import { expect, test } from "vitest";
 
-import type { Audiobook } from "@create-audiobook-from-url/audiobook-production";
+import type { Audiobook } from "@cup/audiobook-production";
 
 import { createAudiobookCaptions } from "#src/serve-audiobook.ts";
 import {

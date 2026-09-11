@@ -1,6 +1,6 @@
 import { expect, test } from "vitest";
 
-import { selectNarrationContent as productionSelector } from "@create-audiobook-from-url/narration-content-selection";
+import { selectNarrationContent as productionSelector } from "@cup/narration-content-selection";
 
 import {
   createContentSelector,

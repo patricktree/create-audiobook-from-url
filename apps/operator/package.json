@@ -1,5 +1,5 @@
 {
-  "name": "@create-audiobook-from-url/operator",
+  "name": "@cup/operator",
   "version": "0.1.0",
   "private": true,
   "type": "module",
@@ -30,13 +30,13 @@
   },
   "dependencies": {
     "@commander-js/extra-typings": "^15.0.0",
-    "@create-audiobook-from-url/operator-api.client": "workspace:*",
-    "@create-audiobook-from-url/operator-api.routes": "workspace:*",
+    "@cup/operator-api.client": "workspace:*",
+    "@cup/operator-api.routes": "workspace:*",
     "commander": "^15.0.0",
     "zod": "^4.5.4"
   },
   "devDependencies": {
-    "@create-audiobook-from-url/config-oxlint": "workspace:*",
+    "@cup/config-oxlint": "workspace:*",
     "@patricktree-stack/config-typescript": "workspace:*",
     "@patricktree-stack/config-vitest": "workspace:*",
     "@types/node": "catalog:",

@@ -11,17 +11,14 @@ import {
   getGrantSessionCookie,
   type ConversionGrantDurableObject,
   type ConversionGrantRegistryDurableObject,
-} from "@create-audiobook-from-url/conversion-grants";
-import {
-  createOperatorApi,
-  type OperatorApiHandlers,
-} from "@create-audiobook-from-url/operator-api.routes";
+} from "@cup/conversion-grants";
+import { createOperatorApi, type OperatorApiHandlers } from "@cup/operator-api.routes";
 import {
   audiobookSchema,
   createWebAppApi,
   type ErrorResponse,
   type WebAppApiHandlers,
-} from "@create-audiobook-from-url/web-app-api.routes";
+} from "@cup/web-app-api.routes";
 
 import type { ApiServerEnvironment } from "#src/api-server-environment.ts";
 import { routeApplicationDomain } from "#src/domain-routing.ts";

@@ -28,7 +28,7 @@ const config: KnipConfig = {
     },
     "apps/web-app": {
       /* Playwright and Vite load these component-testing modules indirectly. */
-      entry: ["ui-gallery/main.tsx", "ui-gallery/vite.config.ts", "src/**/*.story.tsx"],
+      entry: ["ui-gallery/main.tsx", "src/**/*.story.tsx"],
     },
     "libs/conversion-grants": {
       /* Wrangler loads this module-only Worker entry point from wrangler.test.jsonc. */
@@ -41,7 +41,7 @@ const config: KnipConfig = {
     "qa/e2e": {
       /* These dependencies express the built-app test dependency graph. */
       ignoreDependencies: [
-        "@create-audiobook-from-url/cloudflare-worker",
+        "@cup/cloudflare-worker",
         /* knip doesn't detect `declare module "cloudflare:workers"` from Worker types */
         "cloudflare",
       ],

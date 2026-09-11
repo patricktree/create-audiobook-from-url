@@ -1,6 +1,6 @@
 import { expect, test } from "vitest";
 
-import { encodePcmAsMp3 } from "@create-audiobook-from-url/mp3-encoding";
+import { encodePcmAsMp3 } from "@cup/mp3-encoding";
 
 import { analyzeMp3, AUDIO_FORMAT } from "#src/audio-format.ts";
 

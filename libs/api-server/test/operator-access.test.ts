@@ -1,6 +1,6 @@
 import { expect, test } from "vitest";
 
-import { LOCAL_OPERATOR_ACCESS_TOKEN } from "@create-audiobook-from-url/operator-api.routes";
+import { LOCAL_OPERATOR_ACCESS_TOKEN } from "@cup/operator-api.routes";
 
 import { isDevelopmentOperatorRequest } from "#src/operator-access.ts";
 

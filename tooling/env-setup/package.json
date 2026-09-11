@@ -1,5 +1,5 @@
 {
-  "name": "@create-audiobook-from-url/env-setup",
+  "name": "@cup/env-setup",
   "private": true,
   "files": [
     "src/**"
@@ -34,7 +34,7 @@
     "commander": "^15.0.0"
   },
   "devDependencies": {
-    "@create-audiobook-from-url/config-oxlint": "workspace:*",
+    "@cup/config-oxlint": "workspace:*",
     "@patricktree-stack/config-typescript": "workspace:*",
     "@patricktree-stack/config-vitest": "workspace:*",
     "@types/node": "catalog:",

@@ -1,7 +1,4 @@
-import type {
-  Audiobook,
-  AudiobookReference,
-} from "@create-audiobook-from-url/audiobook-production";
+import type { Audiobook, AudiobookReference } from "@cup/audiobook-production";
 
 export type LoadReadyAudiobookDependencies = {
   findGrantIdForConversion(conversionId: string): Promise<string | undefined>;

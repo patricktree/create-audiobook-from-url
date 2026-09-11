@@ -20,7 +20,7 @@ const CONSOLE_ERRORS = {
 test("shows the public portfolio page", async ({ page, workerEnvironment }) => {
   await gotoPage(page, workerEnvironment.origin);
 
-  await expect(page.getByRole("heading", { name: "Create Audiobook from URL" })).toBeVisible();
+  await expect(page.getByRole("heading", { name: "Cup" })).toBeVisible();
   await expect(page.getByRole("link", { name: "GitHub" })).toHaveAttribute(
     "href",
     "https://github.com/patricktree/create-audiobook-from-url",

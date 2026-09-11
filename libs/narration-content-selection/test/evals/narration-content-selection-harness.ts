@@ -1,8 +1,8 @@
 import { createHarness, toJsonValue } from "vitest-evals";
 import type { JsonValue, TranscriptEvent } from "vitest-evals";
 
-import { createNarrationDocument } from "@create-audiobook-from-url/narration-document-creation";
-import type { SynchronizationUnit } from "@create-audiobook-from-url/narration-document-creation";
+import { createNarrationDocument } from "@cup/narration-document-creation";
+import type { SynchronizationUnit } from "@cup/narration-document-creation";
 
 import { runSelection } from "#src/narration-content-selection.ts";
 import type { SelectionConfig } from "#src/narration-content-selection.ts";

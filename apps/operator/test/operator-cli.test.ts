@@ -3,7 +3,7 @@ import http from "node:http";
 import path from "node:path";
 import { afterAll, beforeAll, describe, expect, test } from "vitest";
 
-import { LOCAL_OPERATOR_ACCESS_TOKEN } from "@create-audiobook-from-url/operator-api.routes";
+import { LOCAL_OPERATOR_ACCESS_TOKEN } from "@cup/operator-api.routes";
 
 const GRANT_ID = "b4ad28a8-bbd7-46af-a17c-59527becd745";
 const REQUEST_ID = "2f94d6a9-68eb-49eb-b88e-753cf5fba041";

@@ -1,14 +1,16 @@
 # Mobile app
 
-Capacitor shells for Android and iOS, based on Content Relay's `apps/mobile-app`. Both package the shared web app from `apps/web-app/dist/web` under the app ID `me.patricktree.createaudiobookfromurl`.
+Capacitor shells for Android and iOS, based on Content Relay's `apps/mobile-app`. Both package Cup from the shared web app in `apps/web-app/dist/web`. Android uses `com.cup_audio.app`; iOS uses `com.cup-audio.app` with the extension `com.cup-audio.app.share`.
 
 ## Build
 
 From the repository root:
 
 ```sh
-pnpm --filter '@create-audiobook-from-url/mobile-app' build
+pnpm --filter '@cup/mobile-app' build
 ```
+
+The sync command selects the platform-specific Capacitor ID through `CUP_NATIVE_PLATFORM`. Use `CUP_NATIVE_PLATFORM=android` with direct Android Capacitor commands.
 
 This runs the cached shared web build and Capacitor configuration check, then syncs web assets into both native projects. Sync runs outside Turbo and always executes, even when both build tasks hit the cache.
 
@@ -17,7 +19,7 @@ The repository-wide `pnpm build` and `pnpm validate` run `turbo:build` without s
 To sync an already built web bundle:
 
 ```sh
-pnpm --filter '@create-audiobook-from-url/mobile-app' native:sync
+pnpm --filter '@cup/mobile-app' native:sync
 ```
 
 ## Android locally
@@ -35,7 +37,7 @@ Start an Android emulator in Android Studio, or connect a device with USB debugg
 ```sh
 cd apps/mobile-app/android
 ./gradlew assembleDebug testDebugUnitTest lintDebug installDebug
-adb shell am start -n me.patricktree.createaudiobookfromurl/.MainActivity
+adb shell am start -n com.cup_audio.app/.MainActivity
 ```
 
 The debug APK is written to `apps/mobile-app/android/app/build/outputs/apk/debug/app-debug.apk`. Confirm the landing page renders and the app can close and reopen without a crash.
@@ -55,8 +57,8 @@ Deploy the web app so `https://cup-audio.com/.well-known/assetlinks.json` serves
 After deploying the association file and installing the rebuilt APK, request verification and inspect the result:
 
 ```sh
-adb shell pm verify-app-links --re-verify me.patricktree.createaudiobookfromurl
-adb shell pm get-app-links me.patricktree.createaudiobookfromurl
+adb shell pm verify-app-links --re-verify com.cup_audio.app
+adb shell pm get-app-links com.cup_audio.app
 ```
 
 Verification is asynchronous. Wait until the domain reports `verified`, then open a link without specifying the app package, so Android exercises domain resolution:
@@ -85,16 +87,20 @@ The handoff uses `cup-audio://share?url=<encoded-url>`. Cup links under `https:/
 
 The extension uses the same responder-chain URL-opening approach as Chromium, calling `openURL:options:completionHandler:` dynamically. Apple does not support this handoff from Share Extensions; test it after iOS updates. A failed handoff stays in the extension with an error and retry button. The extension does not start conversions or access session cookies.
 
-Build the App scheme with a local `DEVELOPMENT_TEAM` override; it builds, signs, and embeds the extension. Both bundle identifiers need provisioning: `me.patricktree.createaudiobookfromurl` and `me.patricktree.createaudiobookfromurl.share`. Verify Safari and Chrome sharing with Cup terminated and already running, cancellation, repeated shares, URLs containing `&`, `+`, or fragments, and trial links. If Cup is hidden, look under More in the Share Sheet's app row.
+Build the App scheme with a local `DEVELOPMENT_TEAM` override; it builds, signs, and embeds the extension. Both bundle identifiers need provisioning: `com.cup-audio.app` and `com.cup-audio.app.share`. Verify Safari and Chrome sharing with Cup terminated and already running, cancellation, repeated shares, URLs containing `&`, `+`, or fragments, and trial links. If Cup is hidden, look under More in the Share Sheet's app row.
 
 ## iOS Universal Links
 
 The App target includes the Associated Domains entitlement for `applinks:cup-audio.com`. HTTPS links to `/app` and `/app/…` navigate to the corresponding app route on cold and warm launches, preserving query parameters and trial credential fragments. Other domains, credentials in the URL authority, and routes outside `/app` are rejected by the iOS intake handler.
 
-Deploy `apps/web-app/public/.well-known/apple-app-site-association` together with `apps/web-app/public/_headers` so `https://cup-audio.com/.well-known/apple-app-site-association` returns JSON with status 200 and no redirect. The association currently contains the application identifier from Patrick's locally signed app. Before using another signing team, replace its app ID prefix with the application identifier prefix from that team's signed app or provisioning profile. Do not put a local development-team override into the Xcode project.
+Deploy `apps/web-app/public/.well-known/apple-app-site-association` together with `apps/web-app/public/_headers` so `https://cup-audio.com/.well-known/apple-app-site-association` returns JSON with status 200 and no redirect. The association uses Cup's new bundle ID with Patrick's current Personal Team prefix; it must be updated to the enrolled team's prefix before Universal Links can work. Before using another signing team, replace its app ID prefix with the application identifier prefix from that team's signed app or provisioning profile. Do not put a local development-team override into the Xcode project.
 
 Associated Domains requires a signing team enrolled in the Apple Developer Program. The current Personal Team cannot provision this capability; Xcode rejects the signed build until an eligible team is selected. An unsigned build can validate native compilation, but cannot verify Universal Links on an iPad.
 
 After deploying the association and signing with an eligible team, reinstall Cup so iOS fetches the association. Apple caches the association through its CDN, so server deployment alone may not update existing devices immediately. Test a trial link from Keep or Notes with Cup closed and already running; verify that it opens the trial and exchanges its credential. Then share an article from Safari and Chrome and verify that the URL appears in that trial's conversion form without submitting it. Browser-specific link handling can affect whether a tap hands control to iOS; use Apple's Universal Links diagnostics if a verified association still opens the browser.
 
 See [Apple's Universal Links troubleshooting](https://developer.apple.com/documentation/technotes/tn3155-debugging-universal-links/).
+
+## Brand assets
+
+Edit the canonical artwork in `tooling/brand-assets/assets/` at the repository root. Run `pnpm --filter '@cup/web-app' exec cup-brand-assets-cli sync` to regenerate native icons, splash images, and web assets. Native sync runs generation automatically. See [the brand asset guide](../../tooling/brand-assets/README.md) for sources, sizing, and validation.

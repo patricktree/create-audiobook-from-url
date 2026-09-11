@@ -1,7 +1,7 @@
 <?xml version='1.0' encoding='utf-8'?>
 <resources>
-    <string name="app_name">Create Audiobook from URL</string>
-    <string name="title_activity_main">Create Audiobook from URL</string>
-    <string name="package_name">me.patricktree.createaudiobookfromurl</string>
-    <string name="custom_url_scheme">me.patricktree.createaudiobookfromurl</string>
+    <string name="app_name">Cup</string>
+    <string name="title_activity_main">Cup</string>
+    <string name="package_name">com.cup_audio.app</string>
+    <string name="custom_url_scheme">com.cup_audio.app</string>
 </resources>

@@ -2,7 +2,7 @@ import {
   createAudioSegmentReference,
   type Audiobook,
   type AudioSegmentReference,
-} from "@create-audiobook-from-url/audiobook-production";
+} from "@cup/audiobook-production";
 
 export type AudiobookEpubArtifact = {
   body: ReadableStream<Uint8Array>;

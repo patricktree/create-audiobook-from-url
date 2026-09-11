@@ -1,7 +1,7 @@
 import { expect } from "@playwright/test";
 import { unzipSync } from "fflate";
 
-import { analyzeMp3 } from "@create-audiobook-from-url/audiobook-production";
+import { analyzeMp3 } from "@cup/audiobook-production";
 
 const decoder = new TextDecoder();
 

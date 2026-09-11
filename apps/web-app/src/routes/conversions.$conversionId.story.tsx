@@ -5,11 +5,8 @@ import React from "react";
 
 import type { Story } from "#ui-gallery/story.js";
 
-import { ConversionPhase } from "@create-audiobook-from-url/conversion-grants/contracts";
-import type {
-  ConversionDetail,
-  ErrorResponse,
-} from "@create-audiobook-from-url/web-app-api.routes";
+import { ConversionPhase } from "@cup/conversion-grants/contracts";
+import type { ConversionDetail, ErrorResponse } from "@cup/web-app-api.routes";
 
 import { createAppRouter, GlobalProviders } from "#src/app/global-providers.js";
 import { Route as conversionRoute } from "#src/routes/conversions.$conversionId.js";

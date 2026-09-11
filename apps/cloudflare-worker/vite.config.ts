@@ -4,7 +4,7 @@ import fs from "node:fs";
 import path from "node:path";
 import { defineConfig, mergeConfig } from "vite";
 
-import { createWebAppViteConfig, WEB_APP_DIRECTORY } from "@create-audiobook-from-url/web-app/vite";
+import { createWebAppViteConfig, WEB_APP_DIRECTORY } from "@cup/web-app/vite";
 
 const WORKER_DIRECTORY = import.meta.dirname;
 

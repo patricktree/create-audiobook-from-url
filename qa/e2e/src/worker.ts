@@ -1,18 +1,18 @@
 import { WorkflowEntrypoint } from "cloudflare:workers";
 import type { WorkflowEvent, WorkflowStep } from "cloudflare:workers";
 
-import { createApiServer } from "@create-audiobook-from-url/api-server";
-import { createFakeSpeechSynthesisAi } from "@create-audiobook-from-url/audiobook-production/fake";
+import { createApiServer } from "@cup/api-server";
+import { createFakeSpeechSynthesisAi } from "@cup/audiobook-production/fake";
 import {
   ConversionGrantDurableObject,
   ConversionGrantRegistryDurableObject,
-} from "@create-audiobook-from-url/conversion-grants";
+} from "@cup/conversion-grants";
 import {
   runCreateAudiobookFromUrlWorkflow,
   type ConversionParams,
-} from "@create-audiobook-from-url/create-audiobook-from-url-workflow/runner";
-import { createFakeNarrationContentSelector } from "@create-audiobook-from-url/narration-content-selection/fake";
-import { createControlledSourceMaterialPreparer } from "@create-audiobook-from-url/prepare-source-material/fake";
+} from "@cup/create-audiobook-from-url-workflow/runner";
+import { createFakeNarrationContentSelector } from "@cup/narration-content-selection/fake";
+import { createControlledSourceMaterialPreparer } from "@cup/prepare-source-material/fake";
 
 import sourceHtml from "#src/fixtures/source.html";
 

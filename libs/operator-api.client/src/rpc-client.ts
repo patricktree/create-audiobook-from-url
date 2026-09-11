@@ -6,7 +6,7 @@ import type {
   ListGrantsQuery,
   OperatorApiApp,
   OperatorApiClient as OperatorHonoClient,
-} from "@create-audiobook-from-url/operator-api.routes";
+} from "@cup/operator-api.routes";
 
 const createClient = (...args: Parameters<typeof hc>): OperatorHonoClient =>
   hc<OperatorApiApp>(...args);

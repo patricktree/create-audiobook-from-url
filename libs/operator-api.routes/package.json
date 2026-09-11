@@ -1,5 +1,5 @@
 {
-  "name": "@create-audiobook-from-url/operator-api.routes",
+  "name": "@cup/operator-api.routes",
   "private": true,
   "files": [
     "src/**"
@@ -35,13 +35,13 @@
     "turbo:test": "pnpm run test"
   },
   "dependencies": {
-    "@create-audiobook-from-url/conversion-grants": "workspace:*",
+    "@cup/conversion-grants": "workspace:*",
     "@hono/zod-openapi": "catalog:hono",
     "hono": "catalog:hono",
     "zod": "^4.5.4"
   },
   "devDependencies": {
-    "@create-audiobook-from-url/config-oxlint": "workspace:*",
+    "@cup/config-oxlint": "workspace:*",
     "@patricktree-stack/config-typescript": "workspace:*",
     "@patricktree-stack/config-vitest": "workspace:*",
     "@types/node": "catalog:",

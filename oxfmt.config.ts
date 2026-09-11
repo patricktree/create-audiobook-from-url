@@ -20,7 +20,7 @@ export default defineConfig({
       /* create a group for create-audiobook-from-url packages to separate them from other external dependencies */
       {
         groupName: "create-audiobook-from-url-packages",
-        elementNamePattern: ["@create-audiobook-from-url/**"],
+        elementNamePattern: ["@cup/**"],
       },
       /* create a group for subpath imports = internal dependencies */
       {

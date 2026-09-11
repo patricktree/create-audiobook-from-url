@@ -10,9 +10,9 @@ import {
   type GrantConversions,
   type GrantSnapshot,
   type GrantState,
-} from "@create-audiobook-from-url/conversion-grants/contracts";
-import { sourceUrlSchema } from "@create-audiobook-from-url/create-audiobook-from-url-workflow/conversion-params";
-import { SYNCHRONIZATION_UNIT_SCHEMA } from "@create-audiobook-from-url/narration-document-creation";
+} from "@cup/conversion-grants/contracts";
+import { sourceUrlSchema } from "@cup/create-audiobook-from-url-workflow/conversion-params";
+import { SYNCHRONIZATION_UNIT_SCHEMA } from "@cup/narration-document-creation";
 
 const LOWERCASE_UUID_V4_PATTERN =
   /^[0-9a-f]{8}-[0-9a-f]{4}-4[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/;

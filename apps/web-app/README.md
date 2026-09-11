@@ -13,7 +13,7 @@
 From the repo root:
 
 ```sh
-pnpm --filter '@create-audiobook-from-url/cloudflare-worker' dev
+pnpm --filter '@cup/cloudflare-worker' dev
 ```
 
 The Worker package owns the Vite development server and handles the web app under `/app/` and API requests under `/api/`, including live reload for the web source.
@@ -25,7 +25,7 @@ The Worker package owns the Vite development server and handles the web app unde
 From the repo root:
 
 ```sh
-pnpm --filter '@create-audiobook-from-url/cloudflare-worker' build
+pnpm --filter '@cup/cloudflare-worker' build
 ```
 
 Turbo builds the web package once, then the Worker build copies that bundle as static assets without compiling the SPA again. The build produces:
@@ -52,13 +52,13 @@ Route stories in `src/routes/*.story.tsx` render the application with determinis
 Run the component tests from the repository root:
 
 ```sh
-pnpm --filter '@create-audiobook-from-url/web-app' test:components
+pnpm --filter '@cup/web-app' test:components
 ```
 
 After intentional visual changes, regenerate the Docker baselines and review the images under `apps/web-app/snapshots`:
 
 ```sh
-pnpm --filter '@create-audiobook-from-url/web-app' test:components --update-snapshots
+pnpm --filter '@cup/web-app' test:components --update-snapshots
 ```
 
-Explore the stories with `pnpm --filter '@create-audiobook-from-url/web-app' dev:gallery`.
+Explore the stories with `pnpm --filter '@cup/web-app' dev:gallery`.

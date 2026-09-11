@@ -2,8 +2,8 @@ import { launch, type BrowserWorker } from "@cloudflare/playwright";
 import { WorkflowEntrypoint } from "cloudflare:workers";
 import type { WorkflowEvent, WorkflowStep } from "cloudflare:workers";
 
-import { selectNarrationContent } from "@create-audiobook-from-url/narration-content-selection";
-import { prepareSourceMaterial } from "@create-audiobook-from-url/prepare-source-material";
+import { selectNarrationContent } from "@cup/narration-content-selection";
+import { prepareSourceMaterial } from "@cup/prepare-source-material";
 
 import {
   runCreateAudiobookFromUrlWorkflow,

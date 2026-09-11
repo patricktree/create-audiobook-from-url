@@ -4,14 +4,14 @@ import process from "node:process";
 import util from "node:util";
 import { z } from "zod";
 
-import { OperatorApiClient, parseOkResponse } from "@create-audiobook-from-url/operator-api.client";
+import { OperatorApiClient, parseOkResponse } from "@cup/operator-api.client";
 import {
   isDevelopmentOperatorUrl,
   isLoopbackOperatorUrl,
   LOCAL_OPERATOR_ACCESS_TOKEN,
   projectedGrantStates,
   uuidV4Schema,
-} from "@create-audiobook-from-url/operator-api.routes";
+} from "@cup/operator-api.routes";
 
 const execFile = util.promisify(childProcess.execFile);
 const DEFAULT_LIMIT = 50;
@@ -23,7 +23,7 @@ const globalOptionsSchema = z.object({
 
 const program = new Command()
   .name("operator")
-  .description("Operate create-audiobook-from-url conversion grants")
+  .description("Operate Cup conversion grants")
   .version("0.1.0")
   .option("--operator-url <url>", "operator service URL")
   .option("--json", "write one JSON value to stdout", false)

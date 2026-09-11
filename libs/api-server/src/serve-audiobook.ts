@@ -1,13 +1,9 @@
-import {
-  exportEpub,
-  loadAudiobook,
-  type Audiobook,
-} from "@create-audiobook-from-url/audiobook-production";
+import { exportEpub, loadAudiobook, type Audiobook } from "@cup/audiobook-production";
 import type {
   ConversionGrantDurableObject,
   ConversionGrantRegistryDurableObject,
-} from "@create-audiobook-from-url/conversion-grants";
-import type { ErrorResponse } from "@create-audiobook-from-url/web-app-api.routes";
+} from "@cup/conversion-grants";
+import type { ErrorResponse } from "@cup/web-app-api.routes";
 
 import type { ApiServerEnvironment } from "#src/api-server-environment.ts";
 import { getAudiobookEpub } from "#src/use-cases/get-audiobook-epub.ts";

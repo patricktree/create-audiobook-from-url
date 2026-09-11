@@ -1,5 +1,5 @@
 {
-  "name": "@create-audiobook-from-url/config-oxlint",
+  "name": "@cup/config-oxlint",
   "private": true,
   "type": "module",
   "dependencies": {

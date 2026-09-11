@@ -73,7 +73,7 @@ test("follows homepage and app entry redirects and loads assets under app", asyn
   for (const pathname of ["/", "/app"]) {
     await gotoPage(page, `${workerEnvironment.origin}${pathname}`);
     await expect(page).toHaveURL(`${workerEnvironment.origin}/app/`);
-    await expect(page.getByRole("heading", { name: "Create Audiobook from URL" })).toBeVisible();
+    await expect(page.getByRole("heading", { name: "Cup" })).toBeVisible();
   }
 
   const assetPaths = await page.evaluate(() =>

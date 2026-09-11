@@ -1,5 +1,5 @@
 {
-  "name": "@create-audiobook-from-url/mp3-encoding",
+  "name": "@cup/mp3-encoding",
   "private": true,
   "files": [
     "src/**",
@@ -44,7 +44,7 @@
     "turbo:test": "pnpm run test"
   },
   "devDependencies": {
-    "@create-audiobook-from-url/config-oxlint": "workspace:*",
+    "@cup/config-oxlint": "workspace:*",
     "@patricktree-stack/config-typescript": "workspace:*",
     "@patricktree-stack/config-vitest": "workspace:*",
     "@types/node": "catalog:",

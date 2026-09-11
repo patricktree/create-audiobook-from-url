@@ -3,7 +3,7 @@ import type {
   ExchangeCredentialRequest,
   GrantParams,
   StartConversionRequest,
-} from "@create-audiobook-from-url/web-app-api.routes";
+} from "@cup/web-app-api.routes";
 
 import { createHonoClient, type HonoClient } from "#src/hono-client.ts";
 

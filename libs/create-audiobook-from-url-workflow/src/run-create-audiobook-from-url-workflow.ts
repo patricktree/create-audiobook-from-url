@@ -10,18 +10,18 @@ import {
   storeAudiobook,
   type AudioSegmentReference,
   type SpeechSynthesisAi,
-} from "@create-audiobook-from-url/audiobook-production";
+} from "@cup/audiobook-production";
 import {
   ConversionPhase,
   type ConversionFailureCategory,
   type ConversionGrantDurableObject,
-} from "@create-audiobook-from-url/conversion-grants";
+} from "@cup/conversion-grants";
 import type {
   NarrationContentSelectionResult,
   SelectionChunkRunner,
-} from "@create-audiobook-from-url/narration-content-selection";
-import { createNarrationDocument } from "@create-audiobook-from-url/narration-document-creation";
-import type { SourceMaterialPreparer } from "@create-audiobook-from-url/prepare-source-material";
+} from "@cup/narration-content-selection";
+import { createNarrationDocument } from "@cup/narration-document-creation";
+import type { SourceMaterialPreparer } from "@cup/prepare-source-material";
 
 import { conversionParamsSchema, type ConversionParams } from "#src/conversion-params.ts";
 

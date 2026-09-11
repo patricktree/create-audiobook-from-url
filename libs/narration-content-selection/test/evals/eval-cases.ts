@@ -2,7 +2,7 @@ import fs from "node:fs/promises";
 import path from "node:path";
 import { z } from "zod";
 
-import { SYNCHRONIZATION_UNIT_SCHEMA } from "@create-audiobook-from-url/narration-document-creation";
+import { SYNCHRONIZATION_UNIT_SCHEMA } from "@cup/narration-document-creation";
 
 const CASE_METADATA_SCHEMA = z
   .object({

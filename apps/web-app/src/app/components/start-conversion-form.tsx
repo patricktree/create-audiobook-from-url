@@ -2,10 +2,7 @@ import { css } from "@linaria/core";
 import { useNavigate } from "@tanstack/react-router";
 import React from "react";
 
-import {
-  type GrantSnapshot,
-  startConversionRequestSchema,
-} from "@create-audiobook-from-url/web-app-api.routes";
+import { type GrantSnapshot, startConversionRequestSchema } from "@cup/web-app-api.routes";
 
 import { useAppForm } from "#src/app/form.js";
 import { useStartConversionMutation } from "#src/data-fetching/trial-link.js";

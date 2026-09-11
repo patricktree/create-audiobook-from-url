@@ -2,7 +2,7 @@ import fs from "node:fs/promises";
 import path from "node:path";
 import url from "node:url";
 
-import { createWebAppContractApp } from "@create-audiobook-from-url/web-app-api.routes";
+import { createWebAppContractApp } from "@cup/web-app-api.routes";
 
 const OUTPUT_FILE_URL = new URL("../dist/create-audiobook-from-url-openapi.json", import.meta.url);
 

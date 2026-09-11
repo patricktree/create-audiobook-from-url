@@ -11,7 +11,7 @@ This matches the tutorial's deployment model. Its term "API Worker" means the Wo
 ## Repository mapping
 
 - `apps/cloudflare-worker/index.html` is the client HTML entry point.
-- `apps/cloudflare-worker/src/web-app.tsx` mounts the `WebApp` component exported by `@create-audiobook-from-url/web-app/main`.
+- `apps/cloudflare-worker/src/web-app.tsx` mounts the `WebApp` component exported by `@cup/web-app/main`.
 - `apps/cloudflare-worker/vite.config.ts` configures React, route generation, styling, and the Cloudflare Vite plugin.
 - `apps/cloudflare-worker/wrangler.jsonc` identifies the Worker entry point and runtime bindings.
 - `apps/web-app` owns the React source and exports its browser entry point.

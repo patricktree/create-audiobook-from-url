@@ -2,11 +2,11 @@
 
 ## Commands
 
-| Task            | Command                                                                        |
-| --------------- | ------------------------------------------------------------------------------ |
-| Develop locally | `pnpm --filter '@create-audiobook-from-url/cloudflare-worker' run dev`         |
-| Build           | `pnpm --filter '@create-audiobook-from-url/cloudflare-worker' run turbo:build` |
-| Lint            | `pnpm --filter '@create-audiobook-from-url/cloudflare-worker' run turbo:lint`  |
+| Task            | Command                                                  |
+| --------------- | -------------------------------------------------------- |
+| Develop locally | `pnpm --filter '@cup/cloudflare-worker' run dev`         |
+| Build           | `pnpm --filter '@cup/cloudflare-worker' run turbo:build` |
+| Lint            | `pnpm --filter '@cup/cloudflare-worker' run turbo:lint`  |
 
 - Deploy only when the user explicitly requests it.
 

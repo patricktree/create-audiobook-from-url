@@ -1,0 +1,219 @@
+[
+  {
+    "path": "apps/mobile-app/android/app/src/main/res/drawable-land-hdpi/splash.png",
+    "width": 800,
+    "height": 480,
+    "markSize": 86,
+    "transparent": false
+  },
+  {
+    "path": "apps/mobile-app/android/app/src/main/res/drawable-land-mdpi/splash.png",
+    "width": 480,
+    "height": 320,
+    "markSize": 58,
+    "transparent": false
+  },
+  {
+    "path": "apps/mobile-app/android/app/src/main/res/drawable-land-xhdpi/splash.png",
+    "width": 1280,
+    "height": 720,
+    "markSize": 130,
+    "transparent": false
+  },
+  {
+    "path": "apps/mobile-app/android/app/src/main/res/drawable-land-xxhdpi/splash.png",
+    "width": 1600,
+    "height": 960,
+    "markSize": 173,
+    "transparent": false
+  },
+  {
+    "path": "apps/mobile-app/android/app/src/main/res/drawable-land-xxxhdpi/splash.png",
+    "width": 1920,
+    "height": 1280,
+    "markSize": 230,
+    "transparent": false
+  },
+  {
+    "path": "apps/mobile-app/android/app/src/main/res/drawable-port-hdpi/splash.png",
+    "width": 480,
+    "height": 800,
+    "markSize": 86,
+    "transparent": false
+  },
+  {
+    "path": "apps/mobile-app/android/app/src/main/res/drawable-port-mdpi/splash.png",
+    "width": 320,
+    "height": 480,
+    "markSize": 58,
+    "transparent": false
+  },
+  {
+    "path": "apps/mobile-app/android/app/src/main/res/drawable-port-xhdpi/splash.png",
+    "width": 720,
+    "height": 1280,
+    "markSize": 130,
+    "transparent": false
+  },
+  {
+    "path": "apps/mobile-app/android/app/src/main/res/drawable-port-xxhdpi/splash.png",
+    "width": 960,
+    "height": 1600,
+    "markSize": 173,
+    "transparent": false
+  },
+  {
+    "path": "apps/mobile-app/android/app/src/main/res/drawable-port-xxxhdpi/splash.png",
+    "width": 1280,
+    "height": 1920,
+    "markSize": 230,
+    "transparent": false
+  },
+  {
+    "path": "apps/mobile-app/android/app/src/main/res/drawable/splash.png",
+    "width": 480,
+    "height": 320,
+    "markSize": 58,
+    "transparent": false
+  },
+  {
+    "path": "apps/mobile-app/android/app/src/main/res/mipmap-hdpi/ic_launcher.png",
+    "width": 72,
+    "height": 72,
+    "markSize": 60,
+    "transparent": false
+  },
+  {
+    "path": "apps/mobile-app/android/app/src/main/res/mipmap-hdpi/ic_launcher_foreground.png",
+    "width": 162,
+    "height": 162,
+    "markSize": 97,
+    "transparent": true
+  },
+  {
+    "path": "apps/mobile-app/android/app/src/main/res/mipmap-hdpi/ic_launcher_round.png",
+    "width": 72,
+    "height": 72,
+    "markSize": 60,
+    "transparent": false
+  },
+  {
+    "path": "apps/mobile-app/android/app/src/main/res/mipmap-mdpi/ic_launcher.png",
+    "width": 48,
+    "height": 48,
+    "markSize": 40,
+    "transparent": false
+  },
+  {
+    "path": "apps/mobile-app/android/app/src/main/res/mipmap-mdpi/ic_launcher_foreground.png",
+    "width": 108,
+    "height": 108,
+    "markSize": 65,
+    "transparent": true
+  },
+  {
+    "path": "apps/mobile-app/android/app/src/main/res/mipmap-mdpi/ic_launcher_round.png",
+    "width": 48,
+    "height": 48,
+    "markSize": 40,
+    "transparent": false
+  },
+  {
+    "path": "apps/mobile-app/android/app/src/main/res/mipmap-xhdpi/ic_launcher.png",
+    "width": 96,
+    "height": 96,
+    "markSize": 81,
+    "transparent": false
+  },
+  {
+    "path": "apps/mobile-app/android/app/src/main/res/mipmap-xhdpi/ic_launcher_foreground.png",
+    "width": 216,
+    "height": 216,
+    "markSize": 130,
+    "transparent": true
+  },
+  {
+    "path": "apps/mobile-app/android/app/src/main/res/mipmap-xhdpi/ic_launcher_round.png",
+    "width": 96,
+    "height": 96,
+    "markSize": 81,
+    "transparent": false
+  },
+  {
+    "path": "apps/mobile-app/android/app/src/main/res/mipmap-xxhdpi/ic_launcher.png",
+    "width": 144,
+    "height": 144,
+    "markSize": 121,
+    "transparent": false
+  },
+  {
+    "path": "apps/mobile-app/android/app/src/main/res/mipmap-xxhdpi/ic_launcher_foreground.png",
+    "width": 324,
+    "height": 324,
+    "markSize": 194,
+    "transparent": true
+  },
+  {
+    "path": "apps/mobile-app/android/app/src/main/res/mipmap-xxhdpi/ic_launcher_round.png",
+    "width": 144,
+    "height": 144,
+    "markSize": 121,
+    "transparent": false
+  },
+  {
+    "path": "apps/mobile-app/android/app/src/main/res/mipmap-xxxhdpi/ic_launcher.png",
+    "width": 192,
+    "height": 192,
+    "markSize": 161,
+    "transparent": false
+  },
+  {
+    "path": "apps/mobile-app/android/app/src/main/res/mipmap-xxxhdpi/ic_launcher_foreground.png",
+    "width": 432,
+    "height": 432,
+    "markSize": 259,
+    "transparent": true
+  },
+  {
+    "path": "apps/mobile-app/android/app/src/main/res/mipmap-xxxhdpi/ic_launcher_round.png",
+    "width": 192,
+    "height": 192,
+    "markSize": 161,
+    "transparent": false
+  },
+  {
+    "path": "apps/mobile-app/ios/App/App/Assets.xcassets/AppIcon.appiconset/AppIcon-512@2x.png",
+    "width": 1024,
+    "height": 1024,
+    "markSize": 860,
+    "transparent": false
+  },
+  {
+    "path": "apps/mobile-app/ios/App/App/Assets.xcassets/Splash.imageset/splash-2732x2732-1.png",
+    "width": 2732,
+    "height": 2732,
+    "markSize": 492,
+    "transparent": false
+  },
+  {
+    "path": "apps/mobile-app/ios/App/App/Assets.xcassets/Splash.imageset/splash-2732x2732-2.png",
+    "width": 2732,
+    "height": 2732,
+    "markSize": 492,
+    "transparent": false
+  },
+  {
+    "path": "apps/mobile-app/ios/App/App/Assets.xcassets/Splash.imageset/splash-2732x2732.png",
+    "width": 2732,
+    "height": 2732,
+    "markSize": 492,
+    "transparent": false
+  },
+  {
+    "path": "apps/web-app/public/app/cup-icon.png",
+    "width": 512,
+    "height": 512,
+    "markSize": 430,
+    "transparent": false
+  }
+]

@@ -3,12 +3,14 @@ const path = require("node:path");
 import type {} from "@capacitor/app";
 import type { CapacitorConfig } from "@capacitor/cli";
 
-const pathToWebApp = require.resolve("@create-audiobook-from-url/web-app/package.json");
+const pathToWebApp = require.resolve("@cup/web-app/package.json");
 const pathToWebAppDist = path.join(pathToWebApp, "..", "./dist/web");
 
 const config: CapacitorConfig = {
-  appId: "me.patricktree.createaudiobookfromurl",
-  appName: "Create Audiobook from URL",
+  // Sync each platform separately because Android package names cannot contain hyphens.
+  appId:
+    process.env["CUP_NATIVE_PLATFORM"] === "android" ? "com.cup_audio.app" : "com.cup-audio.app",
+  appName: "Cup",
   webDir: pathToWebAppDist,
   server: { appStartPath: "/app/" },
   plugins: { CapacitorHttp: { enabled: true }, App: { disableBackButtonHandler: false } },

@@ -8,7 +8,7 @@ import {
   type GrantMigrationReport,
   type OperatorGrantFacts,
   type ProjectedGrantState,
-} from "@create-audiobook-from-url/conversion-grants/contracts";
+} from "@cup/conversion-grants/contracts";
 
 const LOWERCASE_UUID_V4_PATTERN =
   /^[0-9a-f]{8}-[0-9a-f]{4}-4[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/;

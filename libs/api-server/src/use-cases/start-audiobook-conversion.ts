@@ -1,7 +1,4 @@
-import type {
-  GrantRegistrySnapshot,
-  StartGrantConversionResult,
-} from "@create-audiobook-from-url/conversion-grants";
+import type { GrantRegistrySnapshot, StartGrantConversionResult } from "@cup/conversion-grants";
 
 export type StartAudiobookConversionInput = {
   sourceUrl: string;

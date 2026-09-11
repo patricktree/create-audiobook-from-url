@@ -1,5 +1,5 @@
 {
-  "name": "@create-audiobook-from-url/web-app-api.client",
+  "name": "@cup/web-app-api.client",
   "private": true,
   "files": [
     "src/**"
@@ -32,12 +32,12 @@
     "turbo:lint:fix": "pnpm run turbo:lint --fix"
   },
   "dependencies": {
-    "@create-audiobook-from-url/web-app-api.routes": "workspace:*",
+    "@cup/web-app-api.routes": "workspace:*",
     "hono": "catalog:hono",
     "type-fest": "^5.9.0"
   },
   "devDependencies": {
-    "@create-audiobook-from-url/config-oxlint": "workspace:*",
+    "@cup/config-oxlint": "workspace:*",
     "@patricktree-stack/config-typescript": "workspace:*",
     "@types/node": "catalog:",
     "@typescript/native": "catalog:",

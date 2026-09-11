@@ -1,5 +1,5 @@
 {
-  "name": "@create-audiobook-from-url/api-server",
+  "name": "@cup/api-server",
   "private": true,
   "files": [
     "src/**"
@@ -40,17 +40,17 @@
     "turbo:test": "pnpm run test"
   },
   "dependencies": {
-    "@create-audiobook-from-url/audiobook-production": "workspace:*",
-    "@create-audiobook-from-url/conversion-grants": "workspace:*",
-    "@create-audiobook-from-url/create-audiobook-from-url-workflow": "workspace:*",
-    "@create-audiobook-from-url/operator-api.routes": "workspace:*",
-    "@create-audiobook-from-url/web-app-api.routes": "workspace:*",
+    "@cup/audiobook-production": "workspace:*",
+    "@cup/conversion-grants": "workspace:*",
+    "@cup/create-audiobook-from-url-workflow": "workspace:*",
+    "@cup/operator-api.routes": "workspace:*",
+    "@cup/web-app-api.routes": "workspace:*",
     "hono": "catalog:hono",
     "jose": "^6.2.10",
     "temporal-polyfill": "^1.0.4"
   },
   "devDependencies": {
-    "@create-audiobook-from-url/config-oxlint": "workspace:*",
+    "@cup/config-oxlint": "workspace:*",
     "@patricktree-stack/config-typescript": "workspace:*",
     "@patricktree-stack/config-vitest": "workspace:*",
     "@types/node": "catalog:",

@@ -1,5 +1,5 @@
 {
-  "name": "@create-audiobook-from-url/monorepo-root",
+  "name": "@cup/monorepo-root",
   "private": true,
   "files": [
     "./patches/**",
@@ -27,14 +27,14 @@
     "pnpm:devPreinstall": "sh ./preinstall.sh",
     "postinstall": "sh ./postinstall.sh",
     "test": "turbo run turbo:test",
-    "test:e2e": "docker pull mcr.microsoft.com/playwright:v1.62.1-noble && pnpm run build && pnpm --filter '@create-audiobook-from-url/e2e' test:e2e",
-    "test:e2e:ui": "pnpm run build && pnpm --filter '@create-audiobook-from-url/e2e' test:e2e:ui",
-    "test:e2e:update": "docker pull mcr.microsoft.com/playwright:v1.62.1-noble && pnpm run build && pnpm --filter '@create-audiobook-from-url/e2e' test:e2e:update",
-    "validate": "pnpm run env:check && turbo run turbo:build turbo:lint turbo:test && pnpm run declutter",
+    "test:e2e": "docker pull mcr.microsoft.com/playwright:v1.62.1-noble && pnpm run build && pnpm --filter '@cup/e2e' test:e2e",
+    "test:e2e:ui": "pnpm run build && pnpm --filter '@cup/e2e' test:e2e:ui",
+    "test:e2e:update": "docker pull mcr.microsoft.com/playwright:v1.62.1-noble && pnpm run build && pnpm --filter '@cup/e2e' test:e2e:update",
+    "validate": "pnpm --filter '@cup/web-app' exec cup-brand-assets-cli check && pnpm run env:check && turbo run turbo:build turbo:lint turbo:test && pnpm run declutter",
     "zizmor": "uvx zizmor@1.29.0 --gh-token \"$(gh auth token)\" ."
   },
   "devDependencies": {
-    "@create-audiobook-from-url/config-oxlint": "workspace:*",
+    "@cup/config-oxlint": "workspace:*",
     "@emnapi/core": "^1.11.3",
     "@emnapi/runtime": "^1.11.3",
     "@patricktree-stack/config-oxfmt": "workspace:*",

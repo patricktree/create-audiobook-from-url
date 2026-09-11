@@ -1,8 +1,5 @@
-import {
-  toGrantConversionSnapshot,
-  type GrantConversion,
-} from "@create-audiobook-from-url/conversion-grants";
-import type { ConversionDetail } from "@create-audiobook-from-url/web-app-api.routes";
+import { toGrantConversionSnapshot, type GrantConversion } from "@cup/conversion-grants";
+import type { ConversionDetail } from "@cup/web-app-api.routes";
 
 export type GetGrantConversionDependencies = {
   getConversion(conversionId: string): Promise<GrantConversion | undefined>;

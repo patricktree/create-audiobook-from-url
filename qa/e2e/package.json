@@ -1,5 +1,5 @@
 {
-  "name": "@create-audiobook-from-url/e2e",
+  "name": "@cup/e2e",
   "private": true,
   "type": "module",
   "imports": {
@@ -21,16 +21,16 @@
     "turbo:test": "vitest run"
   },
   "dependencies": {
-    "@create-audiobook-from-url/api-server": "workspace:*",
-    "@create-audiobook-from-url/audiobook-production": "workspace:*",
-    "@create-audiobook-from-url/cloudflare-worker": "workspace:*",
-    "@create-audiobook-from-url/conversion-grants": "workspace:*",
-    "@create-audiobook-from-url/create-audiobook-from-url-workflow": "workspace:*",
-    "@create-audiobook-from-url/narration-content-selection": "workspace:*",
-    "@create-audiobook-from-url/prepare-source-material": "workspace:*"
+    "@cup/api-server": "workspace:*",
+    "@cup/audiobook-production": "workspace:*",
+    "@cup/cloudflare-worker": "workspace:*",
+    "@cup/conversion-grants": "workspace:*",
+    "@cup/create-audiobook-from-url-workflow": "workspace:*",
+    "@cup/narration-content-selection": "workspace:*",
+    "@cup/prepare-source-material": "workspace:*"
   },
   "devDependencies": {
-    "@create-audiobook-from-url/config-oxlint": "workspace:*",
+    "@cup/config-oxlint": "workspace:*",
     "@patricktree-stack/config-playwright": "workspace:*",
     "@patricktree-stack/config-typescript": "workspace:*",
     "@patricktree-stack/config-vitest": "workspace:*",

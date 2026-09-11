@@ -1,5 +1,5 @@
 {
-  "name": "@create-audiobook-from-url/conversion-grants",
+  "name": "@cup/conversion-grants",
   "private": true,
   "files": [
     "src/**"
@@ -45,7 +45,7 @@
     "zod": "^4.5.4"
   },
   "devDependencies": {
-    "@create-audiobook-from-url/config-oxlint": "workspace:*",
+    "@cup/config-oxlint": "workspace:*",
     "@patricktree-stack/config-typescript": "workspace:*",
     "@patricktree-stack/config-vitest": "workspace:*",
     "@types/node": "catalog:",

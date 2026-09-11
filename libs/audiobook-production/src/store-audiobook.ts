@@ -1,7 +1,7 @@
 import { z } from "zod";
 
-import { SYNCHRONIZATION_UNIT_SCHEMA } from "@create-audiobook-from-url/narration-document-creation";
-import type { NarrationDocument } from "@create-audiobook-from-url/narration-document-creation";
+import { SYNCHRONIZATION_UNIT_SCHEMA } from "@cup/narration-document-creation";
+import type { NarrationDocument } from "@cup/narration-document-creation";
 
 import type { AudioReference } from "#src/assemble-audiobook.ts";
 import { AUDIOBOOK_CONTENT_TYPE, AUDIOBOOK_MANIFEST_CONTENT_TYPE } from "#src/audio-format.ts";

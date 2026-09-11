@@ -1,6 +1,6 @@
 import { expect, test } from "vitest";
 
-import type { StartGrantConversionResult } from "@create-audiobook-from-url/conversion-grants";
+import type { StartGrantConversionResult } from "@cup/conversion-grants";
 
 import {
   startAudiobookConversion,
