@@ -102,18 +102,28 @@ export const cssBase = css`
       --color-black: hsl(var(--color-black-hsl));
       --color-fg: var(--color-black);
       --color-bg: var(--color-white);
+      --color-input-bg: #fff;
+      --color-surface-translucent: rgb(255 255 255 / 24%);
+      --color-fill-track: #cec8d0;
       --color-error: #b42318;
       --color-primary-hsl: 291 98% 39%;
       --color-primary: hsl(var(--color-primary-hsl));
       --color-fg-emphasized-sm: hsl(var(--color-black-hsl) / 65%);
       --color-fg-emphasized-xs: hsl(var(--color-black-hsl) / 45%);
 
+      --font-size-sm: 14px;
+      --font-size-md: 16px;
+      --font-size-lg: 18px;
+      --font-size-display: 36px;
+      --font-weight-inter-figma-medium: 500;
+      --line-height-display: 55px;
+
       --spacing-base: 8px;
       --app-padding-block: var(--spacing-base);
       --app-padding-inline: calc(2 * var(--spacing-base));
       --app-max-width: 800px;
 
-      --border-radius-md: 4px;
+      --border-radius-lg: 24px;
     }
 
     ::selection {

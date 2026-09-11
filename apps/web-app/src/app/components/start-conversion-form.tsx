@@ -4,6 +4,7 @@ import React from "react";
 
 import { type GrantSnapshot, startConversionRequestSchema } from "@cup/web-app-api.routes";
 
+import { MovingEllipse } from "#src/app/components/moving-ellipse.js";
 import { useAppForm } from "#src/app/form.js";
 import { useStartConversionMutation } from "#src/data-fetching/trial-link.js";
 import { subscribeToSharedUrl } from "#src/platform/share-intake.js";
@@ -38,7 +39,13 @@ export function StartConversionForm({ grant }: { grant: GrantSnapshot }): React.
   return (
     <form
       className={css`
+        position: relative;
         display: grid;
+        gap: calc(3 * var(--spacing-base));
+        padding-block: calc(5 * var(--spacing-base));
+        padding-inline: calc(2 * var(--spacing-base));
+        background: var(--color-surface-translucent);
+        border-radius: var(--border-radius-lg);
       `}
       onSubmit={(event) => {
         event.preventDefault();
@@ -46,18 +53,24 @@ export function StartConversionForm({ grant }: { grant: GrantSnapshot }): React.
         void form.handleSubmit();
       }}
     >
+      <MovingEllipse />
       <form.AppForm>
         <form.AppField name="sourceUrl">
           {(field) => (
             <field.TextField
               sx={{
-                label: css`
-                  margin-block-end: 32px;
-                `,
                 input: css`
-                  /* Reveal the animated page glow only through the transparent border. */
-                  background: var(--color-bg) padding-box;
+                  height: 64px;
+                  padding-inline: 24px;
+                  font-family: var(--font-family-1);
+                  font-size: var(--font-size-md);
+                  /* Reveal the moving ellipse only through the transparent border. */
+                  background: var(--color-input-bg) padding-box;
                   backdrop-filter: saturate(6);
+
+                  &::placeholder {
+                    color: var(--color-fg-emphasized-sm);
+                  }
                 `,
               }}
               label="URL"
@@ -76,7 +89,7 @@ export function StartConversionForm({ grant }: { grant: GrantSnapshot }): React.
             `,
           }}
           disabledWhenPristine
-          label="Turn into audio"
+          label="Load & listen"
         />
       </form.AppForm>
     </form>

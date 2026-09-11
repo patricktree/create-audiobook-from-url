@@ -60,7 +60,7 @@ test("delivers share URLs to the form and preserves trial credentials", async ({
     }, value);
   }
   await expect(input).toHaveValue("https://example.com/second");
-  await expect(page.getByRole("button", { name: "Turn into audio" })).toBeEnabled();
+  await expect(page.getByRole("button", { name: "Load & listen" })).toBeEnabled();
   await page.evaluate(() => {
     window.dispatchEvent(
       new CustomEvent("test-share", {

@@ -1,4 +1,3 @@
-import { Progress } from "@base-ui/react/progress";
 import { css } from "@linaria/core";
 import { useSuspenseQuery } from "@tanstack/react-query";
 import {
@@ -9,10 +8,12 @@ import {
 } from "@tanstack/react-router";
 import React from "react";
 
+import cupMaskUrl from "@cup/brand-assets/cup.svg?no-inline";
 import { ConversionPhase, conversionPhaseOrder } from "@cup/conversion-grants/contracts";
 
 import { ErrorMessage } from "#src/app/components/error-message.js";
-import { MainSection, SuperHeader } from "#src/app/components/main-components.js";
+import { MainSection } from "#src/app/components/main-components.js";
+import { MovingEllipse } from "#src/app/components/moving-ellipse.js";
 import { DSButton } from "#src/app/design-system/button.js";
 import { createConversionQuery } from "#src/data-fetching/trial-link.js";
 
@@ -45,18 +46,14 @@ function ConversionPage(): React.JSX.Element {
     );
   }
 
+  if (conversionQuery.data.status === "pending") {
+    return <PendingConversionProgress lastStartedPhase={conversionQuery.data.lastStartedPhase} />;
+  }
+
   return (
     <MainSection>
-      <SuperHeader />
-
-      {conversionQuery.data.status === "pending" ? (
-        <PendingConversionProgress lastStartedPhase={conversionQuery.data.lastStartedPhase} />
-      ) : (
-        <>
-          <span>Failed!</span>
-          <span>{conversionQuery.data.failure.explanation}</span>
-        </>
-      )}
+      <span>Failed!</span>
+      <span>{conversionQuery.data.failure.explanation}</span>
     </MainSection>
   );
 }
@@ -66,78 +63,63 @@ function PendingConversionProgress({
 }: {
   lastStartedPhase: ConversionPhase;
 }): React.JSX.Element {
-  const lastStartedPhaseIndex = conversionPhaseOrder.indexOf(lastStartedPhase);
-  const workflowProgress = ((lastStartedPhaseIndex + 1) / conversionPhaseOrder.length) * 100;
+  const completedPhases = conversionPhaseOrder.indexOf(lastStartedPhase);
+  const filledPercentage = ((completedPhases + 1) / conversionPhaseOrder.length) * 100;
 
   return (
-    <Progress.Root
-      className={css`
-        display: grid;
-        gap: calc(2 * var(--spacing-base));
-      `}
-      value={workflowProgress}
-    >
-      <Progress.Track
+    <>
+      <MovingEllipse />
+      <div
         className={css`
-          height: var(--spacing-base);
-
-          overflow: hidden;
-          background-color: hsl(var(--color-black-hsl) / 10%);
-          border-radius: 999px;
+          display: grid;
+          gap: calc(6 * var(--spacing-base));
+          justify-items: center;
         `}
       >
-        <Progress.Indicator
+        <div
           className={css`
             position: relative;
-            height: 100%;
+            width: 170px;
+            height: 100px;
+            background: var(--color-fill-track);
+            mask-repeat: no-repeat;
+            mask-position: 72.16% 68.86%;
+            /* Fit the brand asset's painted bounds (70, 157)–(431, 387) to the loading indicator. */
+            mask-size: 126.87% 199.13%;
 
-            overflow: hidden;
-            background: linear-gradient(
-              90deg,
-              color-mix(in srgb, var(--color-primary), var(--color-black) 35%),
-              color-mix(in srgb, var(--color-primary), var(--color-white) 18%)
-            );
-            border-radius: inherit;
-
-            &::after {
+            & > span {
               position: absolute;
-              inset-block: 0;
-              left: 0;
-              width: 50%;
-              content: "";
-              background: linear-gradient(
-                90deg,
-                transparent,
-                color-mix(in srgb, var(--color-white) 45%, transparent),
-                transparent
-              );
-              transform: translateX(-100%);
-              animation: progress-indicator-pulse 2s ease-in-out infinite;
-            }
-
-            @keyframes progress-indicator-pulse {
-              to {
-                transform: translateX(200%);
-              }
+              inset: 0;
+              background: var(--color-primary);
+              transition: transform 300ms ease;
             }
 
             @media (prefers-reduced-motion: reduce) {
-              &::after {
-                animation: none;
+              & > span {
+                transition: none;
               }
             }
           `}
-        />
-      </Progress.Track>
-      <Progress.Label
-        className={css`
-          font-size: 18px;
-          color: var(--color-fg-emphasized-sm);
-        `}
-      >
-        {CONVERSION_PHASE_LABELS[lastStartedPhase]}...
-      </Progress.Label>
-    </Progress.Root>
+          style={{
+            maskImage: `url("${cupMaskUrl}")`,
+          }}
+          aria-hidden="true"
+          data-testid="cup-fill"
+        >
+          <span style={{ transform: `translateY(${100 - filledPercentage}%)` }} />
+        </div>
+        <output
+          aria-live="polite"
+          className={css`
+            font-family: var(--font-family-2);
+            font-size: var(--font-size-lg);
+            color: var(--color-fg-emphasized-sm);
+          `}
+        >
+          {CONVERSION_PHASE_LABELS[lastStartedPhase]}...
+        </output>
+      </div>
+    </>
   );
 }
 

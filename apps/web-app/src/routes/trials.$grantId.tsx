@@ -1,3 +1,4 @@
+import { css } from "@linaria/core";
 import { check } from "@patricktree-stack/utils-ecma/assert.utils";
 import { useSuspenseQuery } from "@tanstack/react-query";
 import {
@@ -10,7 +11,6 @@ import React from "react";
 
 import { appIdentity } from "#src/app-identity.js";
 import { ErrorMessage } from "#src/app/components/error-message.js";
-import { MainSection, SuperHeader } from "#src/app/components/main-components.js";
 import { StartConversionForm } from "#src/app/components/start-conversion-form.js";
 import { DSButton } from "#src/app/design-system/button.js";
 import {
@@ -55,10 +55,39 @@ function TrialPage(): React.JSX.Element {
   const grantQuery = useSuspenseQuery(createGrantQuery(grantId));
 
   return (
-    <MainSection>
-      <SuperHeader />
+    <div
+      className={css`
+        display: grid;
+        gap: calc(3 * var(--spacing-base));
+        width: 100%;
+      `}
+    >
+      <header
+        className={css`
+          text-align: center;
+        `}
+      >
+        <p
+          className={css`
+            font-family: var(--font-family-2);
+            font-size: var(--font-size-lg);
+            color: var(--color-fg-emphasized-sm);
+          `}
+        >
+          No reading lists, no tldr.
+        </p>
+        <h1
+          className={css`
+            font-size: var(--font-size-display);
+            font-weight: var(--font-weight-inter-figma-medium);
+            line-height: var(--line-height-display);
+          `}
+        >
+          Just listen.
+        </h1>
+      </header>
       <StartConversionForm grant={grantQuery.data} />
-    </MainSection>
+    </div>
   );
 }
 

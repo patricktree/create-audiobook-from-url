@@ -41,7 +41,7 @@ test("fills the form from a cold-start share and accepts repeat shares without s
 
   const input = component.getByRole("textbox", { name: "URL", exact: true });
   await expect(input).toHaveValue("https://example.com/first?from=share");
-  await expect(component.getByRole("button", { name: "Turn into audio" })).toBeEnabled();
+  await expect(component.getByRole("button", { name: "Load & listen" })).toBeEnabled();
 
   await input.fill("https://example.com/manual-edit");
   await page.evaluate(() => {
@@ -53,5 +53,5 @@ test("fills the form from a cold-start share and accepts repeat shares without s
     window.dispatchEvent(new CustomEvent("test-share", { detail: "plain text without a URL" }));
   });
   await expect(input).toHaveValue("https://example.com/second");
-  await expect(component.getByRole("button", { name: "Turn into audio" })).toBeEnabled();
+  await expect(component.getByRole("button", { name: "Load & listen" })).toBeEnabled();
 });

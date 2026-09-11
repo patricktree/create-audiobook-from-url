@@ -5,7 +5,7 @@ test("renders an open Trial", async ({ mount }) => {
 
   await expect(component.getByRole("heading", { name: "Just listen." })).toBeVisible();
   await expect(component.getByRole("textbox", { name: "URL", exact: true })).toBeVisible();
-  await expect(component.getByRole("button", { name: "Turn into audio" })).toBeDisabled();
+  await expect(component.getByRole("button", { name: "Load & listen" })).toBeDisabled();
   await expect(component).toHaveScreenshot("open-trial.png");
 });
 
@@ -50,7 +50,7 @@ test("renders an invalid source URL", async ({ mount }) => {
     "aria-invalid",
     "true",
   );
-  await expect(component.getByRole("button", { name: "Turn into audio" })).toBeDisabled();
+  await expect(component.getByRole("button", { name: "Load & listen" })).toBeDisabled();
   await expect(component).toHaveScreenshot("invalid-article-url.png");
 });
 
@@ -59,8 +59,8 @@ test("renders a pending conversion start", async ({ mount }) => {
   await component
     .getByRole("textbox", { name: /^URL/ })
     .fill("https://source.example.test/fixture");
-  await component.getByRole("button", { name: "Turn into audio" }).click();
-  await expect(component.getByRole("button", { name: "Turn into audio" })).toBeDisabled();
+  await component.getByRole("button", { name: "Load & listen" }).click();
+  await expect(component.getByRole("button", { name: "Load & listen" })).toBeDisabled();
   await expect(component.getByRole("textbox", { name: /^URL/ })).toHaveValue(
     "https://source.example.test/fixture",
   );

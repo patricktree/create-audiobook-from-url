@@ -27,9 +27,12 @@ export const DSButton: React.FC<DSButtonProps> = ({
     <BaseUIButton
       className={composeClassnames(
         css`
-          padding-block: calc(1.5 * var(--spacing-base));
-          padding-inline: calc(2 * var(--spacing-base));
+          min-height: 48px;
+          padding-block: calc(2 * var(--spacing-base));
+          padding-inline: calc(3 * var(--spacing-base));
 
+          font-size: var(--font-size-sm);
+          font-weight: var(--font-weight-inter-figma-medium);
           color: inherit;
           background-color: transparent;
           border: 0;
@@ -49,7 +52,7 @@ export const DSButton: React.FC<DSButtonProps> = ({
           }
 
           &[data-variant="contained"] {
-            color: var(--color-bg);
+            color: var(--color-input-bg);
             background-color: var(--color-primary);
           }
         `,
