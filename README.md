@@ -71,14 +71,3 @@ Cup produces MP3 audio, WebVTT captions, and EPUB 3 documents with Media Overlay
 ## Development
 
 See [./AGENTS.md](./AGENTS.md).
-
-### Environment setup
-
-Run `pnpm install` first. On a fresh checkout, dependencies install but the postinstall check fails until you create `apps/cloudflare-worker/.env.local` and `libs/narration-content-selection/.env.evals` with matching `CLOUDFLARE_ACCOUNT_ID` and `CLOUDFLARE_API_KEY` values:
-
-```sh
-node tooling/env-setup/src/cli.ts setup --from /absolute/path/to/existing.env
-pnpm install
-```
-
-Use an existing credentials file or another checkout’s env file as the source. Alternatively, export `CLOUDFLARE_ACCOUNT_ID` and `CLOUDFLARE_API_KEY` and run `node tooling/env-setup/src/cli.ts setup` without `--from`. Use Node for this bootstrap step: pnpm can trigger installation and fail the postinstall check before running setup. Setup preserves existing files; both files are ignored by Git. Run `pnpm run env:check` to check them manually; postinstall and `pnpm validate` also check them.
