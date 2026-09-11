@@ -9,7 +9,7 @@ import {
 
 import { useAppForm } from "#src/app/form.js";
 import { useStartConversionMutation } from "#src/data-fetching/trial-link.js";
-import { subscribeToSharedUrl } from "#src/platform/share-plugin.android.js";
+import { subscribeToSharedUrl } from "#src/platform/share-intake.js";
 
 export function StartConversionForm({ grant }: { grant: GrantSnapshot }): React.JSX.Element {
   const navigate = useNavigate();

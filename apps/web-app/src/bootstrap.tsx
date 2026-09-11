@@ -7,6 +7,7 @@ import { appIdentity } from "#src/app-identity.js";
 import { AppStyles } from "#src/app/app-styles.js";
 import { createAppRouter, GlobalProviders } from "#src/app/global-providers.js";
 import { initializeAndroidAppLinks } from "#src/platform/app-links.android.js";
+import { initializeIosIncomingUrls } from "#src/platform/incoming-urls.ios.js";
 import { initializeAndroidShare } from "#src/platform/share-plugin.android.js";
 
 const rootElement = document.getElementById("root");
@@ -31,15 +32,22 @@ await Promise.all([
   initializeAndroidAppLinks((href) => router.history.push(href)).catch((error: unknown) => {
     console.error("Failed to initialize Android App Links", error);
   }),
-  initializeAndroidShare(() => {
-    const settings = appIdentity.load();
-    if (settings !== null) {
-      void router.navigate({ to: "/trials/$grantId", params: { grantId: settings.lastGrantId } });
-    }
-  }).catch((error: unknown) => {
+  initializeAndroidShare(openLastGrant).catch((error: unknown) => {
     console.error("Failed to initialize Android share intake", error);
   }),
+  initializeIosIncomingUrls((href) => router.history.push(href), openLastGrant).catch(
+    (error: unknown) => {
+      console.error("Failed to initialize iOS incoming URL handling", error);
+    },
+  ),
 ]);
+
+function openLastGrant(): void {
+  const settings = appIdentity.load();
+  if (settings !== null) {
+    void router.navigate({ to: "/trials/$grantId", params: { grantId: settings.lastGrantId } });
+  }
+}
 
 ReactDOM.createRoot(rootElement).render(
   <React.StrictMode>

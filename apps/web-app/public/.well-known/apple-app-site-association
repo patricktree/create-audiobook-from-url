@@ -1,0 +1,19 @@
+{
+  "applinks": {
+    "details": [
+      {
+        "appIDs": [
+          "RB5L233MY4.me.patricktree.createaudiobookfromurl"
+        ],
+        "components": [
+          {
+            "/": "/app"
+          },
+          {
+            "/": "/app/*"
+          }
+        ]
+      }
+    ]
+  }
+}

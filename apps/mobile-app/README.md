@@ -76,3 +76,25 @@ Both clients exchange trial credentials for persistent Secure, HttpOnly cookies.
 Native mutations omit Origin and must include the existing custom request header and JSON content type. Browser mutations must have a matching Origin; cross-site Fetch Metadata is rejected. No cross-origin browser CORS access is enabled.
 
 Capacitor's native HTTP response headers can expose Set-Cookie to JavaScript, so HttpOnly does not provide the same isolation as browser networking.
+
+## iOS Share Extension
+
+The iOS app bundles `CupShare.appex`, displayed as **Cup** in Safari and Chrome's Share Sheets. Share a web URL or text containing an HTTP(S) URL, then tap **Open in Cup** to open the main app and prefill the conversion form. Cup trial links open their app route, including the credential exchange.
+
+The handoff uses `cup-audio://share?url=<encoded-url>`. Cup links under `https://cup-audio.com/app` open their corresponding app route, preserving trial credential fragments. Other HTTP(S) URLs prefill the conversion form for the last authorized trial without submitting it. If no trial has been authorized, the URL remains pending in memory until a form opens; closing the app discards it.
+
+The extension uses the same responder-chain URL-opening approach as Chromium, calling `openURL:options:completionHandler:` dynamically. Apple does not support this handoff from Share Extensions; test it after iOS updates. A failed handoff stays in the extension with an error and retry button. The extension does not start conversions or access session cookies.
+
+Build the App scheme with a local `DEVELOPMENT_TEAM` override; it builds, signs, and embeds the extension. Both bundle identifiers need provisioning: `me.patricktree.createaudiobookfromurl` and `me.patricktree.createaudiobookfromurl.share`. Verify Safari and Chrome sharing with Cup terminated and already running, cancellation, repeated shares, URLs containing `&`, `+`, or fragments, and trial links. If Cup is hidden, look under More in the Share Sheet's app row.
+
+## iOS Universal Links
+
+The App target includes the Associated Domains entitlement for `applinks:cup-audio.com`. HTTPS links to `/app` and `/app/…` navigate to the corresponding app route on cold and warm launches, preserving query parameters and trial credential fragments. Other domains, credentials in the URL authority, and routes outside `/app` are rejected by the iOS intake handler.
+
+Deploy `apps/web-app/public/.well-known/apple-app-site-association` together with `apps/web-app/public/_headers` so `https://cup-audio.com/.well-known/apple-app-site-association` returns JSON with status 200 and no redirect. The association currently contains the application identifier from Patrick's locally signed app. Before using another signing team, replace its app ID prefix with the application identifier prefix from that team's signed app or provisioning profile. Do not put a local development-team override into the Xcode project.
+
+Associated Domains requires a signing team enrolled in the Apple Developer Program. The current Personal Team cannot provision this capability; Xcode rejects the signed build until an eligible team is selected. An unsigned build can validate native compilation, but cannot verify Universal Links on an iPad.
+
+After deploying the association and signing with an eligible team, reinstall Cup so iOS fetches the association. Apple caches the association through its CDN, so server deployment alone may not update existing devices immediately. Test a trial link from Keep or Notes with Cup closed and already running; verify that it opens the trial and exchanges its credential. Then share an article from Safari and Chrome and verify that the URL appears in that trial's conversion form without submitting it. Browser-specific link handling can affect whether a tap hands control to iOS; use Apple's Universal Links diagnostics if a verified association still opens the browser.
+
+See [Apple's Universal Links troubleshooting](https://developer.apple.com/documentation/technotes/tn3155-debugging-universal-links/).
