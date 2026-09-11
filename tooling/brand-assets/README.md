@@ -7,13 +7,13 @@ Edit `assets/cup.svg` for the native app icons, splash screens, web favicon, and
 From the repository root:
 
 ```sh
-pnpm --filter '@cup/web-app' exec cup-brand-assets-cli sync
-pnpm --filter '@cup/web-app' exec cup-brand-assets-cli check
+pnpm brand-assets:sync
+pnpm brand-assets:check
 ```
 
-The web and mobile apps declare `@cup/brand-assets` as a workspace dev dependency and invoke its `cup-brand-assets-cli` binary. Run `cup-brand-assets-cli check` to check without writing. Turbo follows these package dependencies to invalidate consumer builds when the generator or artwork changes.
+The root commands delegate to the `@cup/brand-assets` package and cover web, Android, and iOS assets together. The web and mobile apps consume the checked-in outputs without depending on the generator.
 
-The web build and native sync regenerate assets automatically. Repository validation runs `cup-brand-assets-cli check` first and fails when checked-in outputs differ from the sources. Regenerate before validating a source change.
+The web build and native sync use checked-in assets without regenerating them. `pnpm validate:extended` checks assets without writing and reports stale paths with the repair command. Run `pnpm brand-assets:sync` after changing a source and review the generated changes before validation.
 
 The generator also creates Android's `drawable-v24/ic_launcher_foreground.xml`. Its SVG-to-vector conversion supports paths with explicit six-digit hex fills and rejects unsupported SVG features. The raster renderer preserves the complete SVG. Extend vector conversion before introducing shapes or effects that Android cannot currently reproduce.
 

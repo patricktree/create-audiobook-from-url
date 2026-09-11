@@ -102,7 +102,7 @@ ${vectors.join("\n")}
 
   if (stale.length)
     throw new Error(
-      `Brand assets are out of date. Run pnpm --filter '@cup/web-app' exec cup-brand-assets-cli sync:\n${stale.join("\n")}`,
+      `Brand assets are out of date:\n${stale.join("\n")}\nRun pnpm brand-assets:sync from the repository root, then rerun pnpm brand-assets:check.`,
     );
   console.log(
     check ? "Brand assets are up to date." : "Generated web, Android, and iOS brand assets.",

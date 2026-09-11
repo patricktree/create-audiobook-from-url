@@ -16,12 +16,12 @@ The first test run downloads the pinned Playwright Docker image. Later runs reus
 From the repository root, run:
 
 ```sh
-pnpm run test:e2e
+pnpm run test:e2e:app
 ```
 
 This command builds the workspace and runs the tests with at most two parallel workers. Each test starts an isolated Wrangler process with its own port and persistence directory.
 
-The E2E suite is intentionally separate from `pnpm validate`. It is slower and requires Docker.
+This suite runs in `pnpm validate:extended` and `pnpm validate`. The root `pnpm test:e2e` command runs this suite followed by the live source-material extraction suite.
 
 Routing tests exercise the built Worker: redirect statuses and targets, browser navigation from `/` and `/app`, credential exchange after a legacy trial redirect, query preservation, refresh, `/app/` asset loading, domain association delivery, and 404 responses for retired routes and missing assets. The credential test uses a real browser because fragments are not sent in HTTP requests.
 
@@ -42,7 +42,7 @@ Review every changed image under `qa/e2e/snapshots` before accepting it. Screens
 Run Playwright's debug mode from the repository root:
 
 ```sh
-pnpm run test:e2e --debug
+pnpm run test:e2e:app --debug
 ```
 
 Debug mode uses the locally installed browser instead of the Docker browser. Its snapshots have a platform-specific suffix and do not replace the Docker reference images.
@@ -50,7 +50,7 @@ Debug mode uses the locally installed browser instead of the Docker browser. Its
 Playwright writes reports, traces, and failure screenshots to `qa/e2e/playwright-output`. To keep a failed test's Wrangler persistence directory for inspection, run:
 
 ```sh
-E2E_RETAIN_STATE=1 pnpm run test:e2e
+E2E_RETAIN_STATE=1 pnpm run test:e2e:app
 ```
 
 The report contains an attachment with the retained directory path.

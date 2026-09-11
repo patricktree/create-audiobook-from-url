@@ -3,7 +3,7 @@
   "private": true,
   "scripts": {
     "build": "turbo run turbo:build && pnpm run native:sync",
-    "native:sync": "cup-brand-assets-cli sync && CUP_NATIVE_PLATFORM=android cap sync android && CUP_NATIVE_PLATFORM=ios cap sync ios",
+    "native:sync": "CUP_NATIVE_PLATFORM=android cap sync android && CUP_NATIVE_PLATFORM=ios cap sync ios",
     "turbo:build": "tsc --build --noEmit"
   },
   "dependencies": {
@@ -15,7 +15,6 @@
   },
   "devDependencies": {
     "@capacitor/cli": "^8.5.1",
-    "@cup/brand-assets": "workspace:*",
     "@patricktree-stack/config-typescript": "workspace:*",
     "@types/node": "catalog:",
     "@typescript/native": "catalog:",

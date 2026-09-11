@@ -10,15 +10,6 @@ import {
 
 const SOURCE_PAGES = [
   {
-    snapshotFilename: "derstandard.html",
-    stabilizeSourceMaterial: (html: string) =>
-      html.replace(
-        /(<em>Forum: <\/em>)\d+( <span class="sr-only">Postings<\/span>)/,
-        "$1[posting count]$2",
-      ),
-    url: "https://www.derstandard.at/story/3000000335948/milliarden-fuer-die-landwirtschaft-warum-oesterreich-dennoch-kein-bauernparadies-ist?ref=seite1_zonekur",
-  },
-  {
     snapshotFilename: "anthropic.html",
     stabilizeSourceMaterial: (html: string) =>
       html.replace(

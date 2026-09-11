@@ -39,8 +39,7 @@ Each stage has an explicit timeout and retry policy, and independently generated
 - **Cloudflare Workflows** orchestrates long-running conversions, retries, and terminal outcomes.
 - **Cloudflare R2** stores audio segments, assembled MP3 files, audiobook manifests, and generated exports.
 - **Cloudflare Zero Trust Access** protects operator routes.
-- **Cloudflare Workers AI** runs the open-source text-to-text model that selects narration content. The application calls its OpenAI-compatible API through the OpenAI SDK.
-- **Cloudflare AI Gateway** routes Google AI Studio text-to-speech requests and records logs and request metadata.
+- **Cloudflare AI Gateway** routes Google AI Studio narration selection and text-to-speech requests and records logs and request metadata.
 
 ## Technology Stack
 

@@ -23,8 +23,10 @@ This Worker uses:
 | Workflows         | <https://developers.cloudflare.com/workflows/>             |
 | Durable Objects   | <https://developers.cloudflare.com/durable-objects/>       |
 | R2                | <https://developers.cloudflare.com/r2/>                    |
-| Workers AI        | <https://developers.cloudflare.com/workers-ai/>            |
+| AI Gateway        | <https://developers.cloudflare.com/ai-gateway/>            |
 | Browser Rendering | <https://developers.cloudflare.com/browser-rendering/>     |
+
+Narration selection and speech synthesis use Google AI Studio through AI Gateway. Keep the Wrangler `AI` binding: speech synthesis uses `env.AI.gateway(...).run(...)` to access AI Gateway, even though the application does not use Workers AI models. See [AI Gateway Worker bindings](https://developers.cloudflare.com/ai-gateway/usage/worker-binding-methods/).
 
 For design changes, consult the current best-practice documentation:
 

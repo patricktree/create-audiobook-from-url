@@ -13,20 +13,29 @@ git submodule update --init --recursive
 pnpm install
 ```
 
-Dependencies then install, but the postinstall check fails until you create `apps/cloudflare-worker/.env.local` and `libs/narration-content-selection/.env.evals` with matching `CLOUDFLARE_ACCOUNT_ID` and `CLOUDFLARE_API_KEY` values:
+Cloudflare credentials are required for application development, including AI calls. The postinstall check fails until `apps/cloudflare-worker/.env.local` and `libs/narration-content-selection/.env.evals` contain matching `CLOUDFLARE_ACCOUNT_ID` and `CLOUDFLARE_API_KEY` values. After the initial installation attempt, configure them and retry:
 
 ```sh
 node tooling/env-setup/src/cli.ts setup --from /absolute/path/to/existing.env
 pnpm install
 ```
 
-Use an existing credentials file or another checkout’s env file as the source. Alternatively, export `CLOUDFLARE_ACCOUNT_ID` and `CLOUDFLARE_API_KEY` and run `node tooling/env-setup/src/cli.ts setup` without `--from`. Use Node for this bootstrap step: pnpm can trigger installation and fail the postinstall check before running setup. Setup preserves existing files; both files are ignored by Git. Run `pnpm run env:check` to check them manually; postinstall and `pnpm validate` also check them.
+Use an existing credentials file or another checkout’s env file as the source. Alternatively, export `CLOUDFLARE_ACCOUNT_ID` and `CLOUDFLARE_API_KEY` and run setup without `--from`. Setup preserves existing files; both files are ignored by Git. Use Node for this bootstrap step because pnpm can trigger installation before setup. `pnpm env:check` checks that both files are configured and match; postinstall and fast validation also run it. This checks local configuration without making paid API calls.
 
-## Commands
+## Validation
 
-| Task                    | Command         |
-| ----------------------- | --------------- |
-| Validate the repository | `pnpm validate` |
+Run `pnpm validate:fast` as needed during development. Shipping to production means pushing to `main`, the default branch. Run `pnpm validate` to complete both fast and extended checks on the changes being shipped. The pre-commit hook runs only the fast group; the pre-push hook runs extended validation when a push updates `main`.
+
+| Command                  | Scope                                                                                                        |
+| ------------------------ | ------------------------------------------------------------------------------------------------------------ |
+| `pnpm validate:fast`     | Environment check, format check, build/typecheck, lint, and existing tests including browser component tests |
+| `pnpm validate:extended` | Declutter, brand-assets check, authenticated online zizmor, and both E2E suites                              |
+| `pnpm validate`          | Fast, then extended                                                                                          |
+| `pnpm validate:evals`    | Paid narration-content-selection evals; invoke explicitly                                                    |
+
+The groups are independent and stop on failure. Extended does not run the fast group. Both free groups require Docker; extended also needs internet access, `uvx`, and GitHub CLI authentication for zizmor. Live source-material E2E tests can fail when external pages change or become unavailable. Fast validation requires the configured environment files but does not invoke paid AI services.
+
+Use `pnpm test:e2e:app` or `pnpm test:e2e:source-material` to rerun a single E2E suite. `pnpm test:e2e` runs both. Builds use checked-in brand assets; after changing their sources, run `pnpm brand-assets:sync` and review the generated changes. `pnpm brand-assets:check` reports stale files without modifying them.
 
 ## Repository References
 

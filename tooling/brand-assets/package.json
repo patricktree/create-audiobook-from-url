@@ -14,8 +14,10 @@
   },
   "scripts": {
     "build": "turbo run turbo:build",
+    "check": "node src/cli.ts check",
     "lint": "turbo run turbo:lint",
     "lint:fix": "turbo run turbo:lint:fix",
+    "sync": "node src/cli.ts sync",
     "turbo:build": "tsc --build ./tsconfig.json",
     "turbo:lint": "oxlint --type-aware --max-warnings 0 .",
     "turbo:lint:fix": "pnpm run turbo:lint --fix"

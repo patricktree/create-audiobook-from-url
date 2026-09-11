@@ -103,4 +103,4 @@ See [Apple's Universal Links troubleshooting](https://developer.apple.com/docume
 
 ## Brand assets
 
-Edit the canonical artwork in `tooling/brand-assets/assets/` at the repository root. Run `pnpm --filter '@cup/web-app' exec cup-brand-assets-cli sync` to regenerate native icons, splash images, and web assets. Native sync runs generation automatically. See [the brand asset guide](../../tooling/brand-assets/README.md) for sources, sizing, and validation.
+Edit the canonical artwork in `tooling/brand-assets/assets/` at the repository root. Run `pnpm brand-assets:sync` to regenerate native icons, splash images, and web assets, then review the generated changes. Native sync uses the checked-in brand assets without regenerating them. See [the brand asset guide](../../tooling/brand-assets/README.md) for sources, sizing, and validation.

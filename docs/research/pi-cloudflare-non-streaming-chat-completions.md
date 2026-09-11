@@ -2,6 +2,8 @@
 
 Research date: 2026-08-27
 
+Historical research: this note describes the Pi/Workers AI implementation and alternatives evaluated at that date. Its repository-specific recommendations are superseded by [the Gemini selection decision](../adr/0002-use-gemini-for-narration-content-selection.md). Production narration selection now uses the OpenAI SDK with Google AI Studio through Cloudflare AI Gateway in `libs/narration-content-selection/src/gemini-completion.ts`.
+
 ## Question
 
 Does the latest `@earendil-works/pi-ai` SDK support a one-shot, non-SSE OpenAI-compatible `POST /chat/completions` request through its built-in Cloudflare Workers AI or Cloudflare AI Gateway providers?

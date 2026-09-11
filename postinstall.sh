@@ -1,7 +1,7 @@
 #!/bin/sh
 set -e
 
-pnpm --filter env-setup env:check
+pnpm run env:check
 
 if [ "${CI}" = "true" ]; then
     # in CI/CD (i.e. GitHub Actions runners and Docker builds), we are finished

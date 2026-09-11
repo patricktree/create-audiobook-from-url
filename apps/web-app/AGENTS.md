@@ -18,5 +18,5 @@
 
 ## Commands
 
-- Final validation from the repo root: `pnpm run fix`, then `pnpm run validate`.
+- During development: `pnpm validate:fast` from the repo root. Before pushing to `main` (shipping to production): `pnpm validate`.
 - Run locally through its host: `pnpm --filter '@cup/cloudflare-worker' dev`.

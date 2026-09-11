@@ -31,7 +31,7 @@
   "scripts": {
     "build": "turbo run turbo:build",
     "clean": "del-cli --dot=true \"dist\" \"generated\" \"*.tsbuildinfo\"",
-    "eval": "node --env-file=.env.evals ./node_modules/vitest/vitest.mjs run --config=vitest.evals.config.ts --reporter=default --reporter=vitest-evals/reporter --reporter=json --outputFile.json=generated/evals/vitest-results.json",
+    "eval": "node --env-file-if-exists=.env.evals ./node_modules/vitest/vitest.mjs run --config=vitest.evals.config.ts --reporter=default --reporter=vitest-evals/reporter --reporter=json --outputFile.json=generated/evals/vitest-results.json",
     "eval:report": "vitest-evals serve generated/evals/vitest-results.json",
     "eval:update": "pnpm run eval --update --testNamePattern='^narration content selection production candidate:'",
     "lint": "turbo run turbo:lint",

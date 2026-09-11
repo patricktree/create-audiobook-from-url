@@ -2,11 +2,11 @@
 
 These evals compare the synchronization units produced by narration content selection candidates against committed input and best-output pairs. Each candidate's selected HTML passes through the same narration document creation used by the production workflow. The production candidate is a regression gate. Experimental candidate mismatches are recorded as scores without failing the run.
 
-Live evals call Cloudflare Workers AI through the OpenAI SDK and can incur usage charges. They run separately from the package's unit tests and repository validation.
+Live evals call Gemini through Cloudflare AI Gateway and can incur usage charges. They run separately from the package's unit tests and repository validation.
 
 ## Configure credentials
 
-After the initial dependency installation, run `node tooling/env-setup/src/cli.ts setup --from /absolute/path/to/existing.env` from the repository root to create `.env.evals` and the Worker’s `.env.local` with matching credentials. See the root README for initial setup. The production candidate uses `CLOUDFLARE_ACCOUNT_ID` and `CLOUDFLARE_API_KEY`. An experimental candidate can supply a different `SelectionCompletion` implementation and its required credentials. The local environment file is ignored by Git.
+After the initial dependency installation attempt, run `node tooling/env-setup/src/cli.ts setup --from /absolute/path/to/existing.env` from the repository root to create `.env.evals` and the Worker’s `.env.local` with matching credentials. Then retry `pnpm install`; postinstall checks that both files are configured and match. See the root AGENTS.md for initial setup. The production candidate uses `CLOUDFLARE_ACCOUNT_ID` and `CLOUDFLARE_API_KEY`. An experimental candidate can supply a different `SelectionCompletion` implementation and its required credentials. The local environment file is optional and ignored by Git; you can instead export the required credentials. Evals do not require the Worker’s environment file.
 
 ## Add an eval case
 
@@ -35,7 +35,7 @@ Missing partner files, invalid metadata, and an empty eval case set fail during 
 
 ## Run and update evals
 
-From `libs/narration-content-selection`, run all registered candidates:
+From the repository root, run `pnpm validate:evals`. This paid check is excluded from `pnpm validate`. Alternatively, from `libs/narration-content-selection`, run all registered candidates:
 
 ```sh
 pnpm eval
