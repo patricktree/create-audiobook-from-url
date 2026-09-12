@@ -8,4 +8,4 @@ done <<EOF
 ${push_refs}
 EOF
 
-printf '%s\n' "${push_refs}" | sh .husky/entire.sh pre-push "$@"
+printf '%s\n' "${push_refs}" | sh .husky/entire.sh pre-push "$1"
