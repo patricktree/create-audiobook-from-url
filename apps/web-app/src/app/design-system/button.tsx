@@ -5,7 +5,7 @@ import React from "react";
 import type { MapPropsToRequiredDataAttributeProps } from "#src/app/styling.utils.js";
 import { composeClassnames } from "#src/app/utils.js";
 
-type DSButtonProps = React.ComponentProps<"button"> & DSButtonCustomProps;
+type DSButtonProps = React.ComponentProps<"button"> & DSButtonCustomProps & { isPending?: boolean };
 
 type DSButtonCustomProps = {
   variant?: "outlined" | "contained" | "text";
@@ -16,6 +16,8 @@ type DSButtonDataAttributes = MapPropsToRequiredDataAttributeProps<DSButtonCusto
 /** Shared application button with the supported visual variants. */
 export const DSButton: React.FC<DSButtonProps> = ({
   variant = "outlined",
+  isPending = false,
+  disabled,
   children,
   className,
   style,
@@ -27,6 +29,10 @@ export const DSButton: React.FC<DSButtonProps> = ({
     <BaseUIButton
       className={composeClassnames(
         css`
+          display: inline-flex;
+          gap: var(--spacing-base);
+          align-items: center;
+          justify-content: center;
           min-height: 48px;
           padding-block: calc(2 * var(--spacing-base));
           padding-inline: calc(3 * var(--spacing-base));
@@ -61,7 +67,31 @@ export const DSButton: React.FC<DSButtonProps> = ({
       style={style ?? {}}
       {...dataAttributes}
       {...delegated}
+      disabled={disabled || isPending}
     >
+      {isPending && (
+        <span
+          aria-hidden="true"
+          className={css`
+            width: 1em;
+            height: 1em;
+            border: 2px solid currentcolor;
+            border-right-color: transparent;
+            border-radius: 50%;
+            animation: button-spinner-rotate 0.8s linear infinite;
+
+            @keyframes button-spinner-rotate {
+              to {
+                transform: rotate(360deg);
+              }
+            }
+
+            @media (prefers-reduced-motion: reduce) {
+              animation: none;
+            }
+          `}
+        />
+      )}
       {children}
     </BaseUIButton>
   );

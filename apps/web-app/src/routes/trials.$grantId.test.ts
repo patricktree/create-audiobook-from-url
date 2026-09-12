@@ -60,7 +60,7 @@ test("renders a pending conversion start", async ({ mount }) => {
     .getByRole("textbox", { name: /^URL/ })
     .fill("https://source.example.test/fixture");
   await component.getByRole("button", { name: "Load & listen" }).click();
-  await expect(component.getByRole("button", { name: "Load & listen" })).toBeDisabled();
+  await expect(component.getByRole("button", { name: "Starting conversion..." })).toBeDisabled();
   await expect(component.getByRole("textbox", { name: /^URL/ })).toHaveValue(
     "https://source.example.test/fixture",
   );

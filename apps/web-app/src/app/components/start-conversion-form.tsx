@@ -90,6 +90,7 @@ export function StartConversionForm({ grant }: { grant: GrantSnapshot }): React.
           }}
           disabledWhenPristine
           label="Load & listen"
+          submittingLabel="Starting conversion..."
         />
       </form.AppForm>
     </form>

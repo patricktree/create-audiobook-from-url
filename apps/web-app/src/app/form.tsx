@@ -124,7 +124,8 @@ function SubmitButton({
       {([canSubmit, isPristine, isSubmitting]) => (
         <DSButton
           className={sx?.button}
-          disabled={disabled || !canSubmit || isSubmitting || (disabledWhenPristine && isPristine)}
+          disabled={disabled || !canSubmit || (disabledWhenPristine && isPristine)}
+          isPending={isSubmitting}
           type="submit"
           variant="contained"
         >

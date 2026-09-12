@@ -155,7 +155,7 @@ test("disables duplicate submission while a conversion start is pending", async 
 
   await page.getByLabel("URL").fill(SOURCE_URL);
   await page.getByRole("button", { name: "Load & listen" }).click();
-  await expect(page.getByRole("button", { name: "Load & listen" })).toBeDisabled();
+  await expect(page.getByRole("button", { name: "Starting conversion..." })).toBeDisabled();
   await expect(page.getByLabel("URL")).toHaveValue(SOURCE_URL);
 
   finishStart?.();
